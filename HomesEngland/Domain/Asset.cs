@@ -72,6 +72,7 @@ namespace HomesEngland.Domain
             Tenure = request.Tenure;
             ExpectedStaircasingRate = request.ExpectedStaircasingRate;
             EstimatedSalePrice = request.EstimatedSalePrice;
+            EstimatedValuation = request.EstimatedValuation;
             RegionalSaleAdjust = request.RegionalSaleAdjust;
             RegionalStairAdjust = request.RegionalStairAdjust;
             NotLimitedByFirstCharge = request.NotLimitedByFirstCharge;
@@ -84,6 +85,7 @@ namespace HomesEngland.Domain
             MortgageProvider = request.MortgageProvider;
             HouseType = request.HouseType;
             PurchasePriceBand = request.PurchasePriceBand;
+            HouseholdIncome = request.HouseholdIncome;
             HouseholdFiveKIncomeBand = request.HouseholdFiveKIncomeBand;
             HouseholdFiftyKIncomeBand = request.HouseholdFiftyKIncomeBand;
             FirstTimeBuyer = request.FirstTimeBuyer;
@@ -167,6 +169,9 @@ namespace HomesEngland.Domain
             HouseholdFiveKIncomeBand = request.HouseholdFiveKIncomeBand;
             HouseholdFiftyKIncomeBand = request.HouseholdFiftyKIncomeBand;
             FirstTimeBuyer = request.FirstTimeBuyer;
+
+            HouseholdIncome = request.HouseholdIncome;
+            EstimatedValuation = request.EstimatedValuation;
         }
 
         public string Programme { get; set; }
@@ -230,6 +235,7 @@ namespace HomesEngland.Domain
         public string Tenure { get; set; }
         public decimal? ExpectedStaircasingRate { get; set; }
         public decimal? EstimatedSalePrice { get; set; }
+        public decimal? EstimatedValuation { get; set; }
         public decimal? RegionalSaleAdjust { get; set; }
         public decimal? RegionalStairAdjust { get; set; }
         public bool? NotLimitedByFirstCharge { get; set; }
@@ -242,6 +248,7 @@ namespace HomesEngland.Domain
         public string MortgageProvider { get; set; }
         public string HouseType { get; set; }
         public decimal? PurchasePriceBand { get; set; }
+        public decimal? HouseholdIncome { get; set; }
         public decimal? HouseholdFiveKIncomeBand { get; set; }
         public decimal? HouseholdFiftyKIncomeBand { get; set; }
         public bool? FirstTimeBuyer { get; set; }

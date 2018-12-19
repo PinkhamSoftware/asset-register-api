@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bogus.DataSets;
 using FluentAssertions;
 using HomesEngland.Domain.Factory;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.CreateAsset.Models.Factory;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
 using NUnit.Framework;
 
 namespace HomesEnglandTest.Domain
@@ -134,6 +132,7 @@ namespace HomesEnglandTest.Domain
             asset.MortgageProvider.Should().NotBeNull();
             asset.HouseType.Should().NotBeNull();
             asset.PurchasePriceBand.Should().NotBeNull();
+            asset.HouseholdIncome.Should().NotBeNull();
             asset.HouseholdFiveKIncomeBand.Should().NotBeNull();
             asset.HouseholdFiftyKIncomeBand.Should().NotBeNull();
             asset.FirstTimeBuyer.Should().NotBeNull();
@@ -335,6 +334,7 @@ namespace HomesEnglandTest.Domain
             asset.HouseType.Should().Be("Semi-detached");
             asset.PurchasePriceBand.Should().Be(200000);
             // Household income
+            asset.HouseholdIncome.Should().Be(28842);
             asset.HouseholdFiveKIncomeBand.Should().Be(30000);
             asset.HouseholdFiftyKIncomeBand.Should().Be(50000);
             asset.FirstTimeBuyer.Should().Be(true);

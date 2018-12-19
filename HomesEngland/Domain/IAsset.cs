@@ -73,6 +73,7 @@ namespace HomesEngland.Domain
         string Tenure { get; set; }
         decimal? ExpectedStaircasingRate { get; set; }
         decimal? EstimatedSalePrice { get; set; }
+        decimal? EstimatedValuation { get; set; }
         decimal? RegionalSaleAdjust { get; set; }
         decimal? RegionalStairAdjust { get; set; }
         bool? NotLimitedByFirstCharge { get; set; }
@@ -85,8 +86,10 @@ namespace HomesEngland.Domain
         string MortgageProvider { get; set; }
         string HouseType { get; set; }
         decimal? PurchasePriceBand { get; set; }
+        decimal? HouseholdIncome { get; set; }
         decimal? HouseholdFiveKIncomeBand { get; set; }
         decimal? HouseholdFiftyKIncomeBand { get; set; }
         bool? FirstTimeBuyer { get; set; }
+
     }
 }

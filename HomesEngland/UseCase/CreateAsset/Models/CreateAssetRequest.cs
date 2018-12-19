@@ -80,6 +80,7 @@ namespace HomesEngland.UseCase.CreateAsset.Models
         public string MortgageProvider { get; set; }
         public string HouseType { get; set; }
         public decimal? PurchasePriceBand { get; set; }
+        public decimal? HouseholdIncome { get; set; }
         public decimal? HouseholdFiveKIncomeBand { get; set; }
         public decimal? HouseholdFiftyKIncomeBand { get; set; }
         public bool? FirstTimeBuyer { get; set; }

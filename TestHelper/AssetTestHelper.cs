@@ -96,6 +96,9 @@ namespace TestHelper
             readAsset.HouseholdFiveKIncomeBand.Should().Be(entity.HouseholdFiveKIncomeBand);
             readAsset.HouseholdFiftyKIncomeBand.Should().Be(entity.HouseholdFiftyKIncomeBand);
             readAsset.FirstTimeBuyer.Should().Be(entity.FirstTimeBuyer);
+
+            readAsset.HouseholdIncome.Should().Be(entity.HouseholdIncome);
+            readAsset.EstimatedValuation.Should().Be(entity.EstimatedValuation);
         }
 
         /// <summary>
@@ -185,7 +188,10 @@ namespace TestHelper
                 readAsset.PurchasePriceBand.Equals(entity.PurchasePriceBand) &&
                 readAsset.HouseholdFiveKIncomeBand.Equals(entity.HouseholdFiveKIncomeBand) &&
                 readAsset.HouseholdFiftyKIncomeBand.Equals(entity.HouseholdFiftyKIncomeBand) &&
-                readAsset.FirstTimeBuyer.Equals(entity.FirstTimeBuyer);
+                readAsset.FirstTimeBuyer.Equals(entity.FirstTimeBuyer) &&
+
+                readAsset.HouseholdIncome.Equals(entity.HouseholdIncome) &&
+                readAsset.EstimatedValuation.Equals(entity.EstimatedValuation);
         }
 
         /// <summary>
@@ -272,6 +278,9 @@ namespace TestHelper
             readAsset.HouseholdFiveKIncomeBand.Should().Be(entity.HouseholdFiveKIncomeBand);
             readAsset.HouseholdFiftyKIncomeBand.Should().Be(entity.HouseholdFiftyKIncomeBand);
             readAsset.FirstTimeBuyer.Should().Be(entity.FirstTimeBuyer);
+
+            readAsset.HouseholdIncome.Should().Be(entity.HouseholdIncome);
+            readAsset.EstimatedValuation.Should().Be(entity.EstimatedValuation);
         }
 
         /// <summary>
@@ -361,6 +370,9 @@ namespace TestHelper
             readAsset.HouseholdFiveKIncomeBand.Should().Be(entity.HouseholdFiveKIncomeBand);
             readAsset.HouseholdFiftyKIncomeBand.Should().Be(entity.HouseholdFiftyKIncomeBand);
             readAsset.FirstTimeBuyer.Should().Be(entity.FirstTimeBuyer);
+
+            readAsset.HouseholdIncome.Should().Be(entity.HouseholdIncome);
+            readAsset.EstimatedValuation.Should().Be(entity.EstimatedValuation);
         }
     }
 }

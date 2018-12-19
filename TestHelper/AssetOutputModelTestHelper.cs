@@ -91,6 +91,9 @@ namespace TestHelper
             assetOutputModel.HouseholdFiveKIncomeBand.Should().Be(entity.HouseholdFiveKIncomeBand);
             assetOutputModel.HouseholdFiftyKIncomeBand.Should().Be(entity.HouseholdFiftyKIncomeBand);
             assetOutputModel.FirstTimeBuyer.Should().Be(entity.FirstTimeBuyer);
+
+            assetOutputModel.HouseholdIncome.Should().Be(entity.HouseholdIncome);
+            assetOutputModel.EstimatedValuation.Should().Be(entity.EstimatedValuation);
         }
     }
 }

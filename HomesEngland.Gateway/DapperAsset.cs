@@ -147,6 +147,9 @@ namespace HomesEngland.Gateway
         public decimal? ExpectedStaircasingRate { get; set; }
         [Column("estimatedsaleprice")]
         public decimal? EstimatedSalePrice { get; set; }
+        [Column("estimatedvaluation")]
+        public decimal? EstimatedValuation { get; set; }
+
         [Column("regionalsaleadjust")]
         public decimal? RegionalSaleAdjust { get; set; }
         [Column("regionalstairadjust")]
@@ -171,6 +174,9 @@ namespace HomesEngland.Gateway
         public string HouseType { get; set; }
         [Column("purchasepriceband")]
         public decimal? PurchasePriceBand { get; set; }
+        [Column("householdincome")]
+        public decimal? HouseholdIncome { get; set; }
+
         [Column("householdfivekincomeband")]
         public decimal? HouseholdFiveKIncomeBand { get; set; }
         [Column("householdfiftykincomeband")]
@@ -258,6 +264,9 @@ namespace HomesEngland.Gateway
             HouseholdFiveKIncomeBand = request.HouseholdFiveKIncomeBand;
             HouseholdFiftyKIncomeBand = request.HouseholdFiftyKIncomeBand;
             FirstTimeBuyer = request.FirstTimeBuyer;
+
+            HouseholdIncome = request.HouseholdIncome;
+            EstimatedValuation = request.EstimatedValuation;
         }
     }
 }

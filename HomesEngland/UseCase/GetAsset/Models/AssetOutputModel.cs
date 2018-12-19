@@ -91,6 +91,9 @@ namespace HomesEngland.UseCase.GetAsset.Models
             HouseholdFiveKIncomeBand = asset.HouseholdFiveKIncomeBand;
             HouseholdFiftyKIncomeBand = asset.HouseholdFiftyKIncomeBand;
             FirstTimeBuyer = asset.FirstTimeBuyer;
+
+            HouseholdIncome = asset.HouseholdIncome;
+            EstimatedValuation = asset.EstimatedValuation;
         }
 
         public string Programme { get; set; }
@@ -154,6 +157,7 @@ namespace HomesEngland.UseCase.GetAsset.Models
         public string Tenure { get; set; }
         public decimal? ExpectedStaircasingRate { get; set; }
         public decimal? EstimatedSalePrice { get; set; }
+        public decimal? EstimatedValuation { get; set; }
         public decimal? RegionalSaleAdjust { get; set; }
         public decimal? RegionalStairAdjust { get; set; }
         public bool? NotLimitedByFirstCharge { get; set; }
@@ -166,6 +170,7 @@ namespace HomesEngland.UseCase.GetAsset.Models
         public string MortgageProvider { get; set; }
         public string HouseType { get; set; }
         public decimal? PurchasePriceBand { get; set; }
+        public decimal? HouseholdIncome { get; set; }
         public decimal? HouseholdFiveKIncomeBand { get; set; }
         public decimal? HouseholdFiftyKIncomeBand { get; set; }
         public bool? FirstTimeBuyer { get; set; }

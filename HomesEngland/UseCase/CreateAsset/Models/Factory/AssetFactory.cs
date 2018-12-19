@@ -34,8 +34,7 @@ namespace HomesEngland.UseCase.CreateAsset.Models.Factory
             decimal? fees = fields.ElementAtOrDefault(26).TryParseDecimalNullable();
             decimal? historicUnallocatedFees = fields.ElementAtOrDefault(27).TryParseDecimalNullable();
 
-            decimal? actualAgencyEquityCostIncludingHomeBuyAgentFee =
-                fields.ElementAtOrDefault(28).TryParseDecimalNullable();
+            decimal? actualAgencyEquityCostIncludingHomeBuyAgentFee = fields.ElementAtOrDefault(28).TryParseDecimalNullable();
             DateTime? fullDisposalDate = fields.ElementAtOrDefault(29).TryParseDateTimeNullable();
             decimal? originalAgencyPercentage = fields.ElementAtOrDefault(30).TryParseDecimalNullable("%");
 
@@ -82,7 +81,7 @@ namespace HomesEngland.UseCase.CreateAsset.Models.Factory
             decimal? quarterSpend = fields.ElementAtOrDefault(70).TryParseDecimalNullable();
             decimal? purchasePriceBand = fields.ElementAtOrDefault(73).TryParseDecimalNullable();
             // household income
-
+            decimal? householdIncome = fields.ElementAtOrDefault(74).TryParseDecimalNullable();
             decimal? householdFiveKIncomeBand = fields.ElementAtOrDefault(75).TryParseDecimalNullable();
             decimal? householdFiftyKIncomeBand = fields.ElementAtOrDefault(76).TryParseDecimalNullable();
             bool? firstTimeBuyer = ParseFirstTimeBuyer(fields.ElementAtOrDefault(77));
@@ -163,6 +162,7 @@ namespace HomesEngland.UseCase.CreateAsset.Models.Factory
                 MortgageProvider = fields.ElementAtOrDefault(71),
                 HouseType = fields.ElementAtOrDefault(72),
                 PurchasePriceBand = purchasePriceBand,
+                HouseholdIncome = householdIncome,
                 HouseholdFiveKIncomeBand = householdFiveKIncomeBand,
                 HouseholdFiftyKIncomeBand = householdFiftyKIncomeBand,
                 FirstTimeBuyer = firstTimeBuyer

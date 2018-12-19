@@ -46,17 +46,22 @@ namespace TestHelper
                     .RuleFor(property => property.CompletionDateForHpiStart, (fake, model) => completionDateForHpiStart)
                     .RuleFor(property => property.ImsActualCompletionDate, (fake, model) => imsActualCompletionDate)
                     .RuleFor(property => property.ImsExpectedCompletionDate, (fake, model) => imsExpectedCompletionDate)
-                    .RuleFor(property => property.ImsLegalCompletionDate,(fake, model) => fake.Date.Soon(random.Next(15, 90)))
+                    .RuleFor(property => property.ImsLegalCompletionDate,
+                        (fake, model) => fake.Date.Soon(random.Next(15, 90)))
                     .RuleFor(property => property.HopCompletionDate, (fake, model) => hopCompletionDate)
-                    .RuleFor(property => property.AgencyEquityLoan,(fake, model) => fake.Finance.Amount(5000m, 100000m))
-                    .RuleFor(property => property.DeveloperEquityLoan,(fake, model) => fake.Finance.Amount(5000m, 100000m))
-                    .RuleFor(property => property.ShareOfRestrictedEquity,(fake, model) => fake.Finance.Amount(50, 100))
+                    .RuleFor(property => property.AgencyEquityLoan,
+                        (fake, model) => fake.Finance.Amount(5000m, 100000m))
+                    .RuleFor(property => property.DeveloperEquityLoan,
+                        (fake, model) => fake.Finance.Amount(5000m, 100000m))
+                    .RuleFor(property => property.ShareOfRestrictedEquity,
+                        (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.DeveloperDiscount, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.Mortgage, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.PurchasePrice, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.Fees, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.HistoricUnallocatedFees, (fake, model) => fake.Finance.Amount(50, 100))
-                    .RuleFor(asset => asset.ActualAgencyEquityCostIncludingHomeBuyAgentFee,(fake, model) => fake.Finance.Amount(50, 100))
+                    .RuleFor(asset => asset.ActualAgencyEquityCostIncludingHomeBuyAgentFee,
+                        (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.FullDisposalDate, (fake, model) => fake.Date.Soon(random.Next(15, 90)))
                     .RuleFor(asset => asset.OriginalAgencyPercentage, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.StaircasingPercentage, (fake, model) => fake.Finance.Amount(50, 100))
@@ -80,7 +85,8 @@ namespace TestHelper
                     .RuleFor(asset => asset.AgencyFairValue, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.DisposalsCost, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.DurationInMonths, (fake, model) => fake.Random.Int(1, 12))
-                    .RuleFor(asset => asset.MonthOfCompletionSinceSchemeStart,(fake, model) => fake.Finance.Amount(50, 100))
+                    .RuleFor(asset => asset.MonthOfCompletionSinceSchemeStart,
+                        (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.DisposalMonthSinceCompletion, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.IMSPaymentDate, (fake, model) => fake.Date.Soon(1, DateTime.Now))
                     .RuleFor(asset => asset.IsPaid, (fake, model) => fake.Random.Bool())
@@ -93,9 +99,12 @@ namespace TestHelper
                     .RuleFor(asset => asset.RegionalStairAdjust, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.NotLimitedByFirstCharge, (fake, model) => fake.Random.Bool())
                     .RuleFor(asset => asset.EarlyMortgageIfNeverRepay, (fake, model) => fake.Finance.Amount(50, 100))
-                    .RuleFor(asset => asset.ArrearsEffectAppliedOrLimited,(fake, model) => fake.PickRandom(appliedOrLimited))
-                    .RuleFor(asset => asset.RelativeSalePropertyTypeAndTenureAdjustment,(fake, model) => fake.Finance.Amount(50, 100))
-                    .RuleFor(asset => asset.RelativeStairPropertyTypeAndTenureAdjustment,(fake, model) => fake.Finance.Amount(50, 100))
+                    .RuleFor(asset => asset.ArrearsEffectAppliedOrLimited,
+                        (fake, model) => fake.PickRandom(appliedOrLimited))
+                    .RuleFor(asset => asset.RelativeSalePropertyTypeAndTenureAdjustment,
+                        (fake, model) => fake.Finance.Amount(50, 100))
+                    .RuleFor(asset => asset.RelativeStairPropertyTypeAndTenureAdjustment,
+                        (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.IsLondon, (fake, model) => fake.Random.Bool())
                     .RuleFor(asset => asset.QuarterSpend, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.MortgageProvider, (fake, model) => fake.Company.CompanyName())
@@ -103,7 +112,10 @@ namespace TestHelper
                     .RuleFor(asset => asset.PurchasePriceBand, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.HouseholdFiveKIncomeBand, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.HouseholdFiftyKIncomeBand, (fake, model) => fake.Finance.Amount(50, 100))
-                    .RuleFor(asset => asset.FirstTimeBuyer, (fake, model) => fake.Random.Bool());
+                    .RuleFor(asset => asset.FirstTimeBuyer, (fake, model) => fake.Random.Bool())
+
+                    .RuleFor(asset => asset.HouseholdIncome, (fake, model) => fake.Finance.Amount(25000m, 100000m))
+                    .RuleFor(asset => asset.EstimatedValuation, (fake, model) => fake.Finance.Amount(100000m, 300000m));
 
                 return generatedAsset;
             }
@@ -204,7 +216,10 @@ namespace TestHelper
                     .RuleFor(asset => asset.PurchasePriceBand, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.HouseholdFiveKIncomeBand, (fake, model) => fake.Finance.Amount(50, 100))
                     .RuleFor(asset => asset.HouseholdFiftyKIncomeBand, (fake, model) => fake.Finance.Amount(50, 100))
-                    .RuleFor(asset => asset.FirstTimeBuyer, (fake, model) => fake.Random.Bool());
+                    .RuleFor(asset => asset.FirstTimeBuyer, (fake, model) => fake.Random.Bool())
+
+                    .RuleFor(asset => asset.HouseholdIncome, (fake, model) => fake.Finance.Amount(25000m, 100000m))
+                    .RuleFor(asset => asset.EstimatedValuation, (fake, model) => fake.Finance.Amount(100000m, 300000m));
 
                 return generatedAsset;
             }
