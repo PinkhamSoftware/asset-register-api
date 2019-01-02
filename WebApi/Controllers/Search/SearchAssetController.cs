@@ -12,8 +12,8 @@ namespace WebApi.Controllers.Search
     [ApiVersion("1")]
     [Route("api/v{version:ApiVersion}/asset")]
     [ApiController]
-    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
-    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
+//    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
+//    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
     public class SearchAssetController : ControllerBase
     {
         private readonly ISearchAssetUseCase _useCase;
@@ -25,7 +25,7 @@ namespace WebApi.Controllers.Search
         [MapToApiVersion("1")]
         [HttpGet("search")]
         [Produces("application/json", "text/csv")]
-        [ProducesResponseType(typeof(ApiResponse<SearchAssetResponse>), 200)]
+//        [ProducesResponseType(typeof(ApiResponse<SearchAssetResponse>), 200)]
         public async Task<IActionResult> Get([FromQuery]SearchAssetRequest request)
         {
             var result = await _useCase.ExecuteAsync(request, this.GetCancellationToken()).ConfigureAwait(false);
