@@ -4,6 +4,7 @@ using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
+using WebApi.Extensions.Requests;
 
 namespace WebApi.Controllers.Search
 {
@@ -23,9 +24,23 @@ namespace WebApi.Controllers.Search
         [HttpGet("search")]
         [Produces("application/json", "text/csv")]
         [ProducesResponseType(typeof(ResponseData<SearchAssetResponse>), 200)]
-        public async Task<IActionResult> Get([FromQuery] SearchAssetRequest request)
+        public async Task<IActionResult> Get([FromQuery] SearchAssetApiRequest request)
         {
-            var result = await _useCase.ExecuteAsync(request, this.GetCancellationToken()).ConfigureAwait(false);
+            if (!request.IsValid())
+            {
+                return StatusCode(400);
+            }
+
+            SearchAssetRequest searchAssetUseCaseRequest = new SearchAssetRequest
+            {
+                SchemeId = request.SchemeId,
+                Address = request.Address,
+                Page = request.Page,
+                PageSize = request.PageSize
+            };
+
+            SearchAssetResponse result = await _useCase
+                .ExecuteAsync(searchAssetUseCaseRequest, this.GetCancellationToken()).ConfigureAwait(false);
             return this.StandardiseResponse<SearchAssetResponse, AssetOutputModel>(result);
         }
     }

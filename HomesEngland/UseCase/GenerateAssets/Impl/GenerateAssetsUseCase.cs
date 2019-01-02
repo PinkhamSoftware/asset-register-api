@@ -6,9 +6,7 @@ using Bogus;
 using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.GenerateAssets.Models;
-using HomesEngland.UseCase.GenerateAssets.Models.Validation;
 using HomesEngland.UseCase.GetAsset.Models;
-using Infrastructure.Api.Exceptions;
 
 namespace HomesEngland.UseCase.GenerateAssets.Impl
 {
@@ -24,8 +22,6 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
         public async Task<GenerateAssetsResponse> ExecuteAsync(GenerateAssetsRequest request,
             CancellationToken cancellationToken)
         {
-            ValidateRequest(request);
-
             IList<AssetOutputModel> createdList = new List<AssetOutputModel>();
 
             for (int index = 0; index < request.Records; index++)
@@ -144,27 +140,6 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
                 .RuleFor(asset => asset.FirstTimeBuyer, (fake, model) => fake.Random.Bool());
 
             return generatedAsset;
-        }
-
-        private void ValidateRequest(GenerateAssetsRequest request)
-        {
-            if (!IsValidRequest(request))
-            {
-                throw new BadRequestException();
-            }
-        }
-
-        private bool IsValidRequest(GenerateAssetsRequest request)
-        {
-            if (request == null)
-            {
-                return false;
-            }
-
-            var validator = new GenerateAssetsRequestValidator();
-            var getAssetRequest = request;
-            var validationResult = validator.Validate(getAssetRequest);
-            return validationResult.IsValid;
         }
     }
 }

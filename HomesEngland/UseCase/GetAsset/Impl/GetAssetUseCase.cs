@@ -3,7 +3,6 @@ using HomesEngland.Domain;
 using HomesEngland.Exception;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.UseCase.GetAsset.Models;
-using Infrastructure.Api.Exceptions;
 
 namespace HomesEngland.UseCase.GetAsset.Impl
 {

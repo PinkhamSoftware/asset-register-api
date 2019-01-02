@@ -6,8 +6,6 @@ using HomesEngland.Domain;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.SearchAsset.Models;
-using HomesEngland.UseCase.SearchAsset.Models.Validation;
-using Infrastructure.Api.Exceptions;
 
 namespace HomesEngland.UseCase.SearchAsset.Impl
 {
@@ -23,11 +21,7 @@ namespace HomesEngland.UseCase.SearchAsset.Impl
         public async Task<SearchAssetResponse> ExecuteAsync(SearchAssetRequest request,
             CancellationToken cancellationToken)
         {
-            if (!IsValidRequest(request))
-            {
-                throw new BadRequestException();
-            }
-
+            
             var foundAssets = await SearchAssets(request, cancellationToken);
 
             var response = new SearchAssetResponse
@@ -43,10 +37,10 @@ namespace HomesEngland.UseCase.SearchAsset.Impl
         private async Task<IPagedResults<IAsset>> SearchAssets(SearchAssetRequest request, CancellationToken cancellationToken)
         {
             var assetSearch = new AssetPagedSearchQuery
-            {
-                SchemeId = request.SchemeId,
-                Address = request.Address
-            };
+                          {
+                              SchemeId = request.SchemeId,
+                              Address = request.Address
+                          };
 
             if (request.Page != null) assetSearch.Page = request.Page;
             if (request.PageSize != null) assetSearch.PageSize = request.PageSize;
@@ -64,16 +58,5 @@ namespace HomesEngland.UseCase.SearchAsset.Impl
             return foundAssets;
         }
 
-        private bool IsValidRequest(SearchAssetRequest request)
-        {
-            if (request == null)
-            {
-                return false;
-            }
-            var validator = new SearchAssetRequestValidator();
-            var getAssetRequest = request;
-            var validationResult = validator.Validate(getAssetRequest);
-            return validationResult.IsValid;
-        }
     }
 }

@@ -3,11 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.UseCase.GenerateAssets.Models;
-using HomesEngland.UseCase.GenerateAssets.Models.Validation;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.Models;
-using Infrastructure.Api.Exceptions;
-using Infrastructure.Api.Response.Validation;
 using Microsoft.Extensions.Logging;
 
 namespace HomesEngland.UseCase.GenerateAssets.Impl
@@ -39,7 +36,7 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
 
                 Console.WriteLine($"Generated: {generatedRecords.RecordsGenerated.Count} records");
 
-                output = generatedRecords?.RecordsGenerated;
+                output = generatedRecords.RecordsGenerated;
             }
             catch (System.Exception ex)
             {
@@ -61,22 +58,20 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
             
             if (!IsValidRequest(request))
             {
-                throw new BadRequestException();
+                throw new ArgumentException();
             }
+            
             return request;
         }
 
         bool IsValidRequest(GenerateAssetsRequest request)
         {
-            if (request == null)
+            if (request?.Records == null)
             {
                 return false;  
             }
-            var validator = new GenerateAssetsRequestValidator();
-            var getAssetRequest = request;
-            var validationResult = validator.Validate(getAssetRequest);
-            var validationResponse = new RequestValidationResponse(validationResult);
-            return validationResponse.IsValid;
+
+            return request.Records > 0;
         }
         private void PrintHelper()
         {
