@@ -2,6 +2,6 @@
 {
     public class GetAssetRequest
     {
-        public int? Id { get; set; }
+        public int Id { get; set; }
     }
 }

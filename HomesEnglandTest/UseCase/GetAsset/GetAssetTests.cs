@@ -44,30 +44,6 @@ namespace HomesEnglandTest.UseCase.GetAsset
             response.Asset.Should().BeEquivalentTo(asset);
         }
 
-        [Test]
-        public void GivenValidRequestId_UseCaseReturnsCorrectlyMappedAsset()
-        {
-            //arrange
-            //act
-            //assert
-            Assert.ThrowsAsync<BadRequestException>(async () => await _classUnderTest.ExecuteAsync(null));
-        }
-
-        [TestCase(0)]
-        [TestCase(-1)]
-        [TestCase(null)]
-        public void GivenInValidRequest_ThenUseCaseThrowsBadRequestException(int? id)
-        {
-            //arrange
-            var getAssetRequest = new GetAssetRequest
-            {
-                Id = id
-            };
-            _mockGateway.ReadAsync(0).Returns((IAsset)null);
-            //act
-            Assert.ThrowsAsync<BadRequestException>(async()=>await _classUnderTest.ExecuteAsync(getAssetRequest));
-        }
-
         [TestCase(4)]
         [TestCase(5)]
         [TestCase(6)]
