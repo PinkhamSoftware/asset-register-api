@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
 using HomesEngland.UseCase.CalculateAssetAggregates;
 using HomesEngland.UseCase.CalculateAssetAggregates.Models;
-using Infrastructure.Api.Exceptions;
-using Infrastructure.Api.Response.Validation;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 

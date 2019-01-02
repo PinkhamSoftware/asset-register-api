@@ -1,23 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using HomesEngland.UseCase.SearchAsset.Models;
-using Infrastructure.Api.Response;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 
 namespace WebApi.Extensions
 {
-    public class ResponseData<T>
-    {
-        public T Data { get; }
-
-        public ResponseData(T data)
-        {
-            Data = data;
-        }
-    }
-
     public static class ControllerExtensions
     {
         public static IActionResult StandardiseResponse<TResponse, TData>(this ControllerBase controller,

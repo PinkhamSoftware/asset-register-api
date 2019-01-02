@@ -2,7 +2,6 @@
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
-using Infrastructure.Api.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 

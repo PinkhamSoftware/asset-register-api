@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using HomesEngland.Domain;
-using HomesEngland.Gateway;
 using HomesEngland.UseCase.GetAsset;
 using HomesEngland.UseCase.GetAsset.Models;
 using NSubstitute;
