@@ -1,5 +1,4 @@
-﻿//using Infrastructure.Api.Middleware;
-using Infrastructure.Documentation;
+﻿using Infrastructure.Documentation;
 using Main;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -82,8 +81,6 @@ namespace WebApi
                     .AllowAnyHeader()
                     .AllowAnyMethod()
             );
-
-//            app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
             app.UseHttpsRedirection();
             app.UseMvc();

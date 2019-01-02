@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using HomesEngland.UseCase.GetAsset;
 using HomesEngland.UseCase.GetAsset.Models;
-using Infrastructure.Api.Response;
+using Infrastructure.Api.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 
@@ -10,8 +10,6 @@ namespace WebApi.Controllers
     [ApiVersion("1")]
     [Route("api/v{version:ApiVersion}/[controller]")]
     [ApiController]
-//    [ProducesResponseType(typeof(ApiResponse<object>), 400)]
-//    [ProducesResponseType(typeof(ApiResponse<object>), 500)]
     public class AssetController : ControllerBase
     {
         private readonly IGetAssetUseCase _assetUseCase;
@@ -23,7 +21,7 @@ namespace WebApi.Controllers
         [MapToApiVersion("1")]
         [HttpGet("{id}")]
         [Produces("application/json", "text/csv")]
-//        [ProducesResponseType(typeof(ApiResponse<GetAssetResponse>), 200)]
+        [ProducesResponseType(typeof(ResponseData<GetAssetResponse>), 200)]
         public async Task<IActionResult> Get([FromRoute]GetAssetRequest request)
         {
             var result = await _assetUseCase.ExecuteAsync(request).ConfigureAwait(false);

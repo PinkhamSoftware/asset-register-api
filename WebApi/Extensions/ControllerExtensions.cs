@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using HomesEngland.UseCase.SearchAsset.Models;
 using Infrastructure.Api.Response;
@@ -10,14 +11,15 @@ namespace WebApi.Extensions
     public class ResponseData<T>
     {
         public T Data { get; }
+
         public ResponseData(T data)
         {
             Data = data;
         }
     }
+
     public static class ControllerExtensions
     {
-        
         public static IActionResult StandardiseResponse<TResponse, TData>(this ControllerBase controller,
             TResponse useCaseResult) where TResponse : IResponse<TData>
         {
@@ -30,10 +32,11 @@ namespace WebApi.Extensions
                 return controller.StatusCode(200, useCaseResult?.ToCsv());
             }
 
-            return controller?.StatusCode(controller.Response.StatusCode, new ResponseData<TResponse>(useCaseResult));
+
+            return controller?.StatusCode(controller.Response?.StatusCode ?? 400,
+                new ResponseData<TResponse>(useCaseResult));
         }
 
-      
 
         public static CancellationToken GetCancellationToken(this ControllerBase controller)
         {
