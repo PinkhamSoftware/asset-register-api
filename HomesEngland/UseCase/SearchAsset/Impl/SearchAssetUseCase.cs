@@ -6,6 +6,7 @@ using HomesEngland.Domain;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.SearchAsset.Models;
+using HomesEngland.UseCase.SearchAsset.Models.Validation;
 using Infrastructure.Api.Exceptions;
 
 namespace HomesEngland.UseCase.SearchAsset.Impl
@@ -22,7 +23,10 @@ namespace HomesEngland.UseCase.SearchAsset.Impl
         public async Task<SearchAssetResponse> ExecuteAsync(SearchAssetRequest request,
             CancellationToken cancellationToken)
         {
-            ValidateRequest(request);
+            if (!IsValidRequest(request))
+            {
+                throw new BadRequestException();
+            }
 
             var foundAssets = await SearchAssets(request, cancellationToken);
 
@@ -60,18 +64,16 @@ namespace HomesEngland.UseCase.SearchAsset.Impl
             return foundAssets;
         }
 
-        private void ValidateRequest(SearchAssetRequest request)
+        private bool IsValidRequest(SearchAssetRequest request)
         {
             if (request == null)
             {
-                throw new BadRequestException();
+                return false;
             }
-
-            var validationResponse = request.Validate(request);
-            if (!validationResponse.IsValid)
-            {
-                throw new BadRequestException(validationResponse);
-            }
+            var validator = new SearchAssetRequestValidator();
+            var getAssetRequest = request;
+            var validationResult = validator.Validate(getAssetRequest);
+            return validationResult.IsValid;
         }
     }
 }

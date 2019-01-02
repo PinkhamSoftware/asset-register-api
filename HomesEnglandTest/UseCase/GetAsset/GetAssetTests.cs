@@ -65,7 +65,6 @@ namespace HomesEnglandTest.UseCase.GetAsset
             };
             _mockGateway.ReadAsync(0).Returns((IAsset)null);
             //act
-            //assert
             Assert.ThrowsAsync<BadRequestException>(async()=>await _classUnderTest.ExecuteAsync(getAssetRequest));
         }
 
