@@ -48,7 +48,7 @@ namespace WebApiTest.Controller.Asset.Search
             //arrange
             var assetOutputModel = new AssetOutputModel(TestData.Domain.GenerateAsset());
             assetOutputModel.Id = Faker.GlobalUniqueIndex;
-            assetOutputModel.SchemeId = Faker.GlobalUniqueIndex;
+            assetOutputModel.SchemeId = Faker.GlobalUniqueIndex + 1;
             _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<SearchAssetRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new SearchAssetResponse
                 {
@@ -62,9 +62,7 @@ namespace WebApiTest.Controller.Asset.Search
                 new KeyValuePair<string, StringValues>("accept", "text/csv"));
             var request = new SearchAssetApiRequest
             {
-                SchemeId = assetOutputModel.SchemeId,
-                Page = 1,
-                PageSize = 25
+                SchemeId = assetOutputModel.SchemeId
             };
             //act
             var response = await _classUnderTest.Get(request).ConfigureAwait(false);
@@ -80,10 +78,8 @@ namespace WebApiTest.Controller.Asset.Search
         [TestCase(-1, null, 1, 1)]
         [TestCase(null, "", 1, 1)]
         [TestCase(null, " ", 1, 1)]
-        [TestCase(1, "address", null, 1)]
         [TestCase(1, "address", -1, 1)]
         [TestCase(1, "address", 0, 1)]
-        [TestCase(1, "address", 1, null)]
         [TestCase(1, "address", 1, -1)]
         [TestCase(1, "address", 1, 0)]
         public void GivenInvalidRequest_ThenIsInvalid(int? schemeId, string address, int? page,
@@ -109,6 +105,9 @@ namespace WebApiTest.Controller.Asset.Search
         [TestCase(1, "a", 1, 1)]
         [TestCase(2, "b", 2, 3)]
         [TestCase(3, "c", 3, 5)]
+        [TestCase(1, "address", null, 1)]
+        [TestCase(1, "address", 1, null)]
+        [TestCase(1, "address", null, null)]
         public void GivenValidRequest_ThenIsValid(int? schemeId, string address, int? page,
             int? pageSize)
         {

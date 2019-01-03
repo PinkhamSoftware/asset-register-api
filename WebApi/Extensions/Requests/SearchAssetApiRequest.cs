@@ -21,27 +21,27 @@ namespace WebApi.Extensions.Requests
                 return false;
             }
 
-            if (InvalidPage())
+            if (!ValidPage())
             {
                 return false;
             }
 
-            if (InvalidPageSize())
+            if (!ValidPageSize())
             {
                 return false;
             }
-            
+
             return true;
         }
 
-        private bool InvalidPageSize()
+        private bool ValidPageSize()
         {
-            return PageSize == null || (PageSize != null && PageSize <= 0);
+            return PageSize == null || PageSize > 0;
         }
 
-        private bool InvalidPage()
+        private bool ValidPage()
         {
-            return Page == null || (Page != null && Page <= 0);
+            return Page == null || Page > 0;
         }
 
         private bool InvalidSchemeID()
