@@ -7,8 +7,8 @@ using WebApi.Extensions;
 
 namespace WebApi.Controllers.Search.Calculations
 {
-    [ApiVersion("1")]
-    [Route("api/v{version:ApiVersion}/asset/search")]
+    
+    [Route("api/v1/asset/search")]
     [ApiController]
     [ProducesResponseType(typeof(ApiResponse<object>), 400)]
     [ProducesResponseType(typeof(ApiResponse<object>), 500)]
@@ -20,7 +20,6 @@ namespace WebApi.Controllers.Search.Calculations
             _useCase = useCase;
         }
 
-        [MapToApiVersion("1")]
         [HttpGet("aggregation")]
         [Produces("application/json", "text/csv")]
         [ProducesResponseType(typeof(ApiResponse<CalculateAssetAggregateResponse>), 200)]

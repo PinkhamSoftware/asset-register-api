@@ -52,7 +52,6 @@ namespace WebApi
 
             assetRegister.ExportTypeDependencies((type, provider) => services.AddTransient(type, provider));
 
-            services.ConfigureApiVersioning();
             services.ConfigureDocumentation(_apiName);
 
             services
@@ -71,7 +70,7 @@ namespace WebApi
             else
                 app.UseHsts();
 
-            app.ConfigureSwaggerUiPerApiVersion(_apiName);
+            app.ConfigureSwaggerUi(_apiName);
             app.UseCors(builder =>
                 builder.WithOrigins(configuration["CorsOrigins"].Split(";"))
                        .AllowAnyHeader()

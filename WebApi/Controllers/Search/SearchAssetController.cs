@@ -9,8 +9,7 @@ using WebApi.Extensions;
 
 namespace WebApi.Controllers.Search
 {
-    [ApiVersion("1")]
-    [Route("api/v{version:ApiVersion}/asset")]
+    [Route("api/v1/asset")]
     [ApiController]
     [ProducesResponseType(typeof(ApiResponse<object>), 400)]
     [ProducesResponseType(typeof(ApiResponse<object>), 500)]
@@ -22,7 +21,6 @@ namespace WebApi.Controllers.Search
             _useCase = useCase;
         }
 
-        [MapToApiVersion("1")]
         [HttpGet("search")]
         [Produces("application/json", "text/csv")]
         [ProducesResponseType(typeof(ApiResponse<SearchAssetResponse>), 200)]
