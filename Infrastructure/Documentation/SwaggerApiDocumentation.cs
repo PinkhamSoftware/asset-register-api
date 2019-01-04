@@ -52,7 +52,7 @@ namespace Infrastructure.Documentation
             app.UseSwaggerUI(c =>
             {
                 //Create a swagger endpoint for each swagger version
-                c.SwaggerEndpoint($"v{1}/swagger.json", $"{apiName} {1}");
+                c.SwaggerEndpoint($"v1/swagger.json", $"{apiName} 1");
             });
 
             app.UseSwagger();
