@@ -7,8 +7,7 @@ using WebApi.Extensions;
 
 namespace WebApi.Controllers
 {
-    [ApiVersion("1")]
-    [Route("api/v{version:ApiVersion}/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     [ProducesResponseType(typeof(ApiResponse<object>), 400)]
     [ProducesResponseType(typeof(ApiResponse<object>), 500)]
@@ -20,7 +19,6 @@ namespace WebApi.Controllers
             _assetUseCase = useCase;
         }
 
-        [MapToApiVersion("1")]
         [HttpGet("{id}")]
         [Produces("application/json", "text/csv")]
         [ProducesResponseType(typeof(ApiResponse<GetAssetResponse>), 200)]
