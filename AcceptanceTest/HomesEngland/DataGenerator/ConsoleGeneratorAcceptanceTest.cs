@@ -1,12 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using FluentAssertions;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.UseCase.GenerateAssets;
-using HomesEngland.UseCase.GetAsset;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;

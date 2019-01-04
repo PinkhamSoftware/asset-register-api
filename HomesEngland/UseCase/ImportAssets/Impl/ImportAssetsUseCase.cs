@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain.Factory;
@@ -9,7 +7,6 @@ using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.CreateAsset.Models.Factory;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.ImportAssets.Models;
-using Microsoft.Extensions.Logging;
 
 namespace HomesEngland.UseCase.ImportAssets.Impl
 {

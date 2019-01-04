@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using HomesEngland.UseCase.CalculateAssetAggregates;
 using HomesEngland.UseCase.CalculateAssetAggregates.Models;
-using Infrastructure.Api.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using NUnit.Framework;
 using WebApi.Controllers.Search.Calculations;
+using WebApi.Extensions;
 
 namespace WebApiTest.Controller.Asset.CalculateAssetAggregates
 {
@@ -53,8 +53,9 @@ namespace WebApiTest.Controller.Asset.CalculateAssetAggregates
             response.Should().NotBeNull();
             var result = response as ObjectResult;
             result.Should().NotBeNull();
-            result.Value.Should().BeOfType<ApiResponse<CalculateAssetAggregateResponse>>();
-            var apiResponse = result.Value as ApiResponse<CalculateAssetAggregateResponse>;
+            result.Value.Should().BeOfType<ResponseData<CalculateAssetAggregateResponse>>();
+            var apiResponse = result.Value as ResponseData<CalculateAssetAggregateResponse>;
+            response.Should().NotBeNull();
             apiResponse.Data.AssetAggregates.Should().BeEquivalentTo(assetAggregatesOutputModel);
         }
 

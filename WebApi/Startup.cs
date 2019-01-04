@@ -1,5 +1,4 @@
-﻿using Infrastructure.Api.Middleware;
-using Infrastructure.Documentation;
+﻿using Infrastructure.Documentation;
 using Main;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -32,20 +31,12 @@ namespace WebApi
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
 
-            var csvOptions = new CsvFormatterOptions
-            {
-                UseSingleLineHeaderInCsv = true,
-                CsvDelimiter = ",",
-                IncludeExcelDelimiterHeader = true
-            };
-
             services.AddMvc(options =>
             {
                 options.RespectBrowserAcceptHeader = true;
-                //options.InputFormatters.Add(new CsvInputFormatter(csvFormatterOptions));
-                options.OutputFormatters.Add(new CsvOutputFormatter(csvOptions));
+                options.OutputFormatters.Add(new CsvOutputFormatter(GetCsvOptions()));
                 options.FormatterMappings.SetMediaTypeMappingForFormat("csv", MediaTypeHeaderValue.Parse("text/csv"));
-            }).AddCsvSerializerFormatters(csvOptions);
+            }).AddCsvSerializerFormatters(GetCsvOptions());
 
             var assetRegister = new AssetRegister();
             assetRegister.ExportDependencies((type, provider) => services.AddTransient(type, _ => provider()));
@@ -57,27 +48,38 @@ namespace WebApi
             services
                 .AddEntityFrameworkNpgsql()
                 .AddDbContext<AssetRegisterContext>();
-            
-            var serviceProvider = services.BuildServiceProvider();
-            var assetRegisterContext = serviceProvider.GetService<AssetRegisterContext>();
+
+            AssetRegisterContext assetRegisterContext = services.BuildServiceProvider().GetService<AssetRegisterContext>();
             assetRegisterContext.Database.Migrate();
+        }
+
+        private static CsvFormatterOptions GetCsvOptions()
+        {
+            return new CsvFormatterOptions
+            {
+                UseSingleLineHeaderInCsv = true,
+                CsvDelimiter = ",",
+                IncludeExcelDelimiterHeader = true
+            };
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IConfiguration configuration)
         {
             if (env.IsDevelopment())
+            {
                 app.UseDeveloperExceptionPage();
+            }
             else
+            {
                 app.UseHsts();
+            }
 
             app.ConfigureSwaggerUi(_apiName);
             app.UseCors(builder =>
                 builder.WithOrigins(configuration["CorsOrigins"].Split(";"))
-                       .AllowAnyHeader()
-                       .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
             );
-
-            app.UseMiddleware<CustomExceptionHandlerMiddleware>();
 
             app.UseHttpsRedirection();
             app.UseMvc();

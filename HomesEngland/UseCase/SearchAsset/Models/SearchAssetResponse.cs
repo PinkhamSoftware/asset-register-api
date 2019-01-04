@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using HomesEngland.UseCase.GetAsset.Models;
 
 namespace HomesEngland.UseCase.SearchAsset.Models

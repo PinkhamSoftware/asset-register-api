@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using HomesEngland.Gateway;
 using HomesEngland.Gateway.Sql.Postgres;
 
 namespace HomesEngland.Gateway.Test
