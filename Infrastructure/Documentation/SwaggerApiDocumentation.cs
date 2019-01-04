@@ -22,7 +22,7 @@ namespace Infrastructure.Documentation
         {
             services.AddSwaggerGen(c =>
             {
-                var version = $"v{1}";
+                var version = "v1";
                 c.SwaggerDoc(version, new Info { Title = $"{apiName} {version}", Version = version });
 
                 c.CustomSchemaIds(x => x.FullName);
