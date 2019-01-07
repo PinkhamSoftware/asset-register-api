@@ -3,15 +3,17 @@ using System;
 using HomesEngland.Gateway.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HomesEngland.Gateway.Migrations
 {
     [DbContext(typeof(AssetRegisterContext))]
-    partial class AssetRegisterContextModelSnapshot : ModelSnapshot
+    [Migration("20190107165339_change_table_name")]
+    partial class change_table_name
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

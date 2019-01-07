@@ -5,8 +5,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HomesEngland.Gateway
 {
-    [Table("assets")]
-    [Dapper.Table("assets")]
+    [Table("asset")]
+    [Dapper.Table("asset")]
     public class DapperAsset : IAsset
     {
         [Dapper.Key]
