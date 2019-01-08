@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using FluentAssertions;
+using HomesEngland.Gateway.Migrations;
 using HomesEngland.UseCase.GenerateAssets;
 using HomesEngland.UseCase.GenerateAssets.Models;
 using HomesEngland.UseCase.GetAsset.Models;
@@ -10,6 +11,7 @@ using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
 using Infrastructure.Api.Exceptions;
 using Main;
+using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using TestHelper;
 
@@ -23,6 +25,8 @@ namespace AssetRegisterTests.HomesEngland.UseCases
         public GenerateAssetsUseCaseTest()
         {
             var assetRegister = new AssetRegister();
+            var context = assetRegister.Get<AssetRegisterContext>();
+            context.Database.Migrate();
             _classUnderTest = assetRegister.Get<IGenerateAssetsUseCase>();
             _searchAssetUseCase = assetRegister.Get<ISearchAssetUseCase>();
         }

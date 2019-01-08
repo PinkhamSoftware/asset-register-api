@@ -22,7 +22,7 @@ namespace AssetRegisterTests.HomesEngland.ConsoleImporter
             context.Database.Migrate();
             _classUnderTest = assetRegister.Get<IConsoleImporter>();
         }
-
+        
         [TestCase(1,"--file","asset-register-1-rows.csv", "--delimiter", ";")]
         [TestCase(5,"--file","asset-register-5-rows.csv", "--delimiter", ";")]
         [TestCase(10,"--file","asset-register-10-rows.csv","--delimiter", ";")]

@@ -10,32 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomesEngland.Gateway.Sql
 {
-    public class EntityFrameworkGateway<T, TIndex> : AssetRegisterContext, IGateway<T, TIndex> where T : class, IDatabaseEntity<TIndex>
-    {
-        public EntityFrameworkGateway(string connectionString):base(connectionString)
-        {
-            
-        }
-
-        public EntityFrameworkGateway() : base() { }
-
-        public async Task<T> CreateAsync(T entity)
-        {
-            ChangeTracker.AutoDetectChangesEnabled = false;
-            var entry = Entry<T>(entity).State = EntityState.Added;
-            await SaveChangesAsync().ConfigureAwait(false);
-            return entity;
-        }
-
-        public async Task<T> ReadAsync(TIndex index)
-        {
-            ChangeTracker.AutoDetectChangesEnabled = false;
-            var entity = await FindAsync<T>(index).ConfigureAwait(false);
-            return entity;
-        }
-    }
-
-    public class EFAssetGateway: EntityFrameworkGateway<IAsset, int>, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator
+    public class EFAssetGateway: AssetRegisterContext, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator
     {
         public EFAssetGateway(string connectionString) : base(connectionString)
         {
@@ -43,6 +18,22 @@ namespace HomesEngland.Gateway.Sql
         }
 
         public EFAssetGateway() : base() { }
+
+        public async Task<IAsset> CreateAsync(IAsset entity)
+        {
+            ChangeTracker.AutoDetectChangesEnabled = false;
+            var dapperAsset = new DapperAsset(entity);
+            var entry = Entry<DapperAsset>(dapperAsset).State = EntityState.Added;
+            await SaveChangesAsync().ConfigureAwait(false);
+            return entity;
+        }
+
+        public async Task<IAsset> ReadAsync(int index)
+        {
+            ChangeTracker.AutoDetectChangesEnabled = false;
+            var entity = await FindAsync<DapperAsset>(index).ConfigureAwait(false);
+            return entity;
+        }
         public async Task<IPagedResults<IAsset>> Search(IAssetPagedSearchQuery searchRequest, CancellationToken cancellationToken)
         {
             var queryable = FilterQueryable(searchRequest);
