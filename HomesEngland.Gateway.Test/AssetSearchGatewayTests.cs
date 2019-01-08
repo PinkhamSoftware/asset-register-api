@@ -24,10 +24,12 @@ namespace HomesEngland.Gateway.Test
         public AssetSearchGatewayTests()
         {
             var assetRegister = new AssetRegister();
-            var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
-            assetRegisterContext.Database.Migrate();
+            
             _gateway = assetRegister.Get<IGateway<IAsset, int>>();
             _classUnderTest = assetRegister.Get<IAssetSearcher>();
+
+            var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
+            assetRegisterContext.Database.Migrate();
         }
 
         [TestCase(5001)]

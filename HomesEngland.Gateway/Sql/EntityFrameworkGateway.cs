@@ -40,10 +40,10 @@ namespace HomesEngland.Gateway.Sql
         {
             var queryable = GenerateFilteringCriteria(searchRequest);
 
-            queryable = queryable.Skip(searchRequest.Page.Value * searchRequest.PageSize.Value)
+            queryable = queryable.Skip((searchRequest.Page.Value -1) * searchRequest.PageSize.Value)
                                  .Take(searchRequest.PageSize.Value);
 
-            IEnumerable<IAsset> results = await queryable.ToListAsync(cancellationToken).ConfigureAwait(false);
+            IEnumerable<IAsset> results = queryable.ToList();
             
             int totalCount = await GenerateFilteringCriteria(searchRequest).Select(s => s.Id).CountAsync(cancellationToken).ConfigureAwait(false);
             
@@ -62,7 +62,7 @@ namespace HomesEngland.Gateway.Sql
             IQueryable<DapperAsset> queryable = Assets;
             if (!string.IsNullOrEmpty(searchRequest.Address) && !string.IsNullOrWhiteSpace(searchRequest.Address))
             {
-                queryable = queryable.Where(w => w.Address.ToLower().Contains(searchRequest.Address.ToLower()));
+                queryable = queryable.Where(w => EF.Functions.Like(w.Address.ToLower(), $"%{searchRequest.Address}%".ToLower()));
             }
 
             if (searchRequest.SchemeId.HasValue && searchRequest?.SchemeId.Value > 0)
@@ -77,12 +77,14 @@ namespace HomesEngland.Gateway.Sql
         {
             var filteringCriteria = GenerateFilteringCriteria(searchRequest);
 
-            var aggregatedData = await filteringCriteria.Select(s => new
+            var query = filteringCriteria.ToList();
+
+            var aggregatedData = filteringCriteria.Select(s => new
             {
                 AssetValue = s.AgencyFairValue,
                 MoneyPaidOut = s.AgencyEquityLoan,
                 SchemeId = s.SchemeId,
-            }).GroupBy(g=> g.SchemeId).Select(g=> g.First()).ToListAsync(cancellationToken).ConfigureAwait(false);
+            }).GroupBy(g => g.SchemeId).Select(g => g.First()).ToList();
 
             decimal? uniqueCount = aggregatedData?.Select(w => w.SchemeId).Distinct().Count();
             decimal? moneyPaidOut = aggregatedData?.Select(w => w.MoneyPaidOut).Sum(s => s);
