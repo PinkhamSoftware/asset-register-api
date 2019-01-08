@@ -20,23 +20,25 @@ namespace HomesEngland.Gateway.Sql
 
         public EFAssetGateway() : base() { }
 
-        public async Task<IAsset> CreateAsync(IAsset entity)
+        public Task<IAsset> CreateAsync(IAsset entity)
         {
             ChangeTracker.AutoDetectChangesEnabled = false;
             var dapperAsset = new DapperAsset(entity);
             var entry = Entry<DapperAsset>(dapperAsset).State = EntityState.Added;
-            await SaveChangesAsync().ConfigureAwait(false);
-            return entity;
+
+            SaveChanges();
+            return Task.FromResult(entity);
         }
 
-        public async Task<IAsset> ReadAsync(int index)
+        public Task<IAsset> ReadAsync(int index)
         {
             ChangeTracker.AutoDetectChangesEnabled = false;
-            var entity = await FindAsync<DapperAsset>(index).ConfigureAwait(false);
-            return entity;
+            IAsset entity = Find<DapperAsset>(index);
+
+            return Task.FromResult(entity);
         }
 
-        public async Task<IPagedResults<IAsset>> Search(IAssetPagedSearchQuery searchRequest, CancellationToken cancellationToken)
+        public Task<IPagedResults<IAsset>> Search(IAssetPagedSearchQuery searchRequest, CancellationToken cancellationToken)
         {
             var queryable = GenerateFilteringCriteria(searchRequest);
 
@@ -44,8 +46,8 @@ namespace HomesEngland.Gateway.Sql
                                  .Take(searchRequest.PageSize.Value);
 
             IEnumerable<IAsset> results = queryable.ToList();
-            
-            int totalCount = await GenerateFilteringCriteria(searchRequest).Select(s => s.Id).CountAsync(cancellationToken).ConfigureAwait(false);
+
+            int totalCount = GenerateFilteringCriteria(searchRequest).Select(s => s.Id).Count();
             
             IPagedResults<IAsset> pagedResults = new PagedResults<IAsset>
             {
@@ -54,7 +56,7 @@ namespace HomesEngland.Gateway.Sql
                 NumberOfPages = (int)Math.Ceiling(totalCount / (decimal)searchRequest.PageSize.Value)
             };
 
-            return pagedResults;
+            return Task.FromResult(pagedResults);
         }
 
         private IQueryable<DapperAsset> GenerateFilteringCriteria(IAssetSearchQuery searchRequest)
@@ -73,7 +75,7 @@ namespace HomesEngland.Gateway.Sql
             return queryable;
         }
 
-        public async Task<IAssetAggregation> Aggregate(IAssetSearchQuery searchRequest, CancellationToken cancellationToken)
+        public Task<IAssetAggregation> Aggregate(IAssetSearchQuery searchRequest, CancellationToken cancellationToken)
         {
             var filteringCriteria = GenerateFilteringCriteria(searchRequest);
 
@@ -90,14 +92,14 @@ namespace HomesEngland.Gateway.Sql
             decimal? moneyPaidOut = aggregatedData?.Select(w => w.MoneyPaidOut).Sum(s => s);
             decimal? assetValue = aggregatedData?.Select(w => w.AssetValue).Sum(s => s);
 
-            var assetAggregates = new AssetAggregation
+            IAssetAggregation assetAggregates = new AssetAggregation
             {
                 UniqueRecords = uniqueCount,
                 AssetValue = assetValue,
                 MoneyPaidOut = moneyPaidOut,
                 MovementInAssetValue = assetValue - moneyPaidOut
             };
-            return assetAggregates;
+            return Task.FromResult(assetAggregates);
         }
     }
 }
