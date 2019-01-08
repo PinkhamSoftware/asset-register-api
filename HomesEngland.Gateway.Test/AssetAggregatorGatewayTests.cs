@@ -1,14 +1,12 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using FluentAssertions;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.Migrations;
-using HomesEngland.Gateway.Sql;
-using HomesEngland.Gateway.Sql.Postgres;
 using HomesEngland.UseCase.CalculateAssetAggregates.Models;
+using Main;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using TestHelper;
@@ -20,17 +18,14 @@ namespace HomesEngland.Gateway.Test
     {
         private readonly IAssetAggregator _classUnderTest;
         private readonly IGateway<IAsset, int> _gateway;
-        private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
+
         public AssetAggregatorGatewayTests()
         {
-            _databaseConnectionFactory = new PostgresDatabaseConnectionFactory(new PostgresDatabaseConnectionStringFormatter());
-            var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-            var connection = _databaseConnectionFactory.Create(databaseUrl);
-            var gateway = new SqlAssetGateway(connection);
-            _gateway = gateway;
-            _classUnderTest = gateway;
-            var assetRegisterContext = new AssetRegisterContext(databaseUrl);
+            var assetRegister = new AssetRegister();
+            var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
             assetRegisterContext.Database.Migrate();
+            _gateway = assetRegister.Get<IGateway<IAsset, int>>();
+            _classUnderTest = assetRegister.Get<IAssetAggregator>();
         }
 
         [TestCase(2, 1, 1001, null,null)]

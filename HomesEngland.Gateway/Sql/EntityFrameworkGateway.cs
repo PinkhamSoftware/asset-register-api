@@ -57,7 +57,7 @@ namespace HomesEngland.Gateway.Sql
             return pagedResults;
         }
 
-        private IQueryable<DapperAsset> GenerateFilteringCriteria(IAssetPagedSearchQuery searchRequest)
+        private IQueryable<DapperAsset> GenerateFilteringCriteria(IAssetSearchQuery searchRequest)
         {
             IQueryable<DapperAsset> queryable = Assets;
             if (!string.IsNullOrEmpty(searchRequest.Address) && !string.IsNullOrWhiteSpace(searchRequest.Address))
@@ -75,7 +75,9 @@ namespace HomesEngland.Gateway.Sql
 
         public async Task<IAssetAggregation> Aggregate(IAssetSearchQuery searchRequest, CancellationToken cancellationToken)
         {
-            var aggregatedData = await Assets.Select(s => new
+            var filteringCriteria = GenerateFilteringCriteria(searchRequest);
+
+            var aggregatedData = await filteringCriteria.Select(s => new
             {
                 AssetValue = s.AgencyFairValue,
                 MoneyPaidOut = s.AgencyEquityLoan,
