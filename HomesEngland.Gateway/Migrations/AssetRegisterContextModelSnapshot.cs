@@ -264,7 +264,7 @@ namespace HomesEngland.Gateway.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("asset");
+                    b.ToTable("assets");
                 });
 #pragma warning restore 612, 618
         }
