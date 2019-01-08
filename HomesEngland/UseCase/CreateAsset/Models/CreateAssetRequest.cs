@@ -1,10 +1,8 @@
 ﻿using System;
-using HomesEngland.UseCase.Models;
-using Infrastructure.Api.Response.Validation;
 
 namespace HomesEngland.UseCase.CreateAsset.Models
 {
-    public class CreateAssetRequest : IRequest
+    public class CreateAssetRequest
     {
         public string Programme { get; set; }
         public string EquityOwner { get; set; }
@@ -84,12 +82,5 @@ namespace HomesEngland.UseCase.CreateAsset.Models
         public decimal? HouseholdFiveKIncomeBand { get; set; }
         public decimal? HouseholdFiftyKIncomeBand { get; set; }
         public bool? FirstTimeBuyer { get; set; }
-
-        public RequestValidationResponse Validate(IRequest request)
-        {
-            throw new NotImplementedException();
-        }
-
-        public CreateAssetRequest(){}
     }
 }

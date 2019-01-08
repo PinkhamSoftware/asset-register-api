@@ -1,13 +1,6 @@
-﻿using System.Net;
-using Infrastructure.Api.Exceptions;
-
-namespace HomesEngland.Exception
+﻿namespace HomesEngland.Exception
 {
-    public class AssetNotFoundException : ApiException
+    public class AssetNotFoundException : System.Exception
     {
-        public AssetNotFoundException(): base(HttpStatusCode.NotFound)
-        {
-
-        }
     }
 }

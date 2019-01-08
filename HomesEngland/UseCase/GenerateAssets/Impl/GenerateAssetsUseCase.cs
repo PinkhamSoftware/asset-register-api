@@ -7,11 +7,10 @@ using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.GenerateAssets.Models;
 using HomesEngland.UseCase.GetAsset.Models;
-using Infrastructure.Api.Exceptions;
 
 namespace HomesEngland.UseCase.GenerateAssets.Impl
 {
-    public class GenerateAssetsUseCase:IGenerateAssetsUseCase
+    public class GenerateAssetsUseCase : IGenerateAssetsUseCase
     {
         private readonly ICreateAssetUseCase _createAssetUseCase;
 
@@ -20,16 +19,16 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
             _createAssetUseCase = createAssetUseCase;
         }
 
-        public async Task<GenerateAssetsResponse> ExecuteAsync(GenerateAssetsRequest request, CancellationToken cancellationToken)
+        public async Task<GenerateAssetsResponse> ExecuteAsync(GenerateAssetsRequest request,
+            CancellationToken cancellationToken)
         {
-            ValidateRequest(request);
-
             IList<AssetOutputModel> createdList = new List<AssetOutputModel>();
 
             for (int index = 0; index < request.Records; index++)
             {
                 var createAssetRequest = GenerateCreateAssetRequest();
-                var response = await _createAssetUseCase.ExecuteAsync(createAssetRequest, cancellationToken).ConfigureAwait(false);
+                var response = await _createAssetUseCase.ExecuteAsync(createAssetRequest, cancellationToken)
+                    .ConfigureAwait(false);
                 createdList.Add(response?.Asset);
             }
 
@@ -53,9 +52,9 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
                 (imsExpectedCompletionDate.Date - hopCompletionDate).Days;
 
 
-            var appliedOrLimited = new List<string> { "Applied", "Limited" };
-            var houseType = new List<string> { "Semi-Detached", "Detached" };
-            var holdTypes = new List<string> { "Freehold", "Leasehold" };
+            var appliedOrLimited = new List<string> {"Applied", "Limited"};
+            var houseType = new List<string> {"Semi-Detached", "Detached"};
+            var holdTypes = new List<string> {"Freehold", "Leasehold"};
 
             var generatedAsset = new Faker<CreateAssetRequest>("en")
                 .RuleFor(asset => asset.Programme, (fake, model) => fake.Company.CompanyName())
@@ -75,7 +74,8 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
                 .RuleFor(property => property.CompletionDateForHpiStart, (fake, model) => completionDateForHpiStart)
                 .RuleFor(property => property.ImsActualCompletionDate, (fake, model) => imsActualCompletionDate)
                 .RuleFor(property => property.ImsExpectedCompletionDate, (fake, model) => imsExpectedCompletionDate)
-                .RuleFor(property => property.ImsLegalCompletionDate, (fake, model) => fake.Date.Soon(random.Next(15, 90)))
+                .RuleFor(property => property.ImsLegalCompletionDate,
+                    (fake, model) => fake.Date.Soon(random.Next(15, 90)))
                 .RuleFor(property => property.HopCompletionDate, (fake, model) => hopCompletionDate)
                 .RuleFor(property => property.AgencyEquityLoan, (fake, model) => fake.Finance.Amount(5000m, 100000m))
                 .RuleFor(property => property.DeveloperEquityLoan, (fake, model) => fake.Finance.Amount(5000m, 100000m))
@@ -85,7 +85,8 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
                 .RuleFor(asset => asset.PurchasePrice, (fake, model) => fake.Finance.Amount(50, 100))
                 .RuleFor(asset => asset.Fees, (fake, model) => fake.Finance.Amount(50, 100))
                 .RuleFor(asset => asset.HistoricUnallocatedFees, (fake, model) => fake.Finance.Amount(50, 100))
-                .RuleFor(asset => asset.ActualAgencyEquityCostIncludingHomeBuyAgentFee, (fake, model) => fake.Finance.Amount(50, 100))
+                .RuleFor(asset => asset.ActualAgencyEquityCostIncludingHomeBuyAgentFee,
+                    (fake, model) => fake.Finance.Amount(50, 100))
                 .RuleFor(asset => asset.FullDisposalDate, (fake, model) => fake.Date.Soon(random.Next(15, 90)))
                 .RuleFor(asset => asset.OriginalAgencyPercentage, (fake, model) => fake.Finance.Amount(50, 100))
                 .RuleFor(asset => asset.StaircasingPercentage, (fake, model) => fake.Finance.Amount(50, 100))
@@ -109,7 +110,8 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
                 .RuleFor(asset => asset.AgencyFairValue, (fake, model) => fake.Finance.Amount(50, 100))
                 .RuleFor(asset => asset.DisposalsCost, (fake, model) => fake.Finance.Amount(50, 100))
                 .RuleFor(asset => asset.DurationInMonths, (fake, model) => fake.Random.Int(1, 12))
-                .RuleFor(asset => asset.MonthOfCompletionSinceSchemeStart, (fake, model) => fake.Finance.Amount(50, 100))
+                .RuleFor(asset => asset.MonthOfCompletionSinceSchemeStart,
+                    (fake, model) => fake.Finance.Amount(50, 100))
                 .RuleFor(asset => asset.DisposalMonthSinceCompletion, (fake, model) => fake.Finance.Amount(50, 100))
                 .RuleFor(asset => asset.IMSPaymentDate, (fake, model) => fake.Date.Soon(1, DateTime.Now))
                 .RuleFor(asset => asset.IsPaid, (fake, model) => fake.Random.Bool())
@@ -122,9 +124,12 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
                 .RuleFor(asset => asset.RegionalStairAdjust, (fake, model) => fake.Finance.Amount(50, 100))
                 .RuleFor(asset => asset.NotLimitedByFirstCharge, (fake, model) => fake.Random.Bool())
                 .RuleFor(asset => asset.EarlyMortgageIfNeverRepay, (fake, model) => fake.Finance.Amount(50, 100))
-                .RuleFor(asset => asset.ArrearsEffectAppliedOrLimited, (fake, model) => fake.PickRandom(appliedOrLimited))
-                .RuleFor(asset => asset.RelativeSalePropertyTypeAndTenureAdjustment, (fake, model) => fake.Finance.Amount(50, 100))
-                .RuleFor(asset => asset.RelativeStairPropertyTypeAndTenureAdjustment, (fake, model) => fake.Finance.Amount(50, 100))
+                .RuleFor(asset => asset.ArrearsEffectAppliedOrLimited,
+                    (fake, model) => fake.PickRandom(appliedOrLimited))
+                .RuleFor(asset => asset.RelativeSalePropertyTypeAndTenureAdjustment,
+                    (fake, model) => fake.Finance.Amount(50, 100))
+                .RuleFor(asset => asset.RelativeStairPropertyTypeAndTenureAdjustment,
+                    (fake, model) => fake.Finance.Amount(50, 100))
                 .RuleFor(asset => asset.IsLondon, (fake, model) => fake.Random.Bool())
                 .RuleFor(asset => asset.QuarterSpend, (fake, model) => fake.Finance.Amount(50, 100))
                 .RuleFor(asset => asset.MortgageProvider, (fake, model) => fake.Company.CompanyName())
@@ -135,16 +140,6 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
                 .RuleFor(asset => asset.FirstTimeBuyer, (fake, model) => fake.Random.Bool());
 
             return generatedAsset;
-        }
-
-        private void ValidateRequest(GenerateAssetsRequest request)
-        {
-            if (request == null)
-                throw new BadRequestException();
-
-            var validationResponse = request.Validate(request);
-            if (!validationResponse.IsValid)
-                throw new BadRequestException(validationResponse);
         }
     }
 }

@@ -7,7 +7,6 @@ using HomesEngland.Gateway.Assets;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Impl;
 using HomesEngland.UseCase.SearchAsset.Models;
-using Infrastructure.Api.Exceptions;
 using NSubstitute;
 using NUnit.Framework;
 using TestHelper;
@@ -277,38 +276,6 @@ namespace HomesEnglandTest.UseCase.SearchAsset
             //assert
             response.Should().NotBeNull();
             response.Assets.Should().BeNullOrEmpty();
-        }
-
-        [TestCase(null, null)]
-        [TestCase(0, null)]
-        [TestCase(-1, null)]
-        [TestCase(null, "")]
-        [TestCase(null, " ")]
-        public void GivenInValidRequest_ThenUseCaseThrowsBadRequestException(int? id, string address)
-        {
-            //arrange
-            IAssetPagedSearchQuery pagedSearchQueryAssetPagedRequest = new AssetPagedSearchQuery
-            {
-                SchemeId = id,
-                Address = address
-            };
-            var assetRequest = new SearchAssetRequest {SchemeId = id};
-            _mockGateway.Search(pagedSearchQueryAssetPagedRequest, CancellationToken.None).Returns((IPagedResults<IAsset>) null);
-            //act
-            //assert
-            Assert.ThrowsAsync<BadRequestException>(async () =>
-                await _classUnderTest.ExecuteAsync(assetRequest, CancellationToken.None));
-        }
-
-        [Test]
-        public void GivenAnInvalidRequest_ThenWeThrowBadRequestException()
-        {
-            //arrange 
-            SearchAssetRequest assetSearch = null;
-            //act 
-            //assert
-            Assert.ThrowsAsync<BadRequestException>(async () =>
-                await _classUnderTest.ExecuteAsync(assetSearch, CancellationToken.None).ConfigureAwait(false));
         }
     }
 }

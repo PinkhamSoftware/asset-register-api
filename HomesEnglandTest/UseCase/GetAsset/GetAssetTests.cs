@@ -9,7 +9,6 @@ using FluentAssertions;
 using HomesEngland.Exception;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.UseCase.GetAsset.Impl;
-using Infrastructure.Api.Exceptions;
 
 namespace HomesEnglandTest.UseCase.GetAsset
 {
@@ -42,31 +41,6 @@ namespace HomesEnglandTest.UseCase.GetAsset
             response.Should().NotBeNull();
             response.Asset.Should().NotBeNull();
             response.Asset.Should().BeEquivalentTo(asset);
-        }
-
-        [Test]
-        public void GivenValidRequestId_UseCaseReturnsCorrectlyMappedAsset()
-        {
-            //arrange
-            //act
-            //assert
-            Assert.ThrowsAsync<BadRequestException>(async () => await _classUnderTest.ExecuteAsync(null));
-        }
-
-        [TestCase(0)]
-        [TestCase(-1)]
-        [TestCase(null)]
-        public void GivenInValidRequest_ThenUseCaseThrowsBadRequestException(int? id)
-        {
-            //arrange
-            var getAssetRequest = new GetAssetRequest
-            {
-                Id = id
-            };
-            _mockGateway.ReadAsync(0).Returns((IAsset)null);
-            //act
-            //assert
-            Assert.ThrowsAsync<BadRequestException>(async()=>await _classUnderTest.ExecuteAsync(getAssetRequest));
         }
 
         [TestCase(4)]

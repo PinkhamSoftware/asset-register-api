@@ -1,10 +1,6 @@
-﻿using HomesEngland.UseCase.Models;
-using HomesEngland.UseCase.SearchAsset.Models.Validation;
-using Infrastructure.Api.Response.Validation;
-
-namespace HomesEngland.UseCase.SearchAsset.Models
+﻿namespace HomesEngland.UseCase.SearchAsset.Models
 {
-    public class SearchAssetRequest : IRequest
+    public class SearchAssetRequest 
     {
         public int? SchemeId { get; set; }
         public int? Page { get; set; }
@@ -15,17 +11,6 @@ namespace HomesEngland.UseCase.SearchAsset.Models
         {
             Page = 1;
             PageSize = 25;
-        }
-
-        public RequestValidationResponse Validate(IRequest request)
-        {
-            if (request == null)
-                return new RequestValidationResponse(false);
-            var validator = new SearchAssetRequestValidator();
-            var getAssetRequest = (SearchAssetRequest) request;
-            var validationResult = validator.Validate(getAssetRequest);
-            var validationResponse = new RequestValidationResponse(validationResult);
-            return validationResponse;
         }
     }
 }
