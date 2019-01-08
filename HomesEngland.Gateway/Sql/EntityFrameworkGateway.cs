@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain;
+using HomesEngland.Domain.Impl;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.Migrations;
 using Microsoft.EntityFrameworkCore;
@@ -34,16 +35,17 @@ namespace HomesEngland.Gateway.Sql
             var entity = await FindAsync<DapperAsset>(index).ConfigureAwait(false);
             return entity;
         }
+
         public async Task<IPagedResults<IAsset>> Search(IAssetPagedSearchQuery searchRequest, CancellationToken cancellationToken)
         {
-            var queryable = FilterQueryable(searchRequest);
+            var queryable = GenerateFilteringCriteria(searchRequest);
 
             queryable = queryable.Skip(searchRequest.Page.Value * searchRequest.PageSize.Value)
                                  .Take(searchRequest.PageSize.Value);
 
             IEnumerable<IAsset> results = await queryable.ToListAsync(cancellationToken).ConfigureAwait(false);
             
-            int totalCount = await FilterQueryable(searchRequest).Select(s => s.Id).CountAsync(cancellationToken).ConfigureAwait(false);
+            int totalCount = await GenerateFilteringCriteria(searchRequest).Select(s => s.Id).CountAsync(cancellationToken).ConfigureAwait(false);
             
             IPagedResults<IAsset> pagedResults = new PagedResults<IAsset>
             {
@@ -55,19 +57,43 @@ namespace HomesEngland.Gateway.Sql
             return pagedResults;
         }
 
-        private IQueryable<DapperAsset> FilterQueryable(IAssetPagedSearchQuery searchRequest)
+        private IQueryable<DapperAsset> GenerateFilteringCriteria(IAssetPagedSearchQuery searchRequest)
         {
             IQueryable<DapperAsset> queryable = Assets;
-            if (!string.IsNullOrEmpty(searchRequest?.Address) && !string.IsNullOrWhiteSpace(searchRequest?.Address))
-                queryable = queryable.Where(w => w.Address.Contains(searchRequest.Address));
-            if (searchRequest?.SchemeId != null && searchRequest.SchemeId > 0)
-                queryable = queryable.Where(w => w.SchemeId.Equals(searchRequest.SchemeId));
+            if (!string.IsNullOrEmpty(searchRequest.Address) && !string.IsNullOrWhiteSpace(searchRequest.Address))
+            {
+                queryable = queryable.Where(w => w.Address.ToLower().Contains(searchRequest.Address.ToLower()));
+            }
+
+            if (searchRequest.SchemeId.HasValue && searchRequest?.SchemeId.Value > 0)
+            {
+                queryable = queryable.Where(w =>w.SchemeId.HasValue && w.SchemeId == searchRequest.SchemeId.Value);
+            }
+
             return queryable;
         }
 
-        public Task<IAssetAggregation> Aggregate(IAssetSearchQuery searchRequest, CancellationToken cancellationToken)
+        public async Task<IAssetAggregation> Aggregate(IAssetSearchQuery searchRequest, CancellationToken cancellationToken)
         {
-            throw new System.NotImplementedException();
+            var aggregatedData = await Assets.Select(s => new
+            {
+                AssetValue = s.AgencyFairValue,
+                MoneyPaidOut = s.AgencyEquityLoan,
+                SchemeId = s.SchemeId,
+            }).GroupBy(g=> g.SchemeId).Select(g=> g.First()).ToListAsync(cancellationToken).ConfigureAwait(false);
+
+            decimal? uniqueCount = aggregatedData?.Select(w => w.SchemeId).Distinct().Count();
+            decimal? moneyPaidOut = aggregatedData?.Select(w => w.MoneyPaidOut).Sum(s => s);
+            decimal? assetValue = aggregatedData?.Select(w => w.AssetValue).Sum(s => s);
+
+            var assetAggregates = new AssetAggregation
+            {
+                UniqueRecords = uniqueCount,
+                AssetValue = assetValue,
+                MoneyPaidOut = moneyPaidOut,
+                MovementInAssetValue = assetValue - moneyPaidOut
+            };
+            return assetAggregates;
         }
     }
 }
