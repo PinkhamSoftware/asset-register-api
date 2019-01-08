@@ -8,30 +8,26 @@ using HomesEngland.Gateway.Notifications;
 using HomesEngland.UseCase.AuthenticateUser;
 using HomesEngland.UseCase.AuthenticateUser.Impl;
 using HomesEngland.UseCase.AuthenticateUser.Models;
-using NSubstitute;
+using Moq;
 using NUnit.Framework;
 
 namespace HomesEnglandTest.UseCase.AuthenticateUser
 {
     public class AuthenticateUserTests
     {
-        private static IAuthenticateUser _classUnderTest;
-        private static IOneTimeAuthenticationTokenCreator _tokenCreatorSpy;
-        private static IOneTimeLinkNotifier _notifierSpy;
+        private IAuthenticateUser _classUnderTest;
+        private Mock<IOneTimeAuthenticationTokenCreator> _tokenCreatorSpy;
+        private Mock<IOneTimeLinkNotifier> _notifierSpy;
 
         private string _authorisedEmails;
-
-        public AuthenticateUserTests()
-        {
-            _tokenCreatorSpy = Substitute.For<IOneTimeAuthenticationTokenCreator>();
-            _notifierSpy = Substitute.For<IOneTimeLinkNotifier>();
-            _classUnderTest = new AuthenticateUserUseCase(_tokenCreatorSpy, _notifierSpy);
-        }
 
         [SetUp]
         public void SetUp()
         {
             _authorisedEmails = Environment.GetEnvironmentVariable("EMAIL_WHITELISTS");
+            _tokenCreatorSpy = new Mock<IOneTimeAuthenticationTokenCreator>();
+            _notifierSpy = new Mock<IOneTimeLinkNotifier>();
+            _classUnderTest = new AuthenticateUserUseCase(_tokenCreatorSpy.Object, _notifierSpy.Object);
         }
 
         [TearDown]
@@ -53,142 +49,149 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
             };
         }
 
-        private static async Task ExpectNotifierGatewayToHaveReceived(string validEmail, string createdTokenString)
+        private void ExpectNotifierGatewayToHaveReceived(string validEmail, string createdTokenString)
         {
-            await _notifierSpy.Received()
-                .SendOneTimeLinkAsync(Arg.Is<IOneTimeLinkNotification>(req =>
-                    req.Email == validEmail && req.Token == createdTokenString));
+            _notifierSpy.Verify(s =>
+                s.SendOneTimeLinkAsync(NotificationWithExpectedEmailAndToken(validEmail, createdTokenString)));
         }
 
-        private class GivenEmailAddressIsNotAllowed : AuthenticateUserTests
+        private static IOneTimeLinkNotification NotificationWithExpectedEmailAndToken(string validEmail,
+            string createdTokenString)
         {
-            private class GivenSingleEmailInWhitelist : GivenEmailAddressIsNotAllowed
-            {
-                [TestCase("test@test.com")]
-                [TestCase("meow@cat.com")]
-                public async Task ItDoesNotCallTheTokenCreatorGateway(string invalidEmail)
-                {
-                    SetEmailWhitelist($"mark-as-invalid-{invalidEmail}");
-                    AuthenticateUserRequest request = CreateUseCaseRequestForEmail(invalidEmail);
-
-                    await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
-
-                    await _tokenCreatorSpy.DidNotReceive()
-                        .CreateAsync(Arg.Is<IAuthenticationToken>(req => req.Email == invalidEmail));
-                }
-
-                [TestCase("test@test.com")]
-                [TestCase("meow@cat.com")]
-                public async Task ItMarksTheResponseAsUnauthorised(string invalidEmail)
-                {
-                    SetEmailWhitelist($"mark-as-invalid-{invalidEmail}");
-                    AuthenticateUserRequest request = CreateUseCaseRequestForEmail(invalidEmail);
-
-                    AuthenticateUserResponse response =
-                        await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
-
-                    response.Authorised.Should().BeFalse();
-                }
-            }
+            return It.Is<IOneTimeLinkNotification>(notification =>
+                notification.Email == validEmail && notification.Token == createdTokenString);
         }
 
-        private class GivenEmailAddressIsAllowed : AuthenticateUserTests
+        private void StubTokenCreator(string email, string token)
         {
-            private class GivenSingleEmailInWhitelist : GivenEmailAddressIsAllowed
+            AuthenticationToken authenticationToken = new AuthenticationToken
             {
-                [TestCase("test@test.com")]
-                [TestCase("cat@meow.com")]
-                public async Task ItCallsTheTokenCreatorGateway(string validEmail)
-                {
-                    SetEmailWhitelist(validEmail);
-                    AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+                Email = email, Token = token
+            };
 
-                    await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
+            _tokenCreatorSpy.Setup(s => s.CreateAsync(It.IsAny<IAuthenticationToken>()))
+                .ReturnsAsync(authenticationToken);
+        }
+        
+        private void ExpectTokenCreatorToHaveBeenCalledWith(string validEmail)
+        {
+            _tokenCreatorSpy.Verify(s =>
+                s.CreateAsync(It.Is<IAuthenticationToken>(req => req.Email == validEmail)));
+        }
 
-                    await _tokenCreatorSpy.Received()
-                        .CreateAsync(Arg.Is<IAuthenticationToken>(req => req.Email == validEmail));
-                }
 
-                [TestCase("test@test.com", "token123")]
-                [TestCase("cat@meow.com", "anotherToken456")]
-                public async Task ItPassesTheEmailAndTokenCreatedToTheNotifierGateway(string validEmail,
-                    string createdTokenString)
-                {
-                    SetEmailWhitelist(validEmail);
-                    IAuthenticationToken createdToken = new AuthenticationToken
-                    {
-                        Email = validEmail,
-                        Token = createdTokenString
-                    };
+        [TestCase("test@test.com")]
+        [TestCase("meow@cat.com")]
+        public async Task GivenEmailAddressIsNotAllowed_ItDoesNotCallTheTokenCreator(
+            string invalidEmail)
+        {
+            SetEmailWhitelist($"mark-as-invalid-{invalidEmail}");
+            AuthenticateUserRequest request = CreateUseCaseRequestForEmail(invalidEmail);
 
-                    _tokenCreatorSpy.CreateAsync(Arg.Any<IAuthenticationToken>()).Returns(createdToken);
-                    AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+            await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
-                    await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
-                    await ExpectNotifierGatewayToHaveReceived(validEmail, createdTokenString);
-                }
+            _tokenCreatorSpy.Verify(s => s.CreateAsync(It.IsAny<IAuthenticationToken>()), Times.Never());
+        }
 
-                [TestCase("test@test.com")]
-                [TestCase("cat@meow.com")]
-                public async Task ItMarksTheResponseAsAuthorised(string validEmail)
-                {
-                    SetEmailWhitelist(validEmail);
-                    AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+        [TestCase("test@test.com")]
+        [TestCase("meow@cat.com")]
+        public async Task GivenEmailAddressIsNotAllowed_ItReturnsUnauthorised(
+            string invalidEmail)
+        {
+            SetEmailWhitelist($"mark-as-invalid-{invalidEmail}");
+            AuthenticateUserRequest request = CreateUseCaseRequestForEmail(invalidEmail);
 
-                    AuthenticateUserResponse response =
-                        await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
+            AuthenticateUserResponse response =
+                await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
-                    response.Authorised.Should().BeTrue();
-                }
-            }
+            response.Authorised.Should().BeFalse();
+        }
 
-            private class GivenMultipleEmailsInWhitelist : GivenEmailAddressIsAllowed
-            {
-                [TestCase("cow@moo.com")]
-                [TestCase("test@example.com")]
-                public async Task ItCallsTheTokenCreatorGateway(string validEmail)
-                {
-                    SetEmailWhitelist($"dog@woof.com;{validEmail};duck@quack.com");
-                    AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+        [TestCase("test@test.com")]
+        [TestCase("cat@meow.com")]
+        public async Task GivenEmailAddressIsAllowed_WithASingleEmailInTheWhitelist_ItCallsTheTokenCreatorGateway(
+            string validEmail)
+        {
+            SetEmailWhitelist(validEmail);
+            AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+            StubTokenCreator(validEmail, "stub");
 
-                    await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
+            await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
-                    await _tokenCreatorSpy.Received()
-                        .CreateAsync(Arg.Is<IAuthenticationToken>(req => req.Email == validEmail));
-                }
+            ExpectTokenCreatorToHaveBeenCalledWith(validEmail);
+        }
 
-                [TestCase("test@test.com", "token123")]
-                [TestCase("cat@meow.com", "anotherToken456")]
-                public async Task ItPassesTheEmailAndTokenCreatedToTheNotifierGateway(string validEmail,
-                    string createdTokenString)
-                {
-                    SetEmailWhitelist($"dog@woof.com;{validEmail};duck@quack.com");
-                    IAuthenticationToken createdToken = new AuthenticationToken
-                    {
-                        Email = validEmail,
-                        Token = createdTokenString
-                    };
+        [TestCase("test@test.com")]
+        [TestCase("cat@meow.com")]
+        public async Task GivenEmailAddressIsAllowed_WithMultipleEmailsInTheWhitelist_ItCallsTheTokenCreatorGateway(
+            string validEmail)
+        {
+            SetEmailWhitelist($"dog@woof.com;{validEmail};duck@quack.com");
+            AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+            StubTokenCreator(validEmail, "stub");
 
-                    _tokenCreatorSpy.CreateAsync(Arg.Any<IAuthenticationToken>()).Returns(createdToken);
-                    AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+            await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
-                    await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
-                    await ExpectNotifierGatewayToHaveReceived(validEmail, createdTokenString);
-                }
+            ExpectTokenCreatorToHaveBeenCalledWith(validEmail);
+        }
 
-                [TestCase("test@test.com")]
-                [TestCase("cat@meow.com")]
-                public async Task ItMarksTheResponseAsAuthorised(string validEmail)
-                {
-                    SetEmailWhitelist($"dog@woof.com;{validEmail};duck@quack.com");
-                    AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
 
-                    AuthenticateUserResponse response =
-                        await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
+        [TestCase("test@test.com", "token123")]
+        [TestCase("cat@meow.com", "anotherToken456")]
+        public async Task
+            GivenEmailAddressIsAllowed_WithASingleEmailInTheWhitelist_ItPassesTheEmailAndTokenCreatedToTheNotifierGateway(
+                string validEmail, string createdTokenString)
+        {
+            SetEmailWhitelist(validEmail);
+            AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+            StubTokenCreator(validEmail, createdTokenString);
 
-                    response.Authorised.Should().BeTrue();
-                }
-            }
+            await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
+
+            ExpectNotifierGatewayToHaveReceived(validEmail, createdTokenString);
+        }
+
+        [TestCase("test@test.com", "token123")]
+        [TestCase("cat@meow.com", "anotherToken456")]
+        public async Task
+            GivenEmailAddressIsAllowed_WithMultipleEmailInTheWhitelist_ItPassesTheEmailAndTokenCreatedToTheNotifierGateway(
+                string validEmail, string createdTokenString)
+        {
+            SetEmailWhitelist($"dog@woof.com;{validEmail};duck@quack.com");
+            AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+            StubTokenCreator(validEmail, createdTokenString);
+
+            await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
+
+            ExpectNotifierGatewayToHaveReceived(validEmail, createdTokenString);
+        }
+
+        [TestCase("test@test.com")]
+        [TestCase("cat@meow.com")]
+        public async Task
+            GivenEmailAddressIsAllowed_WithASingleEmailInTheWhitelist_ItReturnsAuthorised(string validEmail)
+        {
+            SetEmailWhitelist(validEmail);
+            AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+            StubTokenCreator(validEmail, "stub");
+
+            AuthenticateUserResponse response = await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
+
+            response.Authorised.Should().BeTrue();
+        }
+
+        [TestCase("test@test.com")]
+        [TestCase("cat@meow.com")]
+        public async Task
+            GivenEmailAddressIsAllowed_WithMultipleEmailsInTheWhitelist_ItReturnsAuthorised(string validEmail)
+        {
+            SetEmailWhitelist($"dog@woof.com;{validEmail};duck@quack.com");
+            AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+            StubTokenCreator(validEmail, "stub");
+
+            AuthenticateUserResponse response = await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
+
+            response.Authorised.Should().BeTrue();
         }
     }
 }

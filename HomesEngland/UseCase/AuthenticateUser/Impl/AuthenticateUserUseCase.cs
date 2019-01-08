@@ -10,8 +10,8 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
 {
     public class AuthenticateUserUseCase : IAuthenticateUser
     {
-        private IOneTimeAuthenticationTokenCreator _authenticationTokenCreator;
-        private IOneTimeLinkNotifier _oneTimeLinkNotifier;
+        private readonly IOneTimeAuthenticationTokenCreator _authenticationTokenCreator;
+        private readonly IOneTimeLinkNotifier _oneTimeLinkNotifier;
 
         public AuthenticateUserUseCase(IOneTimeAuthenticationTokenCreator authenticationTokenCreator,
             IOneTimeLinkNotifier notifier)
@@ -28,23 +28,39 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
                 return UnauthorisedResponse();
             }
 
-            IAuthenticationToken token = new AuthenticationToken
+            var createdToken = await CreateAuthenticationTokenForEmail(request.Email);
+            
+            await SendOneTimeLink(createdToken);
+
+            return AuthorisedResponse();
+        }
+
+        private static AuthenticateUserResponse AuthorisedResponse()
+        {
+            return new AuthenticateUserResponse
             {
-                Email = request.Email
+                Authorised = true
             };
+        }
 
-            IAuthenticationToken createdToken = await _authenticationTokenCreator.CreateAsync(token);
-
+        private async Task SendOneTimeLink(IAuthenticationToken createdToken)
+        {
             await _oneTimeLinkNotifier.SendOneTimeLinkAsync(new OneTimeLinkNotification
             {
                 Email = createdToken.Email,
                 Token = createdToken.Token
             });
+        }
 
-            return new AuthenticateUserResponse
+        private async Task<IAuthenticationToken> CreateAuthenticationTokenForEmail(string email)
+        {
+            IAuthenticationToken token = new AuthenticationToken
             {
-                Authorised = true
+                Email = email
             };
+
+            IAuthenticationToken createdToken = await _authenticationTokenCreator.CreateAsync(token);
+            return createdToken;
         }
 
         private AuthenticateUserResponse UnauthorisedResponse()
