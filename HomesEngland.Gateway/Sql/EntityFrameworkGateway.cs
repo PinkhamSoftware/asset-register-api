@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomesEngland.Gateway.Sql
 {
-    public class EFAssetGateway: AssetRegisterContext, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator
+    public class EFAssetGateway: AssetRegisterContext, IGateway<IAsset, int>, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator
     {
         public EFAssetGateway(string connectionString) : base(connectionString)
         {
