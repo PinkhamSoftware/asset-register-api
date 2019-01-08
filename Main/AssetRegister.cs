@@ -4,9 +4,13 @@ using HomesEngland.Domain;
 using HomesEngland.Domain.Factory;
 using HomesEngland.Gateway;
 using HomesEngland.Gateway.Assets;
+using HomesEngland.Gateway.AuthenticationTokens;
 using HomesEngland.Gateway.Migrations;
+using HomesEngland.Gateway.Notifications;
 using HomesEngland.Gateway.Sql;
 using HomesEngland.Gateway.Sql.Postgres;
+using HomesEngland.UseCase.AuthenticateUser;
+using HomesEngland.UseCase.AuthenticateUser.Impl;
 using HomesEngland.UseCase.CalculateAssetAggregates;
 using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Impl;
@@ -35,7 +39,7 @@ namespace Main
         protected override void ConstructHiddenDependencies()
         {
             var serviceCollection = new ServiceCollection();
-            
+
             ExportDependencies((type, provider) => serviceCollection.AddTransient(type, _ => provider()));
 
             ExportTypeDependencies((type, provider) => serviceCollection.AddTransient(type, provider));
@@ -50,10 +54,12 @@ namespace Main
             var databaseUrl = System.Environment.GetEnvironmentVariable("DATABASE_URL");
             RegisterExportedDependency<IDatabaseConnectionStringFormatter, PostgresDatabaseConnectionStringFormatter>();
             RegisterExportedDependency<IDatabaseConnectionFactory, PostgresDatabaseConnectionFactory>();
-            RegisterExportedDependency<IDbConnection>(()=> new PostgresDatabaseConnectionFactory(new PostgresDatabaseConnectionStringFormatter()).Create(databaseUrl));
+            RegisterExportedDependency<IDbConnection>(() =>
+                new PostgresDatabaseConnectionFactory(new PostgresDatabaseConnectionStringFormatter()).Create(
+                    databaseUrl));
             RegisterExportedDependency<IGetAssetUseCase, GetAssetUseCase>();
             RegisterExportedDependency<IAssetReader, SqlAssetGateway>();
-            RegisterExportedDependency<AssetRegisterContext>(()=> new AssetRegisterContext(databaseUrl));
+            RegisterExportedDependency<AssetRegisterContext>(() => new AssetRegisterContext(databaseUrl));
             RegisterExportedDependency<ISearchAssetUseCase, SearchAssetUseCase>();
             RegisterExportedDependency<IAssetSearcher, SqlAssetGateway>();
             RegisterExportedDependency<IAssetCreator, SqlAssetGateway>();
@@ -62,14 +68,19 @@ namespace Main
             RegisterExportedDependency<IGenerateAssetsUseCase, GenerateAssetsUseCase>();
             RegisterExportedDependency<IConsoleGenerator, ConsoleAssetGenerator>();
             RegisterExportedDependency<IInputParser<GenerateAssetsRequest>, InputParser>();
+            RegisterExportedDependency<IAuthenticateUser, AuthenticateUserUseCase>();
+            RegisterExportedDependency<IOneTimeAuthenticationTokenCreator, DummySqlAuthenticationTokenGateway>();
+            RegisterExportedDependency<IOneTimeLinkNotifier, DummyNotificationGateway>();
 
             ILoggerFactory loggerFactory = new LoggerFactory()
                 .AddConsole()
                 .AddDebug();
 
-            RegisterExportedDependency<ILogger<ConsoleAssetGenerator>>(() => new Logger<ConsoleAssetGenerator>(loggerFactory));
+            RegisterExportedDependency<ILogger<ConsoleAssetGenerator>>(() =>
+                new Logger<ConsoleAssetGenerator>(loggerFactory));
 
-            RegisterExportedDependency<ILogger<IImportAssetsUseCase>>(() => new Logger<IImportAssetsUseCase>(loggerFactory));
+            RegisterExportedDependency<ILogger<IImportAssetsUseCase>>(() =>
+                new Logger<IImportAssetsUseCase>(loggerFactory));
 
             RegisterExportedDependency<IImportAssetsUseCase, ImportAssetsUseCase>();
             RegisterExportedDependency<IConsoleImporter, ConsoleImporter>();
