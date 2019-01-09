@@ -1,9 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using System.Transactions;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.Gateway.Sql;
-using HomesEngland.Gateway.Sql.Postgres;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using TestHelper;
@@ -14,14 +14,15 @@ namespace HomesEngland.Gateway.Test
     public class AssetGatewayTests
     {
         private readonly IGateway<IAsset, int> _classUnderTest;
-        private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
+        
         public AssetGatewayTests()
         {
-            _databaseConnectionFactory = new PostgresDatabaseConnectionFactory(new PostgresDatabaseConnectionStringFormatter());
-            var databaseUrl = System.Environment.GetEnvironmentVariable("DATABASE_URL");
-            var connection = _databaseConnectionFactory.Create(databaseUrl);
-            _classUnderTest = new SqlAssetGateway(connection);
-            AssetRegisterContext assetRegisterContext = new AssetRegisterContext(databaseUrl);
+            var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            var assetGateway = new EFAssetGateway(databaseUrl);
+
+            _classUnderTest = assetGateway;
+
+            var assetRegisterContext = new AssetRegisterContext(databaseUrl);
             assetRegisterContext.Database.Migrate();
         }
 

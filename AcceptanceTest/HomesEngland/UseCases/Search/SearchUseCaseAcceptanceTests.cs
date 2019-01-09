@@ -24,24 +24,19 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
         private readonly ICreateAssetUseCase _createAssetUseCase;
         private readonly ISearchAssetUseCase _classUnderTest;
         private readonly IGateway<IAsset, int> _gateway;
-        private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
 
         public SearchUseCaseAcceptanceTests()
         {
             IServiceCollection services = new ServiceCollection();
             var assetRegister = new AssetRegister();
-            assetRegister.ExportDependencies((type, provider) => services.AddTransient(type, _ => provider()));
+            
 
-            assetRegister.ExportTypeDependencies((type, provider) => services.AddTransient(type, provider));
+            _gateway = assetRegister.Get<IGateway<IAsset, int>>();
+            _createAssetUseCase = assetRegister.Get<ICreateAssetUseCase>();
+            _classUnderTest = assetRegister.Get<ISearchAssetUseCase>();
 
-            var serviceProvider = services.BuildServiceProvider();
-
-            var assetRegisterContext = serviceProvider.GetService<AssetRegisterContext>();
+            var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
             assetRegisterContext.Database.Migrate();
-
-            _gateway = serviceProvider.GetService<IGateway<IAsset, int>>();
-            _createAssetUseCase = serviceProvider.GetService<ICreateAssetUseCase>();
-            _classUnderTest = serviceProvider.GetService<ISearchAssetUseCase>();
         }
 
         [TestCase(1111, null, null)]

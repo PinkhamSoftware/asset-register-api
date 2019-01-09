@@ -25,10 +25,12 @@ namespace AssetRegisterTests.HomesEngland.UseCases.CalculateAssetAggregates
         public CalculateAssetAggregatesUseCaseAcceptanceTests()
         {
             var assetRegister = new AssetRegister();
-            var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
-            assetRegisterContext.Database.Migrate();
+            
             _createAssetUseCase = assetRegister.Get<ICreateAssetUseCase>();
             _classUnderTest = assetRegister.Get<ICalculateAssetAggregatesUseCase>();
+
+            var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
+            assetRegisterContext.Database.Migrate();
         }
 
         [TestCase(3, 1, 1111, null, null)]

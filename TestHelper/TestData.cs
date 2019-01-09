@@ -10,7 +10,7 @@ namespace TestHelper
     {
         public static class Domain
         {
-            public static DapperAsset GenerateAsset()
+            public static AssetEntity GenerateAsset()
             {
                 var random = new Random(0);
 
@@ -28,7 +28,7 @@ namespace TestHelper
                 var holdTypes = new List<string> { "Freehold", "Leasehold" };
 
 
-                var generatedAsset = new Faker<DapperAsset>("en")
+                var generatedAsset = new Faker<AssetEntity>("en")
                     .RuleFor(asset => asset.Programme, (fake, model) => fake.Company.CompanyName())
                     .RuleFor(asset => asset.EquityOwner, (fake, model) => fake.Company.CompanyName())
                     .RuleFor(property => property.SchemeId, (fake, model) => fake.IndexGlobal + 1)

@@ -8,7 +8,6 @@ using HomesEngland.Domain;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.Gateway.Sql;
-using HomesEngland.Gateway.Sql.Postgres;
 using HomesEngland.UseCase.SearchAsset.Models;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -21,15 +20,16 @@ namespace HomesEngland.Gateway.Test
     {
         private readonly IAssetSearcher _classUnderTest;
         private readonly IGateway<IAsset, int> _gateway;
-        private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
+
         public AssetSearchGatewayTests()
         {
-            _databaseConnectionFactory = new PostgresDatabaseConnectionFactory(new PostgresDatabaseConnectionStringFormatter());
             var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-            var connection = _databaseConnectionFactory.Create(databaseUrl);
-            var gateway = new SqlAssetGateway(connection);
-            _gateway = gateway;
-            _classUnderTest = gateway;
+            var assetGateway = new EFAssetGateway(databaseUrl);
+
+            _gateway = assetGateway;
+
+            _classUnderTest = assetGateway;
+
             var assetRegisterContext = new AssetRegisterContext(databaseUrl);
             assetRegisterContext.Database.Migrate();
         }

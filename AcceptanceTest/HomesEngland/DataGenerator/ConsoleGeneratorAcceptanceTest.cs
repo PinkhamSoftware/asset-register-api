@@ -24,10 +24,12 @@ namespace AssetRegisterTests.HomesEngland.DataGenerator
         public ConsoleGeneratorAcceptanceTests()
         {
             var assetRegister = new AssetRegister();
-            var context = assetRegister.Get<AssetRegisterContext>();
-            context.Database.Migrate();
+            
             _classUnderTest = assetRegister.Get<IConsoleGenerator>();
             _searchAssetUseCase = assetRegister.Get<ISearchAssetUseCase>();
+
+            var context = assetRegister.Get<AssetRegisterContext>();
+            context.Database.Migrate();
         }
 
         [TestCase("--records", "1")]

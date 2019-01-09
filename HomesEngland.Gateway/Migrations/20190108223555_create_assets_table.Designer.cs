@@ -10,8 +10,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HomesEngland.Gateway.Migrations
 {
     [DbContext(typeof(AssetRegisterContext))]
-    [Migration("20181214155118_additional_fields")]
-    partial class additional_fields
+    [Migration("20190108223555_create_assets_table")]
+    partial class create_assets_table
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
