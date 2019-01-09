@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.AuthenticationTokens;
 using HomesEngland.Gateway.Migrations;
@@ -15,6 +15,7 @@ namespace HomesEngland.Gateway.Sql
 
         public Task<IAuthenticationToken> CreateAsync(IAuthenticationToken token)
         {
+            
             var tokenEntity = new AuthenticationTokenEntity(token);
 
             using (var context = new AssetRegisterContext(_databaseUrl))
