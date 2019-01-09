@@ -22,10 +22,12 @@ namespace HomesEngland.Gateway.Test
         public AssetAggregatorGatewayTests()
         {
             var assetRegister = new AssetRegister();
-            var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
-            assetRegisterContext.Database.Migrate();
+
             _gateway = assetRegister.Get<IGateway<IAsset, int>>();
             _classUnderTest = assetRegister.Get<IAssetAggregator>();
+
+            var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
+            assetRegisterContext.Database.Migrate();
         }
 
         [TestCase(2, 1, 1001, null,null)]

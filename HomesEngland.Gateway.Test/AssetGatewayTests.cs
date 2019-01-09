@@ -18,9 +18,10 @@ namespace HomesEngland.Gateway.Test
         public AssetGatewayTests()
         {
             var assetRegister = new AssetRegister();
+            _classUnderTest = assetRegister.Get<IGateway<IAsset, int>>();
+
             var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
             assetRegisterContext.Database.Migrate();
-            _classUnderTest = assetRegister.Get<IGateway<IAsset, int>>();
         }
 
         [Test]

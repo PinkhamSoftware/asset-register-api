@@ -25,10 +25,12 @@ namespace AssetRegisterTests.HomesEngland.UseCases
         public GenerateAssetsUseCaseTest()
         {
             var assetRegister = new AssetRegister();
-            var context = assetRegister.Get<AssetRegisterContext>();
-            context.Database.Migrate();
+            
             _classUnderTest = assetRegister.Get<IGenerateAssetsUseCase>();
             _searchAssetUseCase = assetRegister.Get<ISearchAssetUseCase>();
+
+            var context = assetRegister.Get<AssetRegisterContext>();
+            context.Database.Migrate();
         }
 
         [TestCase(1)]
