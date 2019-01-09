@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Bogus;
@@ -15,7 +16,7 @@ namespace HomesEngland.Gateway.Test
     [TestFixture]
     public class EFAuthenticationTokenGatewayTests
     {
-        private readonly IOneTimeAuthenticationTokenCreator _classUnderTest;
+        private readonly IAuthenticationGateway _classUnderTest;
 
         public EFAuthenticationTokenGatewayTests()
         {
@@ -44,11 +45,12 @@ namespace HomesEngland.Gateway.Test
                     Token = token,
                 };
                 //act
-                var createdAuthenticationToken = await _classUnderTest.CreateAsync(authenticationToken).ConfigureAwait(false);
+                var createdAuthenticationToken = await _classUnderTest.CreateAsync(authenticationToken, CancellationToken.None).ConfigureAwait(false);
+                var readAuthenticationToken = await _classUnderTest.ReadAsync(createdAuthenticationToken.Id, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                createdAuthenticationToken.Token.Should().BeEquivalentTo(authenticationToken.Token);
-                createdAuthenticationToken.Expiry.Should().BeCloseTo(authenticationToken.Expiry);
-                createdAuthenticationToken.Email.Should().Be(authenticationToken.Email);
+                readAuthenticationToken.Token.Should().BeEquivalentTo(authenticationToken.Token);
+                readAuthenticationToken.Expiry.Should().BeCloseTo(authenticationToken.Expiry);
+                readAuthenticationToken.Email.Should().Be(authenticationToken.Email);
                 trans.Dispose();
             }
         }

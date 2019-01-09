@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -53,7 +53,7 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
         private void ExpectNotifierGatewayToHaveReceived(string validEmail, string createdTokenString)
         {
             _notifierSpy.Verify(s =>
-                s.SendOneTimeLinkAsync(NotificationWithExpectedEmailAndToken(validEmail, createdTokenString)));
+                s.SendOneTimeLinkAsync(NotificationWithExpectedEmailAndToken(validEmail, createdTokenString), CancellationToken.None));
         }
 
         private static IOneTimeLinkNotification NotificationWithExpectedEmailAndToken(string validEmail,
@@ -70,14 +70,14 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
                 Email = email, Token = token
             };
 
-            _tokenCreatorSpy.Setup(s => s.CreateAsync(It.IsAny<IAuthenticationToken>()))
+            _tokenCreatorSpy.Setup(s => s.CreateAsync(It.IsAny<IAuthenticationToken>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(authenticationToken);
         }
 
         private void ExpectTokenCreatorToHaveBeenCalledWith(string validEmail)
         {
             _tokenCreatorSpy.Verify(s =>
-                s.CreateAsync(It.Is<IAuthenticationToken>(req => req.Email == validEmail)));
+                s.CreateAsync(It.Is<IAuthenticationToken>(req => req.Email == validEmail), It.IsAny<CancellationToken>()));
         }
 
 
@@ -91,7 +91,7 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
 
             await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
-            _tokenCreatorSpy.Verify(s => s.CreateAsync(It.IsAny<IAuthenticationToken>()), Times.Never());
+            _tokenCreatorSpy.Verify(s => s.CreateAsync(It.IsAny<IAuthenticationToken>(), It.IsAny<CancellationToken>()), Times.Never());
         }
 
         [TestCase("test@test.com")]

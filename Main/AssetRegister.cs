@@ -70,7 +70,8 @@ namespace Main
             RegisterExportedDependency<IConsoleGenerator, ConsoleAssetGenerator>();
             RegisterExportedDependency<IInputParser<GenerateAssetsRequest>, InputParser>();
             RegisterExportedDependency<IAuthenticateUser, AuthenticateUserUseCase>();
-            RegisterExportedDependency<IOneTimeAuthenticationTokenCreator, EFAuthenticationTokenGateway>();
+            RegisterExportedDependency<IOneTimeAuthenticationTokenCreator>(()=> new EFAuthenticationTokenGateway(databaseUrl));
+            RegisterExportedDependency<IOneTimeAuthenticationTokenReader>(() => new EFAuthenticationTokenGateway(databaseUrl));
             RegisterExportedDependency<IOneTimeLinkNotifier, GovNotifyNotificationsGateway>();
 
             ILoggerFactory loggerFactory = new LoggerFactory()

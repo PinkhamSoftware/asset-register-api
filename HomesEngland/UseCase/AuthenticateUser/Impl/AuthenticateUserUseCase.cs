@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain;
@@ -28,9 +28,9 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
                 return UnauthorisedResponse();
             }
 
-            var createdToken = await CreateAuthenticationTokenForEmail(request.Email);
-
-            await SendOneTimeLink(createdToken, request.Url);
+            var createdToken = await CreateAuthenticationTokenForEmail(request.Email, cancellationToken).ConfigureAwait(false);
+            
+            await SendOneTimeLink(createdToken, request.Url, cancellationToken).ConfigureAwait(false);
 
             return AuthorisedResponse();
         }
@@ -43,24 +43,24 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
             };
         }
 
-        private async Task SendOneTimeLink(IAuthenticationToken createdToken, string originUrl)
+        private async Task SendOneTimeLink(IAuthenticationToken createdToken, string originUrl, CancellationToken cancellationToken)
         {
             await _oneTimeLinkNotifier.SendOneTimeLinkAsync(new OneTimeLinkNotification
             {
                 Email = createdToken.Email,
                 Token = createdToken.Token,
                 Url = originUrl
-            });
+            }, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task<IAuthenticationToken> CreateAuthenticationTokenForEmail(string email)
+        private async Task<IAuthenticationToken> CreateAuthenticationTokenForEmail(string email, CancellationToken cancellationToken)
         {
             IAuthenticationToken token = new AuthenticationToken
             {
                 Email = email
             };
 
-            IAuthenticationToken createdToken = await _authenticationTokenCreator.CreateAsync(token);
+            IAuthenticationToken createdToken = await _authenticationTokenCreator.CreateAsync(token, cancellationToken).ConfigureAwait(false);
             return createdToken;
         }
 
