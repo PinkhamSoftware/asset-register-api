@@ -23,14 +23,14 @@ namespace HomesEngland.Gateway.Sql
 
         public Task<IAsset> CreateAsync(IAsset entity)
         {
-            var dapperAsset = new AssetEntity(entity);
+            var assetEntity = new AssetEntity(entity);
 
             using (var context = new AssetRegisterContext())
             {
-                context.Add(dapperAsset);
+                context.Add(assetEntity);
                 context.SaveChanges();
-                entity.Id = dapperAsset.Id;
-                var foundAsset = context.Assets.Find(dapperAsset.Id);
+                entity.Id = assetEntity.Id;
+                var foundAsset = context.Assets.Find(assetEntity.Id);
                 return Task.FromResult(entity);
             }
         }
