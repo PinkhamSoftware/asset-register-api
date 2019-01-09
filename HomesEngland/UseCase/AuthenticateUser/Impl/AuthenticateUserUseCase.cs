@@ -29,8 +29,8 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
             }
 
             var createdToken = await CreateAuthenticationTokenForEmail(request.Email);
-            
-            await SendOneTimeLink(createdToken);
+
+            await SendOneTimeLink(createdToken, request.Url);
 
             return AuthorisedResponse();
         }
@@ -43,12 +43,13 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
             };
         }
 
-        private async Task SendOneTimeLink(IAuthenticationToken createdToken)
+        private async Task SendOneTimeLink(IAuthenticationToken createdToken, string originUrl)
         {
             await _oneTimeLinkNotifier.SendOneTimeLinkAsync(new OneTimeLinkNotification
             {
                 Email = createdToken.Email,
-                Token = createdToken.Token
+                Token = createdToken.Token,
+                Url = originUrl
             });
         }
 
