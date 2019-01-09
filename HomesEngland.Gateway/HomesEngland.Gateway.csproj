@@ -17,8 +17,4 @@
     <ProjectReference Include="..\HomesEngland\HomesEngland.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Sql\EntityFramework\" />
-  </ItemGroup>
-
 </Project>
