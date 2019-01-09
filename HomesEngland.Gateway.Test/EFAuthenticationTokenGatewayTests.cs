@@ -5,7 +5,6 @@ using System.Transactions;
 using Bogus;
 using FluentAssertions;
 using HomesEngland.Domain;
-using HomesEngland.Gateway.AuthenticationTokens;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.Gateway.Sql;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +40,7 @@ namespace HomesEngland.Gateway.Test
                 IAuthenticationToken authenticationToken = new AuthenticationToken
                 {
                     Expiry = DateTime.UtcNow.AddSeconds(seconds),
-                    Email = faker.Internet.Email(),
+                    ReferenceNumber = faker.UniqueIndex.ToString(),
                     Token = token,
                 };
                 //act
@@ -50,7 +49,7 @@ namespace HomesEngland.Gateway.Test
                 //assert
                 readAuthenticationToken.Token.Should().BeEquivalentTo(authenticationToken.Token);
                 readAuthenticationToken.Expiry.Should().BeCloseTo(authenticationToken.Expiry);
-                readAuthenticationToken.Email.Should().Be(authenticationToken.Email);
+                readAuthenticationToken.ReferenceNumber.Should().Be(authenticationToken.ReferenceNumber);
                 trans.Dispose();
             }
         }

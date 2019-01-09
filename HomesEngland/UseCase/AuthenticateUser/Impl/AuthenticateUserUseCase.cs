@@ -47,7 +47,7 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
         {
             await _oneTimeLinkNotifier.SendOneTimeLinkAsync(new OneTimeLinkNotification
             {
-                Email = createdToken.Email,
+                Email = createdToken.ReferenceNumber,
                 Token = createdToken.Token,
                 Url = originUrl
             }, cancellationToken).ConfigureAwait(false);
@@ -57,7 +57,7 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
         {
             IAuthenticationToken token = new AuthenticationToken
             {
-                Email = email
+                ReferenceNumber = email
             };
 
             IAuthenticationToken createdToken = await _authenticationTokenCreator.CreateAsync(token, cancellationToken).ConfigureAwait(false);

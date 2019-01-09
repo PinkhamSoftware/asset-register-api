@@ -13,8 +13,8 @@ namespace HomesEngland.Gateway
         [Column("id")]
         public int Id { get; set; }
 
-        [Column("email")]
-        public string Email { get; set; }
+        [Column("referencenumber")]
+        public string ReferenceNumber { get; set; }
         [Column("token")]
         public string Token { get; set; }
         [Column("expiry")]
@@ -30,7 +30,7 @@ namespace HomesEngland.Gateway
             if (authenticationToken == null)
                 return;
             Id = authenticationToken.Id;
-            Email = authenticationToken.Email;
+            ReferenceNumber = authenticationToken.ReferenceNumber;
             Expiry = authenticationToken.Expiry;
             Token = authenticationToken.Token;
             ModifiedDateTime = authenticationToken.Expiry;
