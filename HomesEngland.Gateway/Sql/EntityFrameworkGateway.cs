@@ -104,9 +104,9 @@ namespace HomesEngland.Gateway.Sql
                     AssetValue = s.AgencyFairValue,
                     MoneyPaidOut = s.AgencyEquityLoan,
                     SchemeId = s.SchemeId,
-                }).GroupBy(g => g.SchemeId).Select(g => g.First()).ToList();
+                });
 
-                decimal? uniqueCount = aggregatedData?.Select(w => w.SchemeId).Distinct().Count();
+                decimal? uniqueCount = aggregatedData?.Select(w => w.SchemeId).Count();
                 decimal? moneyPaidOut = aggregatedData?.Select(w => w.MoneyPaidOut).Sum(s => s);
                 decimal? assetValue = aggregatedData?.Select(w => w.AssetValue).Sum(s => s);
 
