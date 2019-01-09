@@ -106,7 +106,7 @@ namespace HomesEngland.Gateway.Sql
                     SchemeId = s.SchemeId,
                 });
 
-                decimal? uniqueCount = aggregatedData?.Select(w => w.SchemeId).Count();
+                decimal? uniqueCount = aggregatedData?.Select(w => w.SchemeId).Distinct().Count();
                 decimal? moneyPaidOut = aggregatedData?.Select(w => w.MoneyPaidOut).Sum(s => s);
                 decimal? assetValue = aggregatedData?.Select(w => w.AssetValue).Sum(s => s);
 
