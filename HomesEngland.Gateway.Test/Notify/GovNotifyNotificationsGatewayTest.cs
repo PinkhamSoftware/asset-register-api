@@ -29,7 +29,7 @@ namespace HomesEngland.Gateway.Test.Notify
             public string access_url { get; set; }
         }
 
-        private static string BuildApiKeyFromFragment(string fragment)
+        private static string BuildValidGovNotifyApiKeyFromHexFragment(string fragment)
         {
             return
                 $"{fragment}-{fragment}{fragment}-{fragment}-{fragment}-{fragment}-{fragment}{fragment}{fragment}-{fragment}{fragment}-{fragment}-{fragment}-{fragment}-{fragment}{fragment}{fragment}";
@@ -38,7 +38,7 @@ namespace HomesEngland.Gateway.Test.Notify
         private static void SetupEnvironmentVariables(string notifyUrl, string apiKeyFragment)
         {
             Environment.SetEnvironmentVariable("GOV_NOTIFY_URL", notifyUrl);
-            Environment.SetEnvironmentVariable("GOV_NOTIFY_API_KEY", BuildApiKeyFromFragment(apiKeyFragment));
+            Environment.SetEnvironmentVariable("GOV_NOTIFY_API_KEY", BuildValidGovNotifyApiKeyFromHexFragment(apiKeyFragment));
         }
 
         private static IOneTimeLinkNotification StubNotification()
