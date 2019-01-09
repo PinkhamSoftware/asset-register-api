@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using DependencyInjection;
 using HomesEngland.Domain;
 using HomesEngland.Domain.Factory;
@@ -70,7 +70,7 @@ namespace Main
             RegisterExportedDependency<IConsoleGenerator, ConsoleAssetGenerator>();
             RegisterExportedDependency<IInputParser<GenerateAssetsRequest>, InputParser>();
             RegisterExportedDependency<IAuthenticateUser, AuthenticateUserUseCase>();
-            RegisterExportedDependency<IOneTimeAuthenticationTokenCreator, DummySqlAuthenticationTokenGateway>();
+            RegisterExportedDependency<IOneTimeAuthenticationTokenCreator, EFAuthenticationTokenGateway>();
             RegisterExportedDependency<IOneTimeLinkNotifier, GovNotifyNotificationsGateway>();
 
             ILoggerFactory loggerFactory = new LoggerFactory()
