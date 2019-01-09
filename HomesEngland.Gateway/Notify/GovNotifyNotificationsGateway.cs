@@ -13,14 +13,30 @@ namespace HomesEngland.Gateway.Notify
     {
         public async Task<bool> SendOneTimeLinkAsync(IOneTimeLinkNotification notification)
         {
+            var client = NotificationClient();
+
+            client.SendEmail(
+                notification.Email,
+                "8f02be8c-32db-4f18-97fe-1d60152e9b06",
+                NotificationPersonalisation(notification)
+            );
+
+            return true;
+        }
+
+        private static INotificationClient NotificationClient()
+        {
             string baseUrl = Environment.GetEnvironmentVariable("GOV_NOTIFY_URL");
             string apiKey = Environment.GetEnvironmentVariable("GOV_NOTIFY_API_KEY");
+
             INotificationClient client = new NotificationClient(baseUrl, apiKey);
-            var personalisation = new Dictionary<string, dynamic> {{"token", notification.Token}};
-            
-            client.SendEmail(notification.Email, "asdasd", personalisation);
-            
-            return true;
+            return client;
+        }
+
+        private static Dictionary<string, dynamic> NotificationPersonalisation(IOneTimeLinkNotification notification)
+        {
+            return new Dictionary<string, dynamic>
+                {{"access_url", $"{notification.Url}?token={notification.Token}"}};
         }
     }
 }

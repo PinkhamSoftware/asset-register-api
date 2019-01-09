@@ -26,7 +26,7 @@ namespace HomesEngland.Gateway.Test.Notify
 
         private class NotifyPersonalisation
         {
-            public string token { get; set; }
+            public string access_url { get; set; }
         }
 
         private static string BuildApiKeyFromFragment(string fragment)
@@ -45,7 +45,9 @@ namespace HomesEngland.Gateway.Test.Notify
         {
             return new OneTimeLinkNotification
             {
-                Email = "stub@stub.com"
+                Email = "stub@stub.com",
+                Url = "http://stub.com/",
+                Token = "http://stub.com/"
             };
         }
 
@@ -103,6 +105,7 @@ namespace HomesEngland.Gateway.Test.Notify
             OneTimeLinkNotification notification = new OneTimeLinkNotification
             {
                 Email = email,
+                Url = "stub",
                 Token = "stub"
             };
 
@@ -113,13 +116,14 @@ namespace HomesEngland.Gateway.Test.Notify
             notifyRequest.email_address.Should().Be(email);
         }
 
-        [TestCase("tokenOne")]
-        [TestCase("tokenTwo")]
-        public async Task ItPassesTheTokensToTheNotifyApi(string token)
+        [TestCase("http://meow.cat/", "tokenOne")]
+        [TestCase("http://dog.woof/", "tokenTwo")]
+        public async Task ItPassesTheAccessUrlToTheNotifyApi(string assetRegisterUrl, string token)
         {
             OneTimeLinkNotification notification = new OneTimeLinkNotification
             {
                 Email = "stub@stub.com",
+                Url = assetRegisterUrl,
                 Token = token
             };
 
@@ -127,7 +131,9 @@ namespace HomesEngland.Gateway.Test.Notify
 
             NotifyRequest notifyRequest = _simulator.ReceivedRequests[0].BodyAs<NotifyRequest>();
 
-            notifyRequest.personalisation.token.Should().Be(token);
+            var expectedUrl = $"{assetRegisterUrl}?token={token}";
+
+            notifyRequest.personalisation.access_url.Should().Be(expectedUrl);
         }
 
         [Test]
