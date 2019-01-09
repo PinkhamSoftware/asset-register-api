@@ -29,7 +29,7 @@ namespace HomesEngland.Gateway.Sql
                 _connection.Open();
             var config = PeregrineConfig.Postgres.WithColumnNameFactory(new PascalCaseColumnNameFactory());
             IDatabaseConnection connection = new DefaultDatabase(_connection, config);
-            var entity = await connection.GetAsync<DapperAsset>(index).ConfigureAwait(false);
+            var entity = await connection.GetAsync<AssetEntity>(index).ConfigureAwait(false);
             _connection.Close();
             return entity;
         }
@@ -38,7 +38,7 @@ namespace HomesEngland.Gateway.Sql
         {
             if (entity == null)
                 return null;
-            entity = new DapperAsset(entity);
+            entity = new AssetEntity(entity);
             entity.ModifiedDateTime = DateTime.UtcNow;
             if (_connection.State != ConnectionState.Open)
                 _connection.Open();
@@ -65,7 +65,7 @@ namespace HomesEngland.Gateway.Sql
                 pageSize = pagedSearchQueryRequest.PageSize,
                 offset = pagedSearchQueryRequest.PageSize * (pagedSearchQueryRequest.Page - 1)
             };
-            IEnumerable<IAsset> results = connection.Query<DapperAsset>(searchSql, searchObject);
+            IEnumerable<IAsset> results = connection.Query<AssetEntity>(searchSql, searchObject);
             IPagedResults<IAsset> pagedResults = new PagedResults<IAsset> {Results = results?.ToList()};
 
             int totalCount = connection.ExecuteScalar<int>(GenerateTotalCountSql(pagedSearchQueryRequest), searchObject);

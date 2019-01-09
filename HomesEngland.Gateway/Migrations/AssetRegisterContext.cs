@@ -19,7 +19,7 @@ namespace HomesEngland.Gateway.Migrations
             _databaseUrl = System.Environment.GetEnvironmentVariable("DATABASE_URL");
         }
 
-        public DbSet<DapperAsset> Assets { get; set; }
+        public DbSet<AssetEntity> Assets { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseNpgsql(new PostgresDatabaseConnectionStringFormatter().BuildConnectionStringFromUrl(_databaseUrl));

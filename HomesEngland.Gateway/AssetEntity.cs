@@ -5,11 +5,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace HomesEngland.Gateway
 {
+    /// <summary>
+    /// Has all of the database annotations to interact with the database
+    /// </summary>
     [Table("assets")]
-    [Dapper.Table("assets")]
-    public class DapperAsset : IAsset
+    public class AssetEntity : IAsset
     {
-        [Dapper.Key]
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Column("id")]
@@ -185,8 +186,8 @@ namespace HomesEngland.Gateway
         public bool? FirstTimeBuyer { get; set; }
 
 
-        public DapperAsset() { }
-        public DapperAsset(IAsset request)
+        public AssetEntity() { }
+        public AssetEntity(IAsset request)
         {
             Programme = request.Programme;
             EquityOwner = request.EquityOwner;

@@ -58,12 +58,12 @@ namespace Main
                 new PostgresDatabaseConnectionFactory(new PostgresDatabaseConnectionStringFormatter()).Create(
                     databaseUrl));
             RegisterExportedDependency<IGetAssetUseCase, GetAssetUseCase>();
-            RegisterExportedDependency<IAssetReader, EFAssetGateway>();
+            RegisterExportedDependency<IAssetReader>(() => new EFAssetGateway(databaseUrl));
             RegisterExportedDependency<AssetRegisterContext>(()=> new AssetRegisterContext(databaseUrl));
             RegisterExportedDependency<ISearchAssetUseCase, SearchAssetUseCase>();
-            RegisterExportedDependency<IAssetSearcher, EFAssetGateway>();
-            RegisterExportedDependency<IAssetCreator, EFAssetGateway>();
-            RegisterExportedDependency<IGateway<IAsset, int>, EFAssetGateway>();
+            RegisterExportedDependency<IAssetSearcher>(() => new EFAssetGateway(databaseUrl));
+            RegisterExportedDependency<IAssetCreator>(() => new EFAssetGateway(databaseUrl));
+            RegisterExportedDependency<IGateway<IAsset, int>>(() => new EFAssetGateway(databaseUrl));
             RegisterExportedDependency<ICreateAssetUseCase, CreateAssetUseCase>();
             RegisterExportedDependency<IGenerateAssetsUseCase, GenerateAssetsUseCase>();
             RegisterExportedDependency<IConsoleGenerator, ConsoleAssetGenerator>();
@@ -89,7 +89,7 @@ namespace Main
             RegisterExportedDependency<IInputParser<ImportAssetConsoleInput>, ImportAssetInputParser>();
             RegisterExportedDependency<IFactory<CreateAssetRequest, CsvAsset>, CreateAssetRequestFactory>();
             RegisterExportedDependency<ICalculateAssetAggregatesUseCase, CalculateAssetAggregatesUseCase>();
-            RegisterExportedDependency<IAssetAggregator, EFAssetGateway>();
+            RegisterExportedDependency<IAssetAggregator>(() => new EFAssetGateway(databaseUrl));
         }
 
         public override T Get<T>()

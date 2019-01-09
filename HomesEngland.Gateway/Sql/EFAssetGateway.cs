@@ -14,33 +14,31 @@ namespace HomesEngland.Gateway.Sql
     public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator,
         IAssetSearcher, IAssetAggregator
     {
-        public EFAssetGateway()
-        {
-        }
+        private readonly string _databaseUrl; 
 
-        private int _id;
+        public EFAssetGateway(string databaseUrl)
+        {
+            _databaseUrl = databaseUrl;
+        }
 
         public Task<IAsset> CreateAsync(IAsset entity)
         {
-            var dapperAsset = new DapperAsset(entity);
+            //
+            var dapperAsset = new AssetEntity(entity);
 
-            using (var context = new AssetRegisterContext(Environment.GetEnvironmentVariable("DATABASE_URL")))
+            using (var context = new AssetRegisterContext())
             {
                 context.Add(dapperAsset);
                 context.SaveChanges();
                 entity.Id = dapperAsset.Id;
                 var foundAsset = context.Assets.Find(dapperAsset.Id);
-                Console.WriteLine("**CREATE**");
-                Console.WriteLine(foundAsset.SchemeId);
-                Console.WriteLine(dapperAsset.Id);
-                Console.WriteLine("**End Create**");
                 return Task.FromResult(entity);
             }
         }
 
         public Task<IAsset> ReadAsync(int index)
         {
-            using (var context = new AssetRegisterContext(Environment.GetEnvironmentVariable("DATABASE_URL")))
+            using (var context = new AssetRegisterContext(_databaseUrl))
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
                 IAsset entity = context.Assets.Find(index);
@@ -52,7 +50,7 @@ namespace HomesEngland.Gateway.Sql
         public Task<IPagedResults<IAsset>> Search(IAssetPagedSearchQuery searchRequest,
             CancellationToken cancellationToken)
         {
-            using (var context = new AssetRegisterContext(Environment.GetEnvironmentVariable("DATABASE_URL")))
+            using (var context = new AssetRegisterContext(_databaseUrl))
             {
                 var queryable = GenerateFilteringCriteria(context, searchRequest);
 
@@ -73,10 +71,10 @@ namespace HomesEngland.Gateway.Sql
             }
         }
 
-        private IQueryable<DapperAsset> GenerateFilteringCriteria(AssetRegisterContext context,
+        private IQueryable<AssetEntity> GenerateFilteringCriteria(AssetRegisterContext context,
             IAssetSearchQuery searchRequest)
         {
-            IQueryable<DapperAsset> queryable = context.Assets;
+            IQueryable<AssetEntity> queryable = context.Assets;
             if (!string.IsNullOrEmpty(searchRequest.Address) && !string.IsNullOrWhiteSpace(searchRequest.Address))
             {
                 queryable = queryable.Where(w =>
@@ -95,7 +93,7 @@ namespace HomesEngland.Gateway.Sql
 
         public Task<IAssetAggregation> Aggregate(IAssetSearchQuery searchRequest, CancellationToken cancellationToken)
         {
-            using (var context = new AssetRegisterContext(Environment.GetEnvironmentVariable("DATABASE_URL")))
+            using (var context = new AssetRegisterContext(_databaseUrl))
             {
                 var filteringCriteria = GenerateFilteringCriteria(context, searchRequest);
 
