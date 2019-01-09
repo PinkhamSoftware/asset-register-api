@@ -1,12 +1,13 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using FluentAssertions;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.Migrations;
+using HomesEngland.Gateway.Sql;
 using HomesEngland.UseCase.CalculateAssetAggregates.Models;
-using Main;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using TestHelper;
@@ -21,12 +22,14 @@ namespace HomesEngland.Gateway.Test
 
         public AssetAggregatorGatewayTests()
         {
-            var assetRegister = new AssetRegister();
+            var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            var assetGateway = new EFAssetGateway(databaseUrl);
 
-            _gateway = assetRegister.Get<IGateway<IAsset, int>>();
-            _classUnderTest = assetRegister.Get<IAssetAggregator>();
+            _gateway = assetGateway;
 
-            var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
+            _classUnderTest = assetGateway;
+
+            var assetRegisterContext = new AssetRegisterContext(databaseUrl);
             assetRegisterContext.Database.Migrate();
         }
 

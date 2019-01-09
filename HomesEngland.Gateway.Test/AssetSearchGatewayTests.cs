@@ -7,8 +7,8 @@ using FluentAssertions;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.Migrations;
+using HomesEngland.Gateway.Sql;
 using HomesEngland.UseCase.SearchAsset.Models;
-using Main;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using TestHelper;
@@ -23,12 +23,14 @@ namespace HomesEngland.Gateway.Test
 
         public AssetSearchGatewayTests()
         {
-            var assetRegister = new AssetRegister();
-            
-            _gateway = assetRegister.Get<IGateway<IAsset, int>>();
-            _classUnderTest = assetRegister.Get<IAssetSearcher>();
+            var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            var assetGateway = new EFAssetGateway(databaseUrl);
 
-            var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
+            _gateway = assetGateway;
+
+            _classUnderTest = assetGateway;
+
+            var assetRegisterContext = new AssetRegisterContext(databaseUrl);
             assetRegisterContext.Database.Migrate();
         }
 
