@@ -23,7 +23,6 @@ namespace HomesEngland.Gateway.Sql
 
         public Task<IAsset> CreateAsync(IAsset entity)
         {
-            //
             var dapperAsset = new AssetEntity(entity);
 
             using (var context = new AssetRegisterContext())
