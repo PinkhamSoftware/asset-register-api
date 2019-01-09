@@ -5,8 +5,6 @@ using System.Threading.Tasks;
 using HomesEngland.UseCase.GenerateAssets.Models;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.Models;
-using Infrastructure.Api.Exceptions;
-using Infrastructure.Api.Response.Validation;
 using Microsoft.Extensions.Logging;
 
 namespace HomesEngland.UseCase.GenerateAssets.Impl
@@ -38,7 +36,7 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
 
                 Console.WriteLine($"Generated: {generatedRecords.RecordsGenerated.Count} records");
 
-                output = generatedRecords?.RecordsGenerated;
+                output = generatedRecords.RecordsGenerated;
             }
             catch (System.Exception ex)
             {
@@ -56,28 +54,30 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
                 throw new ArgumentNullException(nameof(args));
             }
 
-            var request = _inputParser.Parse(args);
-            var validationResponse = request.Validate(request);
-            if (!validationResponse.IsValid)
-                HandleProcessingFailure(validationResponse);
+            GenerateAssetsRequest request = _inputParser.Parse(args);
+            
+            if (!IsValidRequest(request))
+            {
+                throw new ArgumentException();
+            }
+            
             return request;
         }
 
+        bool IsValidRequest(GenerateAssetsRequest request)
+        {
+            if (request?.Records == null)
+            {
+                return false;  
+            }
+
+            return request.Records > 0;
+        }
         private void PrintHelper()
         {
             _logger.Log(LogLevel.Information, "Welcome to the Asset Test Data Generator");
             _logger.Log(LogLevel.Information, "To generate assets please input:");
             _logger.Log(LogLevel.Information, "'--records {numberOfRecords}'");
-        }
-
-        private void HandleProcessingFailure(RequestValidationResponse validationResponse)
-        {
-            foreach (var error in validationResponse.ValidationErrors)
-            {
-                _logger.Log(LogLevel.Information, $"FieldName: {error?.FieldName}");
-                _logger.Log(LogLevel.Information, $"Message: {error?.Message}");
-            }
-            throw new BadRequestException(validationResponse);
         }
     }
 }

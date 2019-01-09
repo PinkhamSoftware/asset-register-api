@@ -20,4 +20,8 @@
       <ProjectReference Include="..\Infrastructure\Infrastructure.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="UseCase\GetAsset\Models\Validation" />
+    </ItemGroup>
+
 </Project>

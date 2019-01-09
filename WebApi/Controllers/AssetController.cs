@@ -3,6 +3,7 @@ using HomesEngland.UseCase.GetAsset;
 using HomesEngland.UseCase.GetAsset.Models;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
+using WebApi.Extensions.Requests;
 
 namespace WebApi.Controllers
 {
@@ -11,6 +12,7 @@ namespace WebApi.Controllers
     public class AssetController : ControllerBase
     {
         private readonly IGetAssetUseCase _assetUseCase;
+
         public AssetController(IGetAssetUseCase useCase)
         {
             _assetUseCase = useCase;
@@ -19,10 +21,20 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         [Produces("application/json", "text/csv")]
         [ProducesResponseType(typeof(ResponseData<GetAssetResponse>), 200)]
-        public async Task<IActionResult> Get([FromRoute]GetAssetRequest request)
+        public async Task<IActionResult> Get([FromRoute] GetAssetApiRequest request)
         {
-            var result = await _assetUseCase.ExecuteAsync(request).ConfigureAwait(false);
-            return this.StandardiseResponse<GetAssetResponse, AssetOutputModel>(result);
+            if (!request.IsValid())
+            {
+                return StatusCode(400);
+            }
+
+            GetAssetRequest getAssetRequest = new GetAssetRequest
+            {
+                Id = request.Id.Value
+            };
+
+            return this.StandardiseResponse<GetAssetResponse, AssetOutputModel>(
+                await _assetUseCase.ExecuteAsync(getAssetRequest).ConfigureAwait(false));
         }
     }
 }

@@ -9,7 +9,6 @@ using HomesEngland.UseCase.GenerateAssets.Models;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
-using Infrastructure.Api.Exceptions;
 using Main;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -74,7 +73,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases
                 {
                     var generatedAsset = response.RecordsGenerated.ElementAtOrDefault(i);
 
-                    var record = await FindAsset(generatedAsset, i);
+                    var record = await FindAsset(generatedAsset);
 
                     record.Should().NotBeNull();
                     record.AssetOutputModelIsEqual(generatedAsset);
@@ -83,32 +82,13 @@ namespace AssetRegisterTests.HomesEngland.UseCases
             }
         }
 
-        private async Task<AssetOutputModel> FindAsset(AssetOutputModel generatedAsset, int i)
+        private async Task<AssetOutputModel> FindAsset(AssetOutputModel generatedAsset)
         {
             var record = await _searchAssetUseCase.ExecuteAsync(new SearchAssetRequest
             {
                 SchemeId = generatedAsset?.SchemeId
             }, CancellationToken.None).ConfigureAwait(false);
             return record.Assets.ElementAtOrDefault(0);
-        }
-
-        [TestCase(0)]
-        [TestCase(-1)]
-        [TestCase(null)]
-        public void GivenInValidRequest_ThenUseCaseThrowsBadRequestException(int? recordCount)
-        {
-            //arrange 
-            var request = new GenerateAssetsRequest
-            {
-                Records = recordCount
-            };
-            //act
-            //assert
-            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                Assert.ThrowsAsync<BadRequestException>(async () => await _classUnderTest.ExecuteAsync(request, CancellationToken.None).ConfigureAwait(false));
-                trans.Dispose();
-            }
         }
     }
 }
