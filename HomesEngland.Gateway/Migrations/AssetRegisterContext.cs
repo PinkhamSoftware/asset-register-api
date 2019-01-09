@@ -20,6 +20,7 @@ namespace HomesEngland.Gateway.Migrations
         }
 
         public DbSet<AssetEntity> Assets { get; set; }
+        public DbSet<AuthenticationTokenEntity> AuthenticationTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseNpgsql(new PostgresDatabaseConnectionStringFormatter().BuildConnectionStringFromUrl(_databaseUrl));

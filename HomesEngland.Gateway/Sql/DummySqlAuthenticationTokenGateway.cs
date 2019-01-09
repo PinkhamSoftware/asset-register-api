@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.AuthenticationTokens;
 
@@ -11,8 +11,10 @@ namespace HomesEngland.Gateway.Sql
             return new AuthenticationToken
             {
                 Email = "test@test.com",
-                Token = "dummy"
+                Token = "dummy",
             };
         }
+
+
     }
 }

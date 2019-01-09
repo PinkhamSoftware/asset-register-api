@@ -25,13 +25,13 @@ namespace HomesEngland.Gateway.Sql
         {
             var assetEntity = new AssetEntity(entity);
 
-            using (var context = new AssetRegisterContext())
+            using (var context = new AssetRegisterContext(_databaseUrl))
             {
                 context.Add(assetEntity);
                 context.SaveChanges();
                 entity.Id = assetEntity.Id;
-                var foundAsset = context.Assets.Find(assetEntity.Id);
-                return Task.FromResult(entity);
+                IAsset foundAsset = context.Assets.Find(assetEntity.Id);
+                return Task.FromResult(foundAsset);
             }
         }
 
