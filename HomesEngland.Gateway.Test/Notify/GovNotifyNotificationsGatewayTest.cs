@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentSim;
@@ -38,7 +39,8 @@ namespace HomesEngland.Gateway.Test.Notify
         private static void SetupEnvironmentVariables(string notifyUrl, string apiKeyFragment)
         {
             Environment.SetEnvironmentVariable("GOV_NOTIFY_URL", notifyUrl);
-            Environment.SetEnvironmentVariable("GOV_NOTIFY_API_KEY", BuildValidGovNotifyApiKeyFromHexFragment(apiKeyFragment));
+            Environment.SetEnvironmentVariable("GOV_NOTIFY_API_KEY",
+                BuildValidGovNotifyApiKeyFromHexFragment(apiKeyFragment));
         }
 
         private static IOneTimeLinkNotification StubNotification()
@@ -83,7 +85,7 @@ namespace HomesEngland.Gateway.Test.Notify
             simulator.Start();
             simulator.Post("/v2/notifications/email").Responds("{}");
 
-            await _classUnderTest.SendOneTimeLinkAsync(StubNotification());
+            await _classUnderTest.SendOneTimeLinkAsync(StubNotification(), CancellationToken.None);
 
             simulator.ReceivedRequests[0].Url.Should().Be($"{baseUrl}v2/notifications/email");
             simulator.Stop();
@@ -95,7 +97,8 @@ namespace HomesEngland.Gateway.Test.Notify
         {
             SetupEnvironmentVariables("http://localhost:3000/", apiKeyFragment);
 
-            Assert.DoesNotThrowAsync(async () => await _classUnderTest.SendOneTimeLinkAsync(StubNotification()));
+            Assert.DoesNotThrowAsync(async () =>
+                await _classUnderTest.SendOneTimeLinkAsync(StubNotification(), CancellationToken.None));
         }
 
         [TestCase("cat@meow.com")]
@@ -109,7 +112,7 @@ namespace HomesEngland.Gateway.Test.Notify
                 Token = "stub"
             };
 
-            await _classUnderTest.SendOneTimeLinkAsync(notification);
+            await _classUnderTest.SendOneTimeLinkAsync(notification, CancellationToken.None);
 
             NotifyRequest notifyRequest = _simulator.ReceivedRequests[0].BodyAs<NotifyRequest>();
 
@@ -127,7 +130,7 @@ namespace HomesEngland.Gateway.Test.Notify
                 Token = token
             };
 
-            await _classUnderTest.SendOneTimeLinkAsync(notification);
+            await _classUnderTest.SendOneTimeLinkAsync(notification, CancellationToken.None);
 
             NotifyRequest notifyRequest = _simulator.ReceivedRequests[0].BodyAs<NotifyRequest>();
 
@@ -139,7 +142,7 @@ namespace HomesEngland.Gateway.Test.Notify
         [Test]
         public async Task ItPassesATemplateToTheNotifyApi()
         {
-            await _classUnderTest.SendOneTimeLinkAsync(StubNotification());
+            await _classUnderTest.SendOneTimeLinkAsync(StubNotification(), CancellationToken.None);
 
             NotifyRequest notifyRequest = _simulator.ReceivedRequests[0].BodyAs<NotifyRequest>();
 

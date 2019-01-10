@@ -53,7 +53,8 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
         private void ExpectNotifierGatewayToHaveReceived(string validEmail, string createdTokenString)
         {
             _notifierSpy.Verify(s =>
-                s.SendOneTimeLinkAsync(NotificationWithExpectedEmailAndToken(validEmail, createdTokenString), CancellationToken.None));
+                s.SendOneTimeLinkAsync(NotificationWithExpectedEmailAndToken(validEmail, createdTokenString),
+                    CancellationToken.None));
         }
 
         private static IOneTimeLinkNotification NotificationWithExpectedEmailAndToken(string validEmail,
@@ -77,7 +78,8 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
         private void ExpectTokenCreatorToHaveBeenCalledWith(string validEmail)
         {
             _tokenCreatorSpy.Verify(s =>
-                s.CreateAsync(It.Is<IAuthenticationToken>(req => req.ReferenceNumber == validEmail), It.IsAny<CancellationToken>()));
+                s.CreateAsync(It.Is<IAuthenticationToken>(req => req.ReferenceNumber == validEmail),
+                    It.IsAny<CancellationToken>()));
         }
 
 
@@ -91,7 +93,8 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
 
             await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
-            _tokenCreatorSpy.Verify(s => s.CreateAsync(It.IsAny<IAuthenticationToken>(), It.IsAny<CancellationToken>()), Times.Never());
+            _tokenCreatorSpy.Verify(s => s.CreateAsync(It.IsAny<IAuthenticationToken>(), It.IsAny<CancellationToken>()),
+                Times.Never());
         }
 
         [TestCase("test@test.com")]
@@ -149,7 +152,9 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
 
             await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
-            _notifierSpy.Verify(s => s.SendOneTimeLinkAsync(It.Is<OneTimeLinkNotification>(n => n.Url == url)));
+            _notifierSpy.Verify(s =>
+                s.SendOneTimeLinkAsync(It.Is<OneTimeLinkNotification>(n => n.Url == url),
+                    It.IsAny<CancellationToken>()));
         }
 
         [TestCase("test@test.com", "token123")]

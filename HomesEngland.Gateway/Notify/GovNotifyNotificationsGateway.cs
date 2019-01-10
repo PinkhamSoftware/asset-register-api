@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.Notifications;
@@ -11,7 +12,8 @@ namespace HomesEngland.Gateway.Notify
 {
     public class GovNotifyNotificationsGateway : IOneTimeLinkNotifier
     {
-        public async Task<bool> SendOneTimeLinkAsync(IOneTimeLinkNotification notification)
+        public async Task<bool> SendOneTimeLinkAsync(IOneTimeLinkNotification notification,
+            CancellationToken cancellationToken)
         {
             var client = NotificationClient();
 
