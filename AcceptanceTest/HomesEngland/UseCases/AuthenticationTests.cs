@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using FluentAssertions;
@@ -28,29 +29,48 @@ namespace AssetRegisterTests.HomesEngland.UseCases
 
         private class NotifyRequest
         {
+            public string email_address { get; set; }
+            public string template_id { get; set; }
+            public NotifyPersonalisation personalisation { get; set; }
+        }
 
+        private class NotifyPersonalisation
+        {
+            public string access_url { get; set; }
+        }
+
+        private static string BuildValidGovNotifyApiKeyFromHexFragment(string fragment)
+        {
+            return
+                $"{fragment}-{fragment}{fragment}-{fragment}-{fragment}-{fragment}-{fragment}{fragment}{fragment}-{fragment}{fragment}-{fragment}-{fragment}-{fragment}-{fragment}{fragment}{fragment}";
         }
 
         [Test]
         public async Task GivenUserIsAuthorised_SendAnEmailContainingATokenToTheUser()
         {
-            System.Environment.SetEnvironmentVariable("GOV_NOTIFY_URL", "http://meow.cat:7654/");
-            System.Environment.SetEnvironmentVariable("EMAIL_WHITELIST", "test@example.com");
+            Environment.SetEnvironmentVariable("GOV_NOTIFY_URL", "http://localhost:7654/");
+            Environment.SetEnvironmentVariable("GOV_NOTIFY_API_KEY", BuildValidGovNotifyApiKeyFromHexFragment("1111"));
+            Environment.SetEnvironmentVariable("EMAIL_WHITELIST", "test@example.com");
             using (ATransaction())
             {
-                var simulator = new FluentSimulator("http://meow.cat:7654/");
+                var simulator = new FluentSimulator("http://localhost:7654/");
+                simulator.Start();
                 simulator.Post("/v2/notifications/email").Responds().WithCode(200);
 
                 AuthenticateUserRequest request = new AuthenticateUserRequest
                 {
-                    Email = "test@example.com"
+                    Email = "test@example.com",
+                    Url = "http://meow.cat/"
                 };
 
                 await _authenticateUser.ExecuteAsync(request, CancellationToken.None);
 
                 var notifyRequest = simulator.ReceivedRequests[0].BodyAs<NotifyRequest>();
+                simulator.Stop();
 
                 notifyRequest.Should().NotBeNull();
+                notifyRequest.email_address.Should().Be("test@example.com");
+                notifyRequest.personalisation.access_url.Should().Contain("http://meow.cat/");
             }
         }
     }

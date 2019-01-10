@@ -76,7 +76,7 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
                 .ReturnsAsync(authenticationToken);
         }
 
-        private void ExpectTokenCreatorToHaveBeenCalledWith(string validEmail)
+        private void ExpectTokenCreatorToHaveBeenCalled()
         {
             _tokenCreatorSpy.Verify(s =>
                 s.CreateAsync(It.IsAny<IAuthenticationToken>(),It.IsAny<CancellationToken>()));
@@ -122,7 +122,7 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
 
             await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
-            ExpectTokenCreatorToHaveBeenCalledWith(validEmail);
+            ExpectTokenCreatorToHaveBeenCalled();
         }
 
         [TestCase("test@test.com")]
@@ -136,7 +136,7 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
 
             await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
-            ExpectTokenCreatorToHaveBeenCalledWith(validEmail);
+            ExpectTokenCreatorToHaveBeenCalled();
         }
 
 
