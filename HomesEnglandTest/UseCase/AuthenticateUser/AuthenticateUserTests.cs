@@ -45,7 +45,8 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
         {
             return new AuthenticateUserRequest
             {
-                Email = invalidEmail
+                Email = invalidEmail,
+                Url = ""
             };
         }
 
@@ -72,7 +73,7 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
             _tokenCreatorSpy.Setup(s => s.CreateAsync(It.IsAny<IAuthenticationToken>()))
                 .ReturnsAsync(authenticationToken);
         }
-        
+
         private void ExpectTokenCreatorToHaveBeenCalledWith(string validEmail)
         {
             _tokenCreatorSpy.Verify(s =>
@@ -135,6 +136,21 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
             ExpectTokenCreatorToHaveBeenCalledWith(validEmail);
         }
 
+
+        [TestCase("http://meow.cat")]
+        [TestCase("http://woof.dog")]
+        public async Task
+            GivenEmailAddressIsAllowed_WithASingleEmailInTheWhitelist_ItPassesTheUrlToTheNotifierGateway(string url)
+        {
+            SetEmailWhitelist("test@test.com");
+            AuthenticateUserRequest request = CreateUseCaseRequestForEmail("test@test.com");
+            request.Url = url;
+            StubTokenCreator("test@test.com", "stub");
+
+            await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
+
+            _notifierSpy.Verify(s => s.SendOneTimeLinkAsync(It.Is<OneTimeLinkNotification>(n => n.Url == url)));
+        }
 
         [TestCase("test@test.com", "token123")]
         [TestCase("cat@meow.com", "anotherToken456")]

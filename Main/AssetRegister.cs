@@ -7,6 +7,7 @@ using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.AuthenticationTokens;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.Gateway.Notifications;
+using HomesEngland.Gateway.Notify;
 using HomesEngland.Gateway.Sql;
 using HomesEngland.Gateway.Sql.Postgres;
 using HomesEngland.UseCase.AuthenticateUser;
@@ -70,7 +71,7 @@ namespace Main
             RegisterExportedDependency<IInputParser<GenerateAssetsRequest>, InputParser>();
             RegisterExportedDependency<IAuthenticateUser, AuthenticateUserUseCase>();
             RegisterExportedDependency<IOneTimeAuthenticationTokenCreator, DummySqlAuthenticationTokenGateway>();
-            RegisterExportedDependency<IOneTimeLinkNotifier, DummyNotificationGateway>();
+            RegisterExportedDependency<IOneTimeLinkNotifier, GovNotifyNotificationsGateway>();
 
             ILoggerFactory loggerFactory = new LoggerFactory()
                 .AddConsole()
