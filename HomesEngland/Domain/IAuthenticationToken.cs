@@ -1,8 +1,11 @@
+﻿using System;
+
 namespace HomesEngland.Domain
 {
-    public interface IAuthenticationToken
+    public interface IAuthenticationToken:IDatabaseEntity<int>
     {
-        string Email { get; }
+        string ReferenceNumber { get; }
         string Token { get; }
+        DateTime Expiry { get; set; }
     }
 }

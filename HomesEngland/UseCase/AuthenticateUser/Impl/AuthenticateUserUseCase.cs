@@ -1,3 +1,4 @@
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,9 +29,9 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
                 return UnauthorisedResponse();
             }
 
-            var createdToken = await CreateAuthenticationTokenForEmail(request.Email);
-
-            await SendOneTimeLink(createdToken, request.Url);
+            var createdToken = await CreateAuthenticationTokenForEmail(cancellationToken).ConfigureAwait(false);
+            
+            await SendOneTimeLink(request.Email, createdToken, request.Url, cancellationToken).ConfigureAwait(false);
 
             return AuthorisedResponse();
         }
@@ -43,24 +44,25 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
             };
         }
 
-        private async Task SendOneTimeLink(IAuthenticationToken createdToken, string originUrl)
+        private async Task SendOneTimeLink(string email, IAuthenticationToken createdToken, string originUrl, CancellationToken cancellationToken)
         {
             await _oneTimeLinkNotifier.SendOneTimeLinkAsync(new OneTimeLinkNotification
             {
-                Email = createdToken.Email,
+                Email = email,
                 Token = createdToken.Token,
                 Url = originUrl
-            });
+            }, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task<IAuthenticationToken> CreateAuthenticationTokenForEmail(string email)
+        private async Task<IAuthenticationToken> CreateAuthenticationTokenForEmail(CancellationToken cancellationToken)
         {
-            IAuthenticationToken token = new AuthenticationToken
+            var authenticationToken = new AuthenticationToken
             {
-                Email = email
+                Expiry = DateTime.UtcNow.AddHours(8),
+                Token = Guid.NewGuid().ToString(),
+                ReferenceNumber = Guid.NewGuid().ToString()
             };
-
-            IAuthenticationToken createdToken = await _authenticationTokenCreator.CreateAsync(token);
+            IAuthenticationToken createdToken = await _authenticationTokenCreator.CreateAsync(authenticationToken, cancellationToken).ConfigureAwait(false);
             return createdToken;
         }
 

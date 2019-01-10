@@ -3,15 +3,17 @@ using System;
 using HomesEngland.Gateway.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HomesEngland.Gateway.Migrations
 {
     [DbContext(typeof(AssetRegisterContext))]
-    partial class AssetRegisterContextModelSnapshot : ModelSnapshot
+    [Migration("20190109162916_authentication_tokens_table")]
+    partial class authentication_tokens_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -273,14 +275,14 @@ namespace HomesEngland.Gateway.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnName("id");
 
+                    b.Property<string>("Email")
+                        .HasColumnName("email");
+
                     b.Property<DateTime>("Expiry")
                         .HasColumnName("expiry");
 
                     b.Property<DateTime>("ModifiedDateTime")
                         .HasColumnName("modifieddatetime");
-
-                    b.Property<string>("ReferenceNumber")
-                        .HasColumnName("referencenumber");
 
                     b.Property<string>("Token")
                         .HasColumnName("token");
