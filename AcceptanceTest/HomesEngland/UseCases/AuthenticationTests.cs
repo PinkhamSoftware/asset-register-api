@@ -32,7 +32,6 @@ namespace AssetRegisterTests.HomesEngland.UseCases
         }
 
         [Test]
-        [Ignore("Notification gateway not yet implemented")]
         public async Task GivenUserIsAuthorised_SendAnEmailContainingATokenToTheUser()
         {
             System.Environment.SetEnvironmentVariable("GOV_NOTIFY_URL", "http://meow.cat:7654/");
