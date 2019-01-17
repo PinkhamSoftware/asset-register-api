@@ -21,17 +21,17 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
             _oneTimeLinkNotifier = notifier;
         }
 
-        public async Task<AuthenticateUserResponse> ExecuteAsync(AuthenticateUserRequest request,
+        public async Task<AuthenticateUserResponse> ExecuteAsync(AuthenticateUserRequest requests,
             CancellationToken cancellationToken)
         {
-            if (!UserIsAuthorised(request.Email))
+            if (!UserIsAuthorised(requests.Email))
             {
                 return UnauthorisedResponse();
             }
 
             var createdToken = await CreateAuthenticationTokenForEmail(cancellationToken).ConfigureAwait(false);
             
-            await SendOneTimeLink(request.Email, createdToken, request.Url, cancellationToken).ConfigureAwait(false);
+            await SendOneTimeLink(requests.Email, createdToken, requests.Url, cancellationToken).ConfigureAwait(false);
 
             return AuthorisedResponse();
         }

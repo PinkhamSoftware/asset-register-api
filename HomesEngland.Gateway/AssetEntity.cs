@@ -185,6 +185,10 @@ namespace HomesEngland.Gateway
         [Column("firsttimebuyer")]
         public bool? FirstTimeBuyer { get; set; }
 
+        [Column("assetregisterversionid")]
+        public int? AssetRegisterVersionId { get; set; }
+        [ForeignKey("assetregisterversionid")]
+        public virtual AssetRegisterVersion AssetRegisterVersion { get; set; }
 
         public AssetEntity() { }
         public AssetEntity(IAsset request)

@@ -20,12 +20,12 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
             _createAssetUseCase = createAssetUseCase;
         }
 
-        public async Task<GenerateAssetsResponse> ExecuteAsync(GenerateAssetsRequest request,
+        public async Task<GenerateAssetsResponse> ExecuteAsync(GenerateAssetsRequest requests,
             CancellationToken cancellationToken)
         {
             IList<AssetOutputModel> createdList = new List<AssetOutputModel>();
 
-            for (int index = 0; index < request.Records; index++)
+            for (int index = 0; index < requests.Records; index++)
             {
                 var createAssetRequest = GenerateCreateAssetRequest();
                 var response = await _createAssetUseCase.ExecuteAsync(createAssetRequest, cancellationToken)

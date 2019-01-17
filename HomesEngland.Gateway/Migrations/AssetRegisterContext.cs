@@ -19,6 +19,7 @@ namespace HomesEngland.Gateway.Migrations
             _databaseUrl = System.Environment.GetEnvironmentVariable("DATABASE_URL");
         }
 
+        public DbSet<AssetRegisterVersion> AssetRegisterVersions { get; set; }
         public DbSet<AssetEntity> Assets { get; set; }
         public DbSet<AuthenticationTokenEntity> AuthenticationTokens { get; set; }
 

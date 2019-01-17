@@ -12,37 +12,35 @@ namespace HomesEngland.UseCase.ImportAssets.Impl
 {
     public class ImportAssetsUseCase : IImportAssetsUseCase
     {
-        private readonly ICreateAssetUseCase _createAssetUseCase;
+        private readonly IBulkCreateAssetUseCase _bulkCreateAssetUseCase;
         private readonly IFactory<CreateAssetRequest, CsvAsset> _createAssetRequestFactory;
 
-        public ImportAssetsUseCase(ICreateAssetUseCase createAssetUseCase,
-            IFactory<CreateAssetRequest, CsvAsset> createAssetRequestFactory)
+        public ImportAssetsUseCase(IBulkCreateAssetUseCase bulkCreateAssetUseCase, IFactory<CreateAssetRequest, CsvAsset> createAssetRequestFactory)
         {
-            _createAssetUseCase = createAssetUseCase;
+            _bulkCreateAssetUseCase = bulkCreateAssetUseCase;
             _createAssetRequestFactory = createAssetRequestFactory;
         }
 
-        public async Task<ImportAssetsResponse> ExecuteAsync(ImportAssetsRequest request,
-            CancellationToken cancellationToken)
+        public async Task<ImportAssetsResponse> ExecuteAsync(ImportAssetsRequest requests, CancellationToken cancellationToken)
         {
             ImportAssetsResponse response = new ImportAssetsResponse
             {
                 AssetsImported = new List<AssetOutputModel>()
             };
 
-            foreach (var requestAssetLine in request.AssetLines)
+            List<CreateAssetRequest> createAssetRequests = new List<CreateAssetRequest>();
+            foreach (var requestAssetLine in requests.AssetLines)
             {
-                var createdAsset = await CreateAssetForLine(request, cancellationToken, requestAssetLine);
-
-                response.AssetsImported.Add(createdAsset.Asset);
+                var createAssetRequest = await CreateAssetForLine(requests, cancellationToken, requestAssetLine);
+                createAssetRequests.Add(createAssetRequest);
             }
+
+            var responses = await _bulkCreateAssetUseCase.ExecuteAsync(createAssetRequests, cancellationToken).ConfigureAwait(false);
 
             return response;
         }
 
-        private async Task<CreateAssetResponse> CreateAssetForLine(ImportAssetsRequest request,
-            CancellationToken cancellationToken,
-            string requestAssetLine)
+        private async Task<CreateAssetRequest> CreateAssetForLine(ImportAssetsRequest request, CancellationToken cancellationToken, string requestAssetLine)
         {
             CsvAsset csvAsset = new CsvAsset
             {
@@ -52,9 +50,7 @@ namespace HomesEngland.UseCase.ImportAssets.Impl
 
             CreateAssetRequest createAssetRequest = _createAssetRequestFactory.Create(csvAsset);
 
-            var createdAsset = await _createAssetUseCase.ExecuteAsync(createAssetRequest, cancellationToken)
-                .ConfigureAwait(false);
-            return createdAsset;
+            return createAssetRequest;
         }
     }
 }

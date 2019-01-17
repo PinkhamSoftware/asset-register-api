@@ -14,12 +14,12 @@ namespace HomesEngland.UseCase.CalculateAssetAggregates
             _assetAggregator = assetAggregator;
         }
 
-        public async Task<CalculateAssetAggregateResponse> ExecuteAsync(CalculateAssetAggregateRequest request, CancellationToken cancellationToken)
+        public async Task<CalculateAssetAggregateResponse> ExecuteAsync(CalculateAssetAggregateRequest requests, CancellationToken cancellationToken)
         {
             var assetSearchQuery = new AssetSearchQuery
             {
-                SchemeId = request?.SchemeId,
-                Address = request?.Address
+                SchemeId = requests?.SchemeId,
+                Address = requests?.Address
             };
             var result = await _assetAggregator.Aggregate(assetSearchQuery, cancellationToken).ConfigureAwait(false);
             var response = new CalculateAssetAggregateResponse

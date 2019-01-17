@@ -19,13 +19,13 @@ namespace HomesEnglandTest.UseCase.ImportAssets
     public class ImportAssetsUseCaseTest
     {
         public IImportAssetsUseCase _classUnderTest;
-        public Mock<ICreateAssetUseCase> _mockCreateAssetUseCase;
+        public Mock<IBulkCreateAssetUseCase> _mockCreateAssetUseCase;
         public Mock<IFactory<CreateAssetRequest, CsvAsset>> _mockCreateAssetFactory;
 
         [SetUp]
         public void Setup()
         {
-            _mockCreateAssetUseCase = new Mock<ICreateAssetUseCase>();
+            _mockCreateAssetUseCase = new Mock<IBulkCreateAssetUseCase>();
             _mockCreateAssetFactory = new Mock<IFactory<CreateAssetRequest, CsvAsset>>();
             _classUnderTest = new ImportAssetsUseCase(_mockCreateAssetUseCase.Object, _mockCreateAssetFactory.Object);
         }
@@ -41,8 +41,8 @@ namespace HomesEnglandTest.UseCase.ImportAssets
             };
 
             _mockCreateAssetUseCase
-                .Setup(s => s.ExecuteAsync(It.IsAny<CreateAssetRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(createAssetResponse);
+                .Setup(s => s.ExecuteAsync(It.IsAny<IList<CreateAssetRequest>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<CreateAssetResponse>{createAssetResponse});
         }
 
         private void StubCreateAssetUseCaseWithAddress(string address)
@@ -56,9 +56,10 @@ namespace HomesEnglandTest.UseCase.ImportAssets
             };
 
             _mockCreateAssetUseCase
-                .Setup(s => s.ExecuteAsync(It.Is<CreateAssetRequest>(req => req.Address.Equals(address)),
+                .Setup(s => s.ExecuteAsync(
+                    It.Is<IList<CreateAssetRequest>>(req => req[0].Address.Equals(address)),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(assetResponse);
+                .ReturnsAsync(new List<CreateAssetResponse> { assetResponse });
         }
 
         private void StubFactoryWithAddress(string csvLine, string address)
@@ -123,7 +124,7 @@ namespace HomesEnglandTest.UseCase.ImportAssets
                 await _classUnderTest.ExecuteAsync(request, CancellationToken.None).ConfigureAwait(false);
 
                 _mockCreateAssetUseCase.Verify(v =>
-                    v.ExecuteAsync(It.Is<CreateAssetRequest>(req => req.Address.Equals(input)),
+                    v.ExecuteAsync(It.Is<IList<CreateAssetRequest>>(req => req[0].Address.Equals(input)),
                         It.IsAny<CancellationToken>()));
             }
 
@@ -140,8 +141,8 @@ namespace HomesEnglandTest.UseCase.ImportAssets
                 };
 
                 _mockCreateAssetUseCase
-                    .Setup(s => s.ExecuteAsync(It.IsAny<CreateAssetRequest>(), It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(createAssetResponse);
+                    .Setup(s => s.ExecuteAsync(It.IsAny<IList<CreateAssetRequest>>(), It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(new List<CreateAssetResponse>{createAssetResponse});
 
                 var request = new ImportAssetsRequest
                 {
