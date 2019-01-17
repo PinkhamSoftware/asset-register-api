@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -11,8 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomesEngland.Gateway.Sql
 {
-    public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator,
-        IAssetSearcher, IAssetAggregator
+    public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator, IBulkAssetCreator
     {
         private readonly string _databaseUrl; 
 
@@ -115,6 +115,20 @@ namespace HomesEngland.Gateway.Sql
                     MovementInAssetValue = assetValue - moneyPaidOut
                 };
                 return Task.FromResult(assetAggregates);
+            }
+        }
+
+        public async Task<IList<IAsset>> BulkCreateAsync(IList<IAsset> entities, CancellationToken cancellationToken)
+        {
+            List<AssetEntity> assetEntities = entities.Select(s=> new AssetEntity(s)).ToList();
+
+            using (var context = new AssetRegisterContext(_databaseUrl))
+            {
+                await context.AddRangeAsync(assetEntities, cancellationToken).ConfigureAwait(false);
+                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                var t = assetEntities.Select(s => new Asset(s) as IAsset);
+                IList<IAsset> list = t.ToList();
+                return list;
             }
         }
     }

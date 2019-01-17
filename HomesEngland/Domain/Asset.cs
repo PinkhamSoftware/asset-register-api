@@ -93,6 +93,7 @@ namespace HomesEngland.Domain
 
         public Asset(IAsset request)
         {
+            Id = request.Id;
             Programme = request.Programme;
             EquityOwner = request.EquityOwner;
             SchemeId = request.SchemeId;
