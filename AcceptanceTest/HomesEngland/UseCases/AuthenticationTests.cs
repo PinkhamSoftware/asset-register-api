@@ -56,7 +56,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases
             Environment.SetEnvironmentVariable("GOV_NOTIFY_URL", "http://localhost:7654/");
             Environment.SetEnvironmentVariable("GOV_NOTIFY_API_KEY", BuildValidGovNotifyApiKeyFromHexFragment("1111"));
             Environment.SetEnvironmentVariable("EMAIL_WHITELIST", "test@example.com");
-            Environment.SetEnvironmentVariable("HMAC_SECRET", "super duper mega secret key");
+            Environment.SetEnvironmentVariable("HmacSecret", "super duper mega secret key");
         }
 
         [Test]

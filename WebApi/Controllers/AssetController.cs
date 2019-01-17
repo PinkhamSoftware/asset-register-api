@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using HomesEngland.UseCase.GetAsset;
 using HomesEngland.UseCase.GetAsset.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 using WebApi.Extensions.Requests;
@@ -9,6 +10,7 @@ namespace WebApi.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [Authorize]
     public class AssetController : ControllerBase
     {
         private readonly IGetAssetUseCase _assetUseCase;

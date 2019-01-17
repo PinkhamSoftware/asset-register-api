@@ -39,20 +39,20 @@ namespace HomesEngland.Gateway.Test.JWT
         {
             _dateTimeProviderFake = new DateTimeProviderFake();
             _accessTokenCreator = new JwtAccessTokenGateway();
-            _secret = Environment.GetEnvironmentVariable("HMAC_SECRET");
+            _secret = Environment.GetEnvironmentVariable("HmacSecret");
         }
 
         [TearDown]
         public void TearDown()
         {
-            Environment.SetEnvironmentVariable("HMAC_SECRET", _secret);
+            Environment.SetEnvironmentVariable("HmacSecret", _secret);
         }
 
         [TestCase("Shh its a secret")]
         [TestCase("Dont tell anyone")]
         public async Task GivenCreatingToken_SignItWithHmacSecret(string hmacSecret)
         {
-            Environment.SetEnvironmentVariable("HMAC_SECRET", hmacSecret);
+            Environment.SetEnvironmentVariable("HmacSecret", hmacSecret);
             IAccessToken token = await _accessTokenCreator.CreateAsync(CancellationToken.None);
 
             Assert.DoesNotThrow(() => ValidateTokenWithSecret(token, hmacSecret));
@@ -62,7 +62,7 @@ namespace HomesEngland.Gateway.Test.JWT
         public async Task GivenCreatingToken_ItExpiresAfterEightHours()
         {
             var secret = "super duper secret";
-            Environment.SetEnvironmentVariable("HMAC_SECRET", secret);
+            Environment.SetEnvironmentVariable("HmacSecret", secret);
             IAccessToken token = await _accessTokenCreator.CreateAsync(CancellationToken.None);
 
             var validatedToken = ValidateTokenWithSecret(token, secret);
