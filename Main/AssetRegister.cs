@@ -78,6 +78,8 @@ namespace Main
                 new EFAuthenticationTokenGateway(databaseUrl));
             RegisterExportedDependency<IOneTimeAuthenticationTokenReader>(() =>
                 new EFAuthenticationTokenGateway(databaseUrl));
+            RegisterExportedDependency<IOneTimeAuthenticationTokenDeleter>(() =>
+                new EFAuthenticationTokenGateway(databaseUrl));
             RegisterExportedDependency<IOneTimeLinkNotifier, GovNotifyNotificationsGateway>();
             RegisterExportedDependency<IAccessTokenCreator, JwtAccessTokenGateway>();
             RegisterExportedDependency<IGetAccessToken, GetAccessTokenUseCase>();

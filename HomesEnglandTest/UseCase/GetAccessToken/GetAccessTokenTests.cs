@@ -18,6 +18,7 @@ namespace HomesEnglandTest.UseCase.GetAccessToken
     {
         private GetAccessTokenUseCase _classUnderTest;
         private Mock<IOneTimeAuthenticationTokenReader> _tokenReaderSpy;
+        private Mock<IOneTimeAuthenticationTokenDeleter> _tokenDeleterSpy;
         private Mock<IAccessTokenCreator> _accessTokenCreatorSpy;
 
         [SetUp]
@@ -25,7 +26,9 @@ namespace HomesEnglandTest.UseCase.GetAccessToken
         {
             _accessTokenCreatorSpy = new Mock<IAccessTokenCreator>();
             _tokenReaderSpy = new Mock<IOneTimeAuthenticationTokenReader>();
-            _classUnderTest = new GetAccessTokenUseCase(_tokenReaderSpy.Object, _accessTokenCreatorSpy.Object);
+            _tokenDeleterSpy = new Mock<IOneTimeAuthenticationTokenDeleter>();
+            _classUnderTest = new GetAccessTokenUseCase(_tokenReaderSpy.Object, _accessTokenCreatorSpy.Object,
+                _tokenDeleterSpy.Object);
         }
 
         [TestCase("Meow meow")]
@@ -127,6 +130,24 @@ namespace HomesEnglandTest.UseCase.GetAccessToken
             response.AccessToken.Should().BeEquivalentTo(createdToken);
         }
 
+        [TestCase("meow")]
+        [TestCase("woof")]
+        public async Task GivenRequestMatchingToken_WhenTokenIsValid_DeleteToken(string token)
+        {
+            StubTokenReaderWithValidToken(token);
+            StubAccessTokenCreator("fake token");
+
+            GetAccessTokenRequest request = new GetAccessTokenRequest
+            {
+                Token = token
+            };
+
+            await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
+
+            _tokenDeleterSpy.Verify(v =>
+                v.DeleteAsync(It.Is<string>(s => s.Equals(token)), It.IsAny<CancellationToken>()));
+        }
+
         private void StubAccessTokenCreator(string createdToken)
         {
             _accessTokenCreatorSpy.Setup(s => s.CreateAsync(It.IsAny<CancellationToken>()))
@@ -138,12 +159,11 @@ namespace HomesEnglandTest.UseCase.GetAccessToken
             _tokenReaderSpy.Setup(e => e.ReadAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new AuthenticationToken {Token = token, Expiry = DateTime.Now.AddDays(1)});
         }
-        
+
         private void StubTokenReaderWithExpiredToken(string token)
         {
             _tokenReaderSpy.Setup(e => e.ReadAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new AuthenticationToken {Token = token, Expiry = DateTime.Now.Subtract(new TimeSpan(1))});
         }
-
     }
 }

@@ -93,6 +93,27 @@ namespace AssetRegisterTests.HomesEngland.UseCases
             }
         }
 
+        [Test]
+        public async Task GivenUserIsAuthorised_AndTheyGetAOneTimeUseToken_TheyCanOnlyGetAnApiKeyOnce()
+        {
+            using (ATransaction())
+            {
+                var notifyRequest = await RequestAccessToApplication();
+                string token = GetTokenFromNotifyRequest(notifyRequest);
+
+                GetAccessTokenRequest tokenRequest = new GetAccessTokenRequest
+                {
+                    Token = token
+                };
+
+                await _getAccessToken.ExecuteAsync(tokenRequest, CancellationToken.None);
+                var response = await _getAccessToken.ExecuteAsync(tokenRequest, CancellationToken.None);
+
+                response.Should().NotBeNull();
+                response.Authorised.Should().BeFalse();
+            }
+        }
+
         private async Task<NotifyRequest> RequestAccessToApplication()
         {
             var simulator = new FluentSimulator("http://localhost:7654/");

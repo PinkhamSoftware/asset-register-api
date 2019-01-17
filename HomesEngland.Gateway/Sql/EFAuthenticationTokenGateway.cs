@@ -9,6 +9,7 @@ namespace HomesEngland.Gateway.Sql
     public class EFAuthenticationTokenGateway : IAuthenticationGateway
     {
         private readonly string _databaseUrl;
+
         public EFAuthenticationTokenGateway(string databaseUrl)
         {
             _databaseUrl = databaseUrl;
@@ -16,7 +17,6 @@ namespace HomesEngland.Gateway.Sql
 
         public Task<IAuthenticationToken> CreateAsync(IAuthenticationToken token, CancellationToken cancellationToken)
         {
-            
             var tokenEntity = new AuthenticationTokenEntity(token);
 
             using (var context = new AssetRegisterContext(_databaseUrl))
@@ -33,8 +33,18 @@ namespace HomesEngland.Gateway.Sql
         {
             using (var context = new AssetRegisterContext(_databaseUrl))
             {
-                IAuthenticationToken foundAsset = context.AuthenticationTokens.First(t => t.Token == token);
-                return Task.FromResult(foundAsset);
+                IAuthenticationToken foundToken = context.AuthenticationTokens.FirstOrDefault(t => t.Token == token);
+                return Task.FromResult(foundToken);
+            }
+        }
+
+        public Task DeleteAsync(string token, CancellationToken cancellationToken)
+        {
+            using (var context = new AssetRegisterContext(_databaseUrl))
+            {
+                AuthenticationTokenEntity foundToken = context.AuthenticationTokens.First(t => t.Token == token);
+                context.AuthenticationTokens.Remove(foundToken);
+                return Task.FromResult(context.SaveChanges());
             }
         }
     }

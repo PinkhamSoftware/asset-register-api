@@ -12,12 +12,14 @@ namespace HomesEngland.UseCase.GetAccessToken.Impl
     {
         private readonly IOneTimeAuthenticationTokenReader _tokenReader;
         private readonly IAccessTokenCreator _accessTokenCreator;
+        private readonly IOneTimeAuthenticationTokenDeleter _tokenDeleter;
 
         public GetAccessTokenUseCase(IOneTimeAuthenticationTokenReader tokenReader,
-            IAccessTokenCreator accessTokenCreator)
+            IAccessTokenCreator accessTokenCreator, IOneTimeAuthenticationTokenDeleter tokenDeleter)
         {
             _tokenReader = tokenReader;
             _accessTokenCreator = accessTokenCreator;
+            _tokenDeleter = tokenDeleter;
         }
 
         public async Task<GetAccessTokenResponse> ExecuteAsync(GetAccessTokenRequest tokenRequest,
@@ -31,6 +33,8 @@ namespace HomesEngland.UseCase.GetAccessToken.Impl
             }
 
             IAccessToken accessToken = await _accessTokenCreator.CreateAsync(cancellationToken);
+
+            await _tokenDeleter.DeleteAsync(tokenRequest.Token, cancellationToken);
 
             return AuthorisedResponse(accessToken);
         }
