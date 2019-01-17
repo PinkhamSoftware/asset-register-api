@@ -45,7 +45,7 @@ namespace HomesEngland.Gateway.Test
                 };
                 //act
                 var createdAuthenticationToken = await _classUnderTest.CreateAsync(authenticationToken, CancellationToken.None).ConfigureAwait(false);
-                var readAuthenticationToken = await _classUnderTest.ReadAsync(createdAuthenticationToken.Id, CancellationToken.None).ConfigureAwait(false);
+                var readAuthenticationToken = await _classUnderTest.ReadAsync(createdAuthenticationToken.Token, CancellationToken.None).ConfigureAwait(false);
                 //assert
                 readAuthenticationToken.Token.Should().BeEquivalentTo(authenticationToken.Token);
                 readAuthenticationToken.Expiry.Should().BeCloseTo(authenticationToken.Expiry);

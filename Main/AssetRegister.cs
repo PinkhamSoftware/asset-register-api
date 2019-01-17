@@ -3,8 +3,10 @@ using DependencyInjection;
 using HomesEngland.Domain;
 using HomesEngland.Domain.Factory;
 using HomesEngland.Gateway;
+using HomesEngland.Gateway.AccessTokens;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.AuthenticationTokens;
+using HomesEngland.Gateway.JWT;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.Gateway.Notifications;
 using HomesEngland.Gateway.Notify;
@@ -20,6 +22,8 @@ using HomesEngland.UseCase.CreateAsset.Models.Factory;
 using HomesEngland.UseCase.GenerateAssets;
 using HomesEngland.UseCase.GenerateAssets.Impl;
 using HomesEngland.UseCase.GenerateAssets.Models;
+using HomesEngland.UseCase.GetAccessToken;
+using HomesEngland.UseCase.GetAccessToken.Impl;
 using HomesEngland.UseCase.GetAsset;
 using HomesEngland.UseCase.GetAsset.Impl;
 using HomesEngland.UseCase.ImportAssets;
@@ -60,7 +64,7 @@ namespace Main
                     databaseUrl));
             RegisterExportedDependency<IGetAssetUseCase, GetAssetUseCase>();
             RegisterExportedDependency<IAssetReader>(() => new EFAssetGateway(databaseUrl));
-            RegisterExportedDependency<AssetRegisterContext>(()=> new AssetRegisterContext(databaseUrl));
+            RegisterExportedDependency<AssetRegisterContext>(() => new AssetRegisterContext(databaseUrl));
             RegisterExportedDependency<ISearchAssetUseCase, SearchAssetUseCase>();
             RegisterExportedDependency<IAssetSearcher>(() => new EFAssetGateway(databaseUrl));
             RegisterExportedDependency<IAssetCreator>(() => new EFAssetGateway(databaseUrl));
@@ -70,9 +74,14 @@ namespace Main
             RegisterExportedDependency<IConsoleGenerator, ConsoleAssetGenerator>();
             RegisterExportedDependency<IInputParser<GenerateAssetsRequest>, InputParser>();
             RegisterExportedDependency<IAuthenticateUser, AuthenticateUserUseCase>();
-            RegisterExportedDependency<IOneTimeAuthenticationTokenCreator>(()=> new EFAuthenticationTokenGateway(databaseUrl));
-            RegisterExportedDependency<IOneTimeAuthenticationTokenReader>(() => new EFAuthenticationTokenGateway(databaseUrl));
+            RegisterExportedDependency<IOneTimeAuthenticationTokenCreator>(() =>
+                new EFAuthenticationTokenGateway(databaseUrl));
+            RegisterExportedDependency<IOneTimeAuthenticationTokenReader>(() =>
+                new EFAuthenticationTokenGateway(databaseUrl));
             RegisterExportedDependency<IOneTimeLinkNotifier, GovNotifyNotificationsGateway>();
+            RegisterExportedDependency<IAccessTokenCreator, JwtAccessTokenGateway>();
+            RegisterExportedDependency<IGetAccessToken, GetAccessTokenUseCase>();
+
 
             ILoggerFactory loggerFactory = new LoggerFactory()
                 .AddConsole()

@@ -14,6 +14,7 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:super-secret@db:5432/asset_register_api
       - ASPNETCORE_URLS=http://*:5000
+      - HMAC_SECRET="super duper mega secret"
     ports:
       - "5000:5000"
     links:
