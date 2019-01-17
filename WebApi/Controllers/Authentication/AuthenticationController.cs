@@ -4,6 +4,7 @@ using HomesEngland.UseCase.AuthenticateUser;
 using HomesEngland.UseCase.AuthenticateUser.Models;
 using HomesEngland.UseCase.GetAccessToken;
 using HomesEngland.UseCase.GetAccessToken.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 
@@ -72,6 +73,14 @@ namespace WebApi.Controllers.Authentication
                 {AccessToken = response.AccessToken});
 
             return StatusCode(200, responseData);
+        }
+
+        [HttpGet("verification")]
+        [Produces("application/json")]
+        [Authorize]
+        public IActionResult VerifyToken()
+        {
+            return StatusCode(200);
         }
 
         public class GetAccessTokenApiResponse
