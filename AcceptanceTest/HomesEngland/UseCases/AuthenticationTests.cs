@@ -24,6 +24,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases
         {
             var assetRegister = new AssetRegister();
             _authenticateUser = assetRegister.Get<IAuthenticateUser>();
+            _getAccessToken = assetRegister.Get<IGetAccessToken>();
         }
 
         private TransactionScope ATransaction()
@@ -49,28 +50,21 @@ namespace AssetRegisterTests.HomesEngland.UseCases
                 $"{fragment}-{fragment}{fragment}-{fragment}-{fragment}-{fragment}-{fragment}{fragment}{fragment}-{fragment}{fragment}-{fragment}-{fragment}-{fragment}-{fragment}{fragment}{fragment}";
         }
 
-        [Test]
-        public async Task GivenUserIsAuthorised_SendAnEmailContainingATokenToTheUser()
+        [SetUp]
+        public void SetUp()
         {
             Environment.SetEnvironmentVariable("GOV_NOTIFY_URL", "http://localhost:7654/");
             Environment.SetEnvironmentVariable("GOV_NOTIFY_API_KEY", BuildValidGovNotifyApiKeyFromHexFragment("1111"));
             Environment.SetEnvironmentVariable("EMAIL_WHITELIST", "test@example.com");
+            Environment.SetEnvironmentVariable("HMAC_SECRET", "super duper mega secret key");
+        }
+
+        [Test]
+        public async Task GivenUserIsAuthorised_SendAnEmailContainingATokenToTheUser()
+        {
             using (ATransaction())
             {
-                var simulator = new FluentSimulator("http://localhost:7654/");
-                simulator.Start();
-                simulator.Post("/v2/notifications/email").Responds().WithCode(200);
-
-                AuthenticateUserRequest request = new AuthenticateUserRequest
-                {
-                    Email = "test@example.com",
-                    Url = "http://meow.cat/"
-                };
-
-                await _authenticateUser.ExecuteAsync(request, CancellationToken.None);
-
-                var notifyRequest = simulator.ReceivedRequests[0].BodyAs<NotifyRequest>();
-                simulator.Stop();
+                var notifyRequest = await RequestAccessToApplication();
 
                 notifyRequest.Should().NotBeNull();
                 notifyRequest.email_address.Should().Be("test@example.com");
@@ -79,27 +73,11 @@ namespace AssetRegisterTests.HomesEngland.UseCases
         }
 
         [Test]
-        [Ignore("Ignored whilst token creator is not implemented")]
         public async Task GivenUserIsAuthorised_AndTheyGetAOneTimeUseToken_TheyCanGetAnApiKeyWithTheirToken()
         {
-            Environment.SetEnvironmentVariable("GOV_NOTIFY_URL", "http://localhost:7654/");
-            Environment.SetEnvironmentVariable("GOV_NOTIFY_API_KEY", BuildValidGovNotifyApiKeyFromHexFragment("1111"));
-            Environment.SetEnvironmentVariable("EMAIL_WHITELIST", "test@example.com");
             using (ATransaction())
             {
-                var simulator = new FluentSimulator("http://localhost:7654/");
-                simulator.Start();
-                simulator.Post("/v2/notifications/email").Responds().WithCode(200);
-
-                AuthenticateUserRequest request = new AuthenticateUserRequest
-                {
-                    Email = "test@example.com",
-                    Url = "http://meow.cat/"
-                };
-
-                await _authenticateUser.ExecuteAsync(request, CancellationToken.None);
-
-                NotifyRequest notifyRequest = simulator.ReceivedRequests[0].BodyAs<NotifyRequest>();
+                var notifyRequest = await RequestAccessToApplication();
                 string token = GetTokenFromNotifyRequest(notifyRequest);
 
                 GetAccessTokenRequest tokenRequest = new GetAccessTokenRequest
@@ -115,6 +93,26 @@ namespace AssetRegisterTests.HomesEngland.UseCases
             }
         }
 
+        private async Task<NotifyRequest> RequestAccessToApplication()
+        {
+            var simulator = new FluentSimulator("http://localhost:7654/");
+            simulator.Start();
+            simulator.Post("/v2/notifications/email").Responds().WithCode(200);
+
+            AuthenticateUserRequest request = new AuthenticateUserRequest
+            {
+                Email = "test@example.com",
+                Url = "http://meow.cat/"
+            };
+
+            await _authenticateUser.ExecuteAsync(request, CancellationToken.None);
+
+            simulator.Stop();
+
+            NotifyRequest notifyRequest = simulator.ReceivedRequests[0].BodyAs<NotifyRequest>();
+            return notifyRequest;
+        }
+
         private string GetTokenFromNotifyRequest(NotifyRequest notifyRequest)
         {
             Uri accessUri = new Uri(notifyRequest.personalisation.access_url);
@@ -122,6 +120,4 @@ namespace AssetRegisterTests.HomesEngland.UseCases
             return HttpUtility.ParseQueryString(accessUri.Query).Get("token");
         }
     }
-
-
 }
