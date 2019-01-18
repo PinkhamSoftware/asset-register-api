@@ -3,15 +3,17 @@ using System;
 using HomesEngland.Gateway.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HomesEngland.Gateway.Migrations
 {
     [DbContext(typeof(AssetRegisterContext))]
-    partial class AssetRegisterContextModelSnapshot : ModelSnapshot
+    [Migration("20190118113820_asset_register_version")]
+    partial class asset_register_version
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,8 +47,6 @@ namespace HomesEngland.Gateway.Migrations
 
                     b.Property<string>("ArrearsEffectAppliedOrLimited")
                         .HasColumnName("arrearseffectappliedorlimited");
-
-                    b.Property<int?>("AssetRegisterVersionEntityId");
 
                     b.Property<int?>("AssetRegisterVersionId")
                         .HasColumnName("assetregisterversionid");
@@ -267,16 +267,17 @@ namespace HomesEngland.Gateway.Migrations
                     b.Property<decimal?>("WAEstimatedPropertyValue")
                         .HasColumnName("waestimatedpropertyvalue");
 
+                    b.Property<int?>("assetregisterversionid")
+                        .HasColumnName("AssetEntity_assetregisterversionid");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("AssetRegisterVersionEntityId");
-
-                    b.HasIndex("AssetRegisterVersionId");
+                    b.HasIndex("assetregisterversionid");
 
                     b.ToTable("assets");
                 });
 
-            modelBuilder.Entity("HomesEngland.Gateway.AssetRegisterVersionEntity", b =>
+            modelBuilder.Entity("HomesEngland.Gateway.AssetRegisterVersion", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -315,13 +316,9 @@ namespace HomesEngland.Gateway.Migrations
 
             modelBuilder.Entity("HomesEngland.Gateway.AssetEntity", b =>
                 {
-                    b.HasOne("HomesEngland.Gateway.AssetRegisterVersionEntity")
+                    b.HasOne("HomesEngland.Gateway.AssetRegisterVersion", "AssetRegisterVersion")
                         .WithMany("Assets")
-                        .HasForeignKey("AssetRegisterVersionEntityId");
-
-                    b.HasOne("HomesEngland.Gateway.AssetRegisterVersionEntity", "AssetRegisterVersion")
-                        .WithMany()
-                        .HasForeignKey("AssetRegisterVersionId");
+                        .HasForeignKey("assetregisterversionid");
                 });
 #pragma warning restore 612, 618
         }

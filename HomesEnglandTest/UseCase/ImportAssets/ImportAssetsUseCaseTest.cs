@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using HomesEngland.Domain.Factory;
-using HomesEngland.UseCase.CreateAsset;
+using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.CreateAsset.Models.Factory;
 using HomesEngland.UseCase.GetAsset.Models;
@@ -188,8 +188,7 @@ namespace HomesEnglandTest.UseCase.ImportAssets
                     AssetLines = new List<string> {inputOne, inputTwo}
                 };
 
-                var response = await _classUnderTest.ExecuteAsync(request, CancellationToken.None)
-                    .ConfigureAwait(false);
+                var response = await _classUnderTest.ExecuteAsync(request, CancellationToken.None).ConfigureAwait(false);
 
                 var createdAssets = response.AssetsImported;
 

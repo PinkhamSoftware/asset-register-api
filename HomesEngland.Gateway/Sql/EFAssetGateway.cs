@@ -8,6 +8,7 @@ using HomesEngland.Domain;
 using HomesEngland.Domain.Impl;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.Migrations;
+using HomesEngland.UseCase.BulkCreateAsset.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomesEngland.Gateway.Sql
@@ -46,8 +47,7 @@ namespace HomesEngland.Gateway.Sql
             }
         }
 
-        public Task<IPagedResults<IAsset>> Search(IAssetPagedSearchQuery searchRequest,
-            CancellationToken cancellationToken)
+        public Task<IPagedResults<IAsset>> Search(IAssetPagedSearchQuery searchRequest, CancellationToken cancellationToken)
         {
             using (var context = new AssetRegisterContext(_databaseUrl))
             {
@@ -70,8 +70,7 @@ namespace HomesEngland.Gateway.Sql
             }
         }
 
-        private IQueryable<AssetEntity> GenerateFilteringCriteria(AssetRegisterContext context,
-            IAssetSearchQuery searchRequest)
+        private IQueryable<AssetEntity> GenerateFilteringCriteria(AssetRegisterContext context, IAssetSearchQuery searchRequest)
         {
             IQueryable<AssetEntity> queryable = context.Assets;
             if (!string.IsNullOrEmpty(searchRequest.Address) && !string.IsNullOrWhiteSpace(searchRequest.Address))
@@ -118,15 +117,15 @@ namespace HomesEngland.Gateway.Sql
             }
         }
 
-        public async Task<IList<IAsset>> BulkCreateAsync(IList<IAsset> entities, CancellationToken cancellationToken)
+        public async Task<IList<IAsset>> BulkCreateAsync(IAssetRegisterVersion assetRegisterVersion, CancellationToken cancellationToken)
         {
-            List<AssetEntity> assetEntities = entities.Select(s=> new AssetEntity(s)).ToList();
+            AssetRegisterVersionEntity assetRegisterVersionEntity = new AssetRegisterVersionEntity(assetRegisterVersion);
 
             using (var context = new AssetRegisterContext(_databaseUrl))
             {
-                await context.AddRangeAsync(assetEntities, cancellationToken).ConfigureAwait(false);
+                await context.AssetRegisterVersions.AddAsync(assetRegisterVersionEntity, cancellationToken).ConfigureAwait(false);       
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                var t = assetEntities.Select(s => new Asset(s) as IAsset);
+                var t = assetRegisterVersionEntity.Assets.Select(s => new Asset(s) as IAsset);
                 IList<IAsset> list = t.ToList();
                 return list;
             }

@@ -1,23 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using HomesEngland.Domain;
 
-namespace HomesEngland.Gateway
+namespace HomesEngland.UseCase.BulkCreateAsset.Models
 {
-    [Table("assetregisterversions")]
-    public class AssetRegisterVersion : IDatabaseEntity<int>
+    public class AssetRegisterVersion : IAssetRegisterVersion
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Column("id")]
         public int Id { get; set; }
 
-        [Column("modifieddatetime")]
         public DateTime ModifiedDateTime { get; set; }
-        
-        public virtual IList<AssetEntity> Assets { get; set; }
+
+        public virtual IList<IAsset> Assets { get; set; }
 
         public AssetRegisterVersion() { }
 
@@ -25,6 +18,7 @@ namespace HomesEngland.Gateway
         {
             Id = assetRegisterVersion.Id;
             ModifiedDateTime = assetRegisterVersion.ModifiedDateTime;
+            Assets = assetRegisterVersion.Assets;
         }
     }
 }

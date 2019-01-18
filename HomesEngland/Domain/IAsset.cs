@@ -91,5 +91,7 @@ namespace HomesEngland.Domain
         decimal? HouseholdFiftyKIncomeBand { get; set; }
         bool? FirstTimeBuyer { get; set; }
 
+        int? AssetRegisterVersionId { get; set; }
+
     }
 }

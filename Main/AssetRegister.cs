@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using DependencyInjection;
 using HomesEngland.Domain;
 using HomesEngland.Domain.Factory;
@@ -12,6 +12,7 @@ using HomesEngland.Gateway.Sql;
 using HomesEngland.Gateway.Sql.Postgres;
 using HomesEngland.UseCase.AuthenticateUser;
 using HomesEngland.UseCase.AuthenticateUser.Impl;
+using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.CalculateAssetAggregates;
 using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Impl;
@@ -92,6 +93,9 @@ namespace Main
             RegisterExportedDependency<IFactory<CreateAssetRequest, CsvAsset>, CreateAssetRequestFactory>();
             RegisterExportedDependency<ICalculateAssetAggregatesUseCase, CalculateAssetAggregatesUseCase>();
             RegisterExportedDependency<IAssetAggregator>(() => new EFAssetGateway(databaseUrl));
+
+            RegisterExportedDependency<IBulkCreateAssetUseCase,BulkCreateAssetUseCase>();
+            RegisterExportedDependency<IBulkAssetCreator>(()=> new EFAssetGateway(databaseUrl));
         }
 
         public override T Get<T>()

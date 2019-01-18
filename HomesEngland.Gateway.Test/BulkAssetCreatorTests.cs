@@ -8,6 +8,7 @@ using FluentAssertions;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.Gateway.Sql;
+using HomesEngland.UseCase.BulkCreateAsset.Models;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using TestHelper;
@@ -47,7 +48,10 @@ namespace HomesEngland.Gateway.Test
                     assets.Add(entity);
                 }
                 
-                var createdAssets = await _classUnderTest.BulkCreateAsync(assets, CancellationToken.None).ConfigureAwait(false);
+                var createdAssets = await _classUnderTest.BulkCreateAsync(new AssetRegisterVersion
+                {
+                    Assets = assets
+                }, CancellationToken.None).ConfigureAwait(false);
                 //act
                 for (int i = 0; i < count; i++)
                 {

@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain.Factory;
-using HomesEngland.UseCase.CreateAsset;
+using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.CreateAsset.Models.Factory;
-using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.ImportAssets.Models;
 
 namespace HomesEngland.UseCase.ImportAssets.Impl
@@ -23,11 +23,6 @@ namespace HomesEngland.UseCase.ImportAssets.Impl
 
         public async Task<ImportAssetsResponse> ExecuteAsync(ImportAssetsRequest requests, CancellationToken cancellationToken)
         {
-            ImportAssetsResponse response = new ImportAssetsResponse
-            {
-                AssetsImported = new List<AssetOutputModel>()
-            };
-
             List<CreateAssetRequest> createAssetRequests = new List<CreateAssetRequest>();
             foreach (var requestAssetLine in requests.AssetLines)
             {
@@ -36,6 +31,11 @@ namespace HomesEngland.UseCase.ImportAssets.Impl
             }
 
             var responses = await _bulkCreateAssetUseCase.ExecuteAsync(createAssetRequests, cancellationToken).ConfigureAwait(false);
+
+            ImportAssetsResponse response = new ImportAssetsResponse
+            {
+                AssetsImported = responses.Select(s=> s.Asset).ToList()
+            };
 
             return response;
         }

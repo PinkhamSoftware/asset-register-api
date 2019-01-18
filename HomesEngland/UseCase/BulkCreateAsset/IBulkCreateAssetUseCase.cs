@@ -2,7 +2,7 @@
 using HomesEngland.Boundary.UseCase;
 using HomesEngland.UseCase.CreateAsset.Models;
 
-namespace HomesEngland.UseCase.CreateAsset
+namespace HomesEngland.UseCase.BulkCreateAsset
 {
     public interface IBulkCreateAssetUseCase : IAsyncUseCaseTask<IList<CreateAssetRequest>, IList<CreateAssetResponse>>
     {

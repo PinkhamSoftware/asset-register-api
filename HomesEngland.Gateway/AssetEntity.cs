@@ -187,8 +187,9 @@ namespace HomesEngland.Gateway
 
         [Column("assetregisterversionid")]
         public int? AssetRegisterVersionId { get; set; }
-        [ForeignKey("assetregisterversionid")]
-        public virtual AssetRegisterVersion AssetRegisterVersion { get; set; }
+
+        [ForeignKey("AssetRegisterVersionId")]
+        public virtual AssetRegisterVersionEntity AssetRegisterVersion { get; set; }
 
         public AssetEntity() { }
         public AssetEntity(IAsset request)
@@ -272,6 +273,8 @@ namespace HomesEngland.Gateway
 
             HouseholdIncome = request.HouseholdIncome;
             EstimatedValuation = request.EstimatedValuation;
+
+            AssetRegisterVersionId = request.AssetRegisterVersionId;
         }
     }
 }
