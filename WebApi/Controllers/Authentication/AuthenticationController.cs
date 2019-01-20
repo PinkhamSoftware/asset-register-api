@@ -44,11 +44,13 @@ namespace WebApi.Controllers.Authentication
                 return StatusCode(400);
             }
 
-            await _authenticateUser.ExecuteAsync(new AuthenticateUserRequest
+            var response = await _authenticateUser.ExecuteAsync(new AuthenticateUserRequest
             {
                 Url = authenticationAuthoriseRequest.Url,
                 Email = authenticationAuthoriseRequest.Email
             }, new CancellationToken());
+
+            if (!response.Authorised) return StatusCode(401);
 
             return StatusCode(200);
         }
@@ -68,6 +70,8 @@ namespace WebApi.Controllers.Authentication
             {
                 Token = authenticationAccessTokenRequest.Token
             }, new CancellationToken());
+
+            if (!response.Authorised) return StatusCode(401);
 
             var responseData = new ResponseData<GetAccessTokenApiResponse>(new GetAccessTokenApiResponse
                 {AccessToken = response.AccessToken});
