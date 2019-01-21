@@ -121,6 +121,12 @@ namespace HomesEngland.Gateway.Sql
         {
             AssetRegisterVersionEntity assetRegisterVersionEntity = new AssetRegisterVersionEntity(assetRegisterVersion);
 
+            assetRegisterVersionEntity.Assets = assetRegisterVersionEntity.Assets.Select(s =>
+            {
+                s.AssetRegisterVersion = assetRegisterVersionEntity;
+                return s;
+            }).ToList();
+
             using (var context = new AssetRegisterContext(_databaseUrl))
             {
                 await context.AssetRegisterVersions.AddAsync(assetRegisterVersionEntity, cancellationToken).ConfigureAwait(false);       

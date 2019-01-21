@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.Gateway;
 using HomesEngland.UseCase.BulkCreateAsset.Models;
-using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.GetAsset.Models;
 
@@ -26,7 +26,8 @@ namespace HomesEngland.UseCase.BulkCreateAsset
 
             IAssetRegisterVersion assetRegisterVersion = new AssetRegisterVersion
             {
-                Assets = assets
+                Assets = assets,
+                ModifiedDateTime = DateTime.UtcNow
             };
 
             var result = await _bulkAssetCreator.BulkCreateAsync(assetRegisterVersion, cancellationToken).ConfigureAwait(false);

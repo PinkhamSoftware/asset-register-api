@@ -65,5 +65,71 @@ namespace HomesEngland.Gateway.Test
                 trans.Dispose();
             }
         }
+
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public async Task GivenEntities_WhenImporting_ThenAndAssetRegisterVersionIsCreated(int count)
+        {
+            //arrange 
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                IList<IAsset> assets = new List<IAsset>();
+                for (int i = 0; i < count; i++)
+                {
+                    var entity = TestData.Domain.GenerateAsset();
+                    assets.Add(entity);
+                }
+
+                var createdAssets = await _classUnderTest.BulkCreateAsync(new AssetRegisterVersion
+                {
+                    Assets = assets,
+                }, CancellationToken.None).ConfigureAwait(false);
+                //act
+                for (int i = 0; i < count; i++)
+                {
+                    var createdAsset = createdAssets.ElementAtOrDefault(i);
+                    var readAsset = await _gateway.ReadAsync(createdAsset.Id).ConfigureAwait(false);
+                    //assert
+                    readAsset.AssetRegisterVersionId.Should().NotBeNull();
+                }
+
+                trans.Dispose();
+            }
+        }
+
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public async Task GivenEntities_WhenImporting_ThenAndAssetRegisterVersionIsTimeStamped(int count)
+        {
+            //arrange 
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                IList<IAsset> assets = new List<IAsset>();
+                for (int i = 0; i < count; i++)
+                {
+                    var entity = TestData.Domain.GenerateAsset();
+                    assets.Add(entity);
+                }
+
+                var timeStamp = DateTime.UtcNow;
+                var createdAssets = await _classUnderTest.BulkCreateAsync(new AssetRegisterVersion
+                {
+                    Assets = assets,
+                    ModifiedDateTime = timeStamp
+                }, CancellationToken.None).ConfigureAwait(false);
+                //act
+                for (int i = 0; i < count; i++)
+                {
+                    var createdAsset = createdAssets.ElementAtOrDefault(i);
+                    var readAsset = await _gateway.ReadAsync(createdAsset.Id).ConfigureAwait(false);
+                    //assert
+                    readAsset.AssetRegisterVersionId.Should().NotBeNull();
+                }
+
+                trans.Dispose();
+            }
+        }
     }
 }
