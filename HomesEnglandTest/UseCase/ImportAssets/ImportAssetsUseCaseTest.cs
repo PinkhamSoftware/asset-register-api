@@ -19,15 +19,15 @@ namespace HomesEnglandTest.UseCase.ImportAssets
     public class ImportAssetsUseCaseTest
     {
         public IImportAssetsUseCase _classUnderTest;
-        public Mock<IBulkCreateAssetUseCase> _mockCreateAssetUseCase;
+        public Mock<IBulkCreateAssetUseCase> _mockBulkCreateAssetUseCase;
         public Mock<IFactory<CreateAssetRequest, CsvAsset>> _mockCreateAssetFactory;
 
         [SetUp]
         public void Setup()
         {
-            _mockCreateAssetUseCase = new Mock<IBulkCreateAssetUseCase>();
+            _mockBulkCreateAssetUseCase = new Mock<IBulkCreateAssetUseCase>();
             _mockCreateAssetFactory = new Mock<IFactory<CreateAssetRequest, CsvAsset>>();
-            _classUnderTest = new ImportAssetsUseCase(_mockCreateAssetUseCase.Object, _mockCreateAssetFactory.Object);
+            _classUnderTest = new ImportAssetsUseCase(_mockBulkCreateAssetUseCase.Object, _mockCreateAssetFactory.Object);
         }
 
         private void StubCreateAssetUseCase()
@@ -40,12 +40,12 @@ namespace HomesEnglandTest.UseCase.ImportAssets
                 }
             };
 
-            _mockCreateAssetUseCase
+            _mockBulkCreateAssetUseCase
                 .Setup(s => s.ExecuteAsync(It.IsAny<IList<CreateAssetRequest>>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<CreateAssetResponse>{createAssetResponse});
         }
 
-        private void StubCreateAssetUseCaseWithAddress(string address)
+        private void StubCreateAssetUseCaseWithAddress(string address, string address2)
         {
             var assetResponse = new CreateAssetResponse
             {
@@ -55,11 +55,19 @@ namespace HomesEnglandTest.UseCase.ImportAssets
                 }
             };
 
-            _mockCreateAssetUseCase
+            var assetResponse2 = new CreateAssetResponse
+            {
+                Asset = new AssetOutputModel
+                {
+                    Address = address2
+                }
+            };
+
+            _mockBulkCreateAssetUseCase
                 .Setup(s => s.ExecuteAsync(
-                    It.Is<IList<CreateAssetRequest>>(req => req[0].Address.Equals(address)),
+                    It.Is<IList<CreateAssetRequest>>(req => req[0].Address.Equals(address) || req[1].Address.Equals(address2)),
                     It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<CreateAssetResponse> { assetResponse });
+                .ReturnsAsync(new List<CreateAssetResponse> { assetResponse, assetResponse2 });
         }
 
         private void StubFactoryWithAddress(string csvLine, string address)
@@ -123,7 +131,7 @@ namespace HomesEnglandTest.UseCase.ImportAssets
 
                 await _classUnderTest.ExecuteAsync(request, CancellationToken.None).ConfigureAwait(false);
 
-                _mockCreateAssetUseCase.Verify(v =>
+                _mockBulkCreateAssetUseCase.Verify(v =>
                     v.ExecuteAsync(It.Is<IList<CreateAssetRequest>>(req => req[0].Address.Equals(input)),
                         It.IsAny<CancellationToken>()));
             }
@@ -140,7 +148,7 @@ namespace HomesEnglandTest.UseCase.ImportAssets
                     }
                 };
 
-                _mockCreateAssetUseCase
+                _mockBulkCreateAssetUseCase
                     .Setup(s => s.ExecuteAsync(It.IsAny<IList<CreateAssetRequest>>(), It.IsAny<CancellationToken>()))
                     .ReturnsAsync(new List<CreateAssetResponse>{createAssetResponse});
 
@@ -178,9 +186,8 @@ namespace HomesEnglandTest.UseCase.ImportAssets
             [TestCase("Meow", "Woof")]
             public async Task ThenWeReturnAListOfTheCreatedAssets(string inputOne, string inputTwo)
             {
-                StubCreateAssetUseCaseWithAddress(inputOne);
+                StubCreateAssetUseCaseWithAddress(inputOne,inputTwo);
                 StubFactoryWithAddress(inputOne, inputOne);
-                StubCreateAssetUseCaseWithAddress(inputTwo);
                 StubFactoryWithAddress(inputTwo, inputTwo);
 
                 var request = new ImportAssetsRequest
