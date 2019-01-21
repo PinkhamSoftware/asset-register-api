@@ -19,7 +19,8 @@ namespace HomesEngland.UseCase.CalculateAssetAggregates
             var assetSearchQuery = new AssetSearchQuery
             {
                 SchemeId = requests?.SchemeId,
-                Address = requests?.Address
+                Address = requests?.Address,
+                AssetRegisterVersionId = requests.AssetRegisterVersionId
             };
             var result = await _assetAggregator.Aggregate(assetSearchQuery, cancellationToken).ConfigureAwait(false);
             var response = new CalculateAssetAggregateResponse

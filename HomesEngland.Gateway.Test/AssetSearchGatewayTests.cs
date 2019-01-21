@@ -509,12 +509,4 @@ namespace HomesEngland.Gateway.Test
             }
         }
     }
-
-    public static class AssetRegisterVersionExtensions
-    {
-        public static int GetAssetRegisterVersionId(this IList<IAsset> assets)
-        {
-            return assets.Select(s => s.AssetRegisterVersionId.Value).FirstOrDefault();
-        }
-    }
 }
