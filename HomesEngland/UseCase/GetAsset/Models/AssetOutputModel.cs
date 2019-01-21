@@ -94,6 +94,8 @@ namespace HomesEngland.UseCase.GetAsset.Models
 
             HouseholdIncome = asset.HouseholdIncome;
             EstimatedValuation = asset.EstimatedValuation;
+
+            AssetRegisterVersionId = asset.AssetRegisterVersionId;
         }
 
         public string Programme { get; set; }
