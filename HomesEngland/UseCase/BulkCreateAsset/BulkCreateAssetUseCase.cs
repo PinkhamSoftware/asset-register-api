@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain;
+using HomesEngland.Exception;
 using HomesEngland.Gateway;
 using HomesEngland.UseCase.BulkCreateAsset.Models;
 using HomesEngland.UseCase.CreateAsset.Models;
@@ -31,6 +32,8 @@ namespace HomesEngland.UseCase.BulkCreateAsset
             };
 
             var result = await _bulkAssetCreator.BulkCreateAsync(assetRegisterVersion, cancellationToken).ConfigureAwait(false);
+            if (result == null || !result.Any())
+                throw new BulkCreateAssetException();
 
             List<CreateAssetResponse> responses = result.Select(s => new CreateAssetResponse
             {
