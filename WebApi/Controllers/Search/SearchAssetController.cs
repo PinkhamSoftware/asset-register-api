@@ -34,7 +34,8 @@ namespace WebApi.Controllers.Search
                 SchemeId = request.SchemeId,
                 Address = request.Address,
                 Page = request.Page,
-                PageSize = request.PageSize
+                PageSize = request.PageSize,
+                AssetRegisterVersionId = request.AssetRegisterVersionId,
             };
 
             SearchAssetResponse result = await _useCase

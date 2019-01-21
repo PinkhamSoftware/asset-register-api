@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -7,6 +9,7 @@ using HomesEngland.Domain;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.Gateway.Sql;
+using HomesEngland.UseCase.BulkCreateAsset.Models;
 using HomesEngland.UseCase.CalculateAssetAggregates.Models;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -19,6 +22,7 @@ namespace HomesEngland.Gateway.Test
     {
         private readonly IAssetAggregator _classUnderTest;
         private readonly IGateway<IAsset, int> _gateway;
+        private readonly IBulkAssetCreator _bulkAssetCreator;
 
         public AssetAggregatorGatewayTests()
         {
@@ -26,6 +30,7 @@ namespace HomesEngland.Gateway.Test
             var assetGateway = new EFAssetGateway(databaseUrl);
 
             _gateway = assetGateway;
+            _bulkAssetCreator = assetGateway;
 
             _classUnderTest = assetGateway;
 
@@ -55,12 +60,13 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await CreateAggregatedAssets(count, schemeId, address, null, null);
+                var assetRegisterVersionId = await CreateAggregatedAssets(count, schemeId, address, null, null);
                 
                 var aggregatedSearch = new AssetSearchQuery
                 {
                     SchemeId = schemeId,
-                    Address = searchAddress
+                    Address = searchAddress,
+                    AssetRegisterVersionId = assetRegisterVersionId
                 };
                 //act
                 var assets = await _classUnderTest.Aggregate(aggregatedSearch, CancellationToken.None).ConfigureAwait(false);
@@ -92,12 +98,13 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await CreateAggregatedAssets(count, schemeId, address, agencyFairValue,null);
+                var assetRegisterVersionId = await CreateAggregatedAssets(count, schemeId, address, agencyFairValue,null);
 
                 var aggregatedSearch = new AssetSearchQuery
                 {
                     SchemeId = schemeId,
-                    Address = searchAddress
+                    Address = searchAddress,
+                    AssetRegisterVersionId = assetRegisterVersionId,
                 };
                 //act
                 var assets = await _classUnderTest.Aggregate(aggregatedSearch, CancellationToken.None).ConfigureAwait(false);
@@ -129,12 +136,13 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await CreateAggregatedAssets(count, schemeId, address, null, agencyEquityValue);
+                var assetRegisterVersionId = await CreateAggregatedAssets(count, schemeId, address, null, agencyEquityValue);
 
                 var aggregatedSearch = new AssetSearchQuery
                 {
                     SchemeId = schemeId,
-                    Address = searchAddress
+                    Address = searchAddress,
+                    AssetRegisterVersionId = assetRegisterVersionId
                 };
                 //act
                 var assets = await _classUnderTest.Aggregate(aggregatedSearch, CancellationToken.None).ConfigureAwait(false);
@@ -166,12 +174,13 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await CreateAggregatedAssets(count, schemeId, address, agencyFairValue, agencyEquityValue);
+                var assetRegisterVersionId = await CreateAggregatedAssets(count, schemeId, address, agencyFairValue, agencyEquityValue);
 
                 var aggregatedSearch = new AssetSearchQuery
                 {
                     SchemeId = schemeId,
-                    Address = searchAddress
+                    Address = searchAddress,
+                    AssetRegisterVersionId = assetRegisterVersionId,
                 };
                 //act
                 var assets = await _classUnderTest.Aggregate(aggregatedSearch, CancellationToken.None).ConfigureAwait(false);
@@ -181,17 +190,26 @@ namespace HomesEngland.Gateway.Test
             }
         }
 
-        private async Task CreateAggregatedAssets(int count, int? schemeId, string address, decimal? agencyFairValue, decimal? agencyEquityValue)
+        private async Task<int> CreateAggregatedAssets(int count, int? schemeId, string address, decimal? agencyFairValue, decimal? agencyEquityValue)
         {
+            var entities = new List<IAsset>();
             for (int i = 0; i < count; i++)
             {
-                await CreateAsset(schemeId, address, agencyFairValue, agencyEquityValue, _gateway);
+                entities.Add(CustomiseGeneratedAssetEntity(schemeId, address, agencyFairValue, agencyEquityValue, _gateway));
             }
+
+            var assets = await _bulkAssetCreator.BulkCreateAsync(new AssetRegisterVersion
+            {
+                Assets = entities,
+                ModifiedDateTime = DateTime.UtcNow,
+
+            }, CancellationToken.None);
+            return assets.Select(s => s.AssetRegisterVersionId.Value).FirstOrDefault();
         }
 
-        private async Task<IAsset> CreateAsset(int? schemeId, string address, decimal? agencyFairValue, decimal? agencyEquityValue, IGateway<IAsset, int> gateway)
+        private IAsset CustomiseGeneratedAssetEntity(int? schemeId, string address, decimal? agencyFairValue, decimal? agencyEquityValue, IGateway<IAsset, int> gateway)
         {
-            var entity = TestData.Domain.GenerateAsset();
+            IAsset entity = TestData.Domain.GenerateAsset();
             if (schemeId.HasValue)
                 entity.SchemeId = schemeId;
             if (!string.IsNullOrEmpty(address))
@@ -200,8 +218,7 @@ namespace HomesEngland.Gateway.Test
                 entity.AgencyFairValue = agencyFairValue;
             if (agencyEquityValue.HasValue)
                 entity.AgencyEquityLoan = agencyEquityValue;
-            IAsset createdAsset = await gateway.CreateAsync(entity).ConfigureAwait(false);
-            return createdAsset;
+            return entity;
         }
 
     }

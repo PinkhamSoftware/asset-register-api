@@ -1,9 +1,10 @@
-using WebApi.Interface;
+﻿using WebApi.Interface;
 
 namespace WebApi.Extensions.Requests
 {
     public class SearchAssetApiRequest : IApiRequest
     {
+        public int? AssetRegisterVersionId { get; set; }
         public int? SchemeId { get; set; }
         public string Address { get; set; }
         public int? Page { get; set; }
@@ -31,6 +32,16 @@ namespace WebApi.Extensions.Requests
                 return false;
             }
 
+            if (AssetRegisterVersionIdIsNull())
+            {
+                return false;
+            }
+
+            if (AssetRegisterVersionIdInvalidIndex())
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -52,6 +63,17 @@ namespace WebApi.Extensions.Requests
         private bool SchemeIdInvalidIndex()
         {
             return SchemeId != null && SchemeId <= 0;
+        }
+
+        private bool AssetRegisterVersionIdIsNull()
+        {
+            return AssetRegisterVersionId == null;
+        }
+
+
+        private bool AssetRegisterVersionIdInvalidIndex()
+        {
+            return AssetRegisterVersionId != null && AssetRegisterVersionId <= 0;
         }
 
         private bool SchemeIsNullAndAddressIsEmpty()

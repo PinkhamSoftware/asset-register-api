@@ -73,6 +73,12 @@ namespace HomesEngland.Gateway.Sql
         private IQueryable<AssetEntity> GenerateFilteringCriteria(AssetRegisterContext context, IAssetSearchQuery searchRequest)
         {
             IQueryable<AssetEntity> queryable = context.Assets;
+
+            if(!searchRequest.AssetRegisterVersionId.HasValue)
+                throw new ArgumentNullException("AssetRegisterVersionId is null");
+
+            queryable = queryable.Where(w => w.AssetRegisterVersionId.Equals(searchRequest.AssetRegisterVersionId));
+
             if (!string.IsNullOrEmpty(searchRequest.Address) && !string.IsNullOrWhiteSpace(searchRequest.Address))
             {
                 queryable = queryable.Where(w =>

@@ -39,7 +39,8 @@ namespace HomesEngland.UseCase.SearchAsset.Impl
             var assetSearch = new AssetPagedSearchQuery
                           {
                               SchemeId = request.SchemeId,
-                              Address = request.Address
+                              Address = request.Address,
+                              AssetRegisterVersionId = request.AssetRegisterVersionId
                           };
 
             if (request.Page != null) assetSearch.Page = request.Page;
