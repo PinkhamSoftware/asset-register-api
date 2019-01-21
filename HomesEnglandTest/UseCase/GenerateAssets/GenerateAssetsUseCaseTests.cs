@@ -1,6 +1,8 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.GenerateAssets;
@@ -15,12 +17,12 @@ namespace HomesEnglandTest.UseCase.GenerateAssets
     public class GenerateAssetsUseCaseTest
     {
         private IGenerateAssetsUseCase _classUnderTest;
-        private Mock<ICreateAssetUseCase> _mockUseCase;
+        private Mock<IBulkCreateAssetUseCase> _mockUseCase;
 
         [SetUp]
         public void Setup()
         {
-            _mockUseCase = new Mock<ICreateAssetUseCase>();
+            _mockUseCase = new Mock<IBulkCreateAssetUseCase>();
             _classUnderTest = new GenerateAssetsUseCase(_mockUseCase.Object);
         }
 
@@ -55,7 +57,7 @@ namespace HomesEnglandTest.UseCase.GenerateAssets
             //act
             await _classUnderTest.ExecuteAsync(request, CancellationToken.None).ConfigureAwait(false);
             //assert
-            _mockUseCase.Verify(s=> s.ExecuteAsync(It.IsAny<CreateAssetRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(recordCount));
+            _mockUseCase.Verify(s=> s.ExecuteAsync(It.IsAny<IList<CreateAssetRequest>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

@@ -4,43 +4,36 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bogus;
-using HomesEngland.UseCase.CreateAsset;
+using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.GenerateAssets.Models;
-using HomesEngland.UseCase.GetAsset.Models;
 
 namespace HomesEngland.UseCase.GenerateAssets.Impl
 {
     public class GenerateAssetsUseCase : IGenerateAssetsUseCase
     {
-        private readonly ICreateAssetUseCase _createAssetUseCase;
+        private readonly IBulkCreateAssetUseCase _bulkCreateAssetUseCase;
 
-        public GenerateAssetsUseCase(ICreateAssetUseCase createAssetUseCase)
+        public GenerateAssetsUseCase(IBulkCreateAssetUseCase bulkCreateAssetUseCase)
         {
-            _createAssetUseCase = createAssetUseCase;
+            _bulkCreateAssetUseCase = bulkCreateAssetUseCase;
         }
 
-        public async Task<GenerateAssetsResponse> ExecuteAsync(GenerateAssetsRequest requests,
-            CancellationToken cancellationToken)
+        public async Task<GenerateAssetsResponse> ExecuteAsync(GenerateAssetsRequest requests, CancellationToken cancellationToken)
         {
-            IList<AssetOutputModel> createdList = new List<AssetOutputModel>();
+            IList<CreateAssetRequest> createAssetRequests = GenerateCreateAssetRequest(requests.Records.Value);
 
-            for (int index = 0; index < requests.Records; index++)
-            {
-                var createAssetRequest = GenerateCreateAssetRequest();
-                var response = await _createAssetUseCase.ExecuteAsync(createAssetRequest, cancellationToken)
-                    .ConfigureAwait(false);
-                createdList.Add(response?.Asset);
-            }
+            var response = await _bulkCreateAssetUseCase.ExecuteAsync(createAssetRequests, cancellationToken)
+                .ConfigureAwait(false);
 
             var generateAssetsResponse = new GenerateAssetsResponse
             {
-                RecordsGenerated = createdList
+                RecordsGenerated = response.Select(s => s.Asset).ToList()
             };
             return generateAssetsResponse;
         }
 
-        private CreateAssetRequest GenerateCreateAssetRequest()
+        private IList<CreateAssetRequest> GenerateCreateAssetRequest(int count)
         {
             var random = new Random(0);
 
@@ -140,7 +133,13 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
                 .RuleFor(asset => asset.HouseholdFiftyKIncomeBand, (fake, model) => fake.Finance.Amount(50, 100))
                 .RuleFor(asset => asset.FirstTimeBuyer, (fake, model) => fake.Random.Bool());
 
-            return generatedAsset;
+
+            var list = new List<CreateAssetRequest>();
+            for (int i = 0; i < count; i++)
+            {
+                list.Add(generatedAsset.Generate());
+            }
+            return list;
         }
 
         private List<string> _postCodes = new List<string>

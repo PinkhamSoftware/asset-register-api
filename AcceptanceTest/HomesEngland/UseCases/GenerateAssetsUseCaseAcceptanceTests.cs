@@ -47,6 +47,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases
             {
                 var response = await _classUnderTest.ExecuteAsync(request, CancellationToken.None)
                     .ConfigureAwait(false);
+                
                 //assert
                 response.Should().NotBeNull();
                 response.RecordsGenerated.Count.Should().Be(recordCount);
@@ -86,7 +87,8 @@ namespace AssetRegisterTests.HomesEngland.UseCases
         {
             var record = await _searchAssetUseCase.ExecuteAsync(new SearchAssetRequest
             {
-                SchemeId = generatedAsset?.SchemeId
+                SchemeId = generatedAsset?.SchemeId,
+                AssetRegisterVersionId = generatedAsset.AssetRegisterVersionId
             }, CancellationToken.None).ConfigureAwait(false);
             return record.Assets.ElementAtOrDefault(0);
         }
