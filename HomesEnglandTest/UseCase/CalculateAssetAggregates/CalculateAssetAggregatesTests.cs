@@ -5,6 +5,7 @@ using HomesEngland.Domain;
 using HomesEngland.Domain.Impl;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.UseCase.CalculateAssetAggregates;
+using HomesEngland.UseCase.CalculateAssetAggregates.Impl;
 using HomesEngland.UseCase.CalculateAssetAggregates.Models;
 using NSubstitute;
 using NUnit.Framework;

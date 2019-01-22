@@ -14,6 +14,7 @@ using HomesEngland.UseCase.AuthenticateUser;
 using HomesEngland.UseCase.AuthenticateUser.Impl;
 using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.CalculateAssetAggregates;
+using HomesEngland.UseCase.CalculateAssetAggregates.Impl;
 using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Impl;
 using HomesEngland.UseCase.CreateAsset.Models;

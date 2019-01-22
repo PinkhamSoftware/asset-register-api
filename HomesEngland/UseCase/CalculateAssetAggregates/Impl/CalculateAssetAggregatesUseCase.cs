@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.UseCase.CalculateAssetAggregates.Models;
 
-namespace HomesEngland.UseCase.CalculateAssetAggregates
+namespace HomesEngland.UseCase.CalculateAssetAggregates.Impl
 {
     public class CalculateAssetAggregatesUseCase: ICalculateAssetAggregatesUseCase
     {
