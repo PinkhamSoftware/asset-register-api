@@ -6,15 +6,12 @@ using FluentAssertions;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
-using HomesEngland.UseCase.SearchAsset.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using NUnit.Framework;
-using TestHelper;
 using WebApi.Controllers;
-using WebApi.Extensions.Requests;
 
 namespace WebApiTest.Controller.AssetRegisterVersions
 {
@@ -36,9 +33,9 @@ namespace WebApiTest.Controller.AssetRegisterVersions
             //arrange
             _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<GetAssetRegisterVersionsRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetAssetRegisterVersionsResponse());
-            var request = new SearchAssetApiRequest();
+            var request = new GetAssetRegisterVersionsRequest();
             //act
-            var response = await _classUnderTest.Get(request, CancellationToken.None);
+            var response = await _classUnderTest.Get(request);
             //assert
             response.Should().NotBeNull();
         }
@@ -47,13 +44,14 @@ namespace WebApiTest.Controller.AssetRegisterVersions
         public async Task GivenValidRequestWithAcceptTextCsvHeader_ThenReturnsListOfAssetOutputModel()
         {
             //arrange
-            var assetOutputModel = new AssetOutputModel(TestData.Domain.GenerateAsset());
-            assetOutputModel.Id = Faker.GlobalUniqueIndex;
-            assetOutputModel.SchemeId = Faker.GlobalUniqueIndex + 1;
-            _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<SearchAssetRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new SearchAssetResponse
+            var assetOutputModel = new AssetRegisterVersionOutputModel
+            {
+                Id = Faker.GlobalUniqueIndex
+            };
+            _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<GetAssetRegisterVersionsRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetAssetRegisterVersionsResponse
                 {
-                    Assets = new List<AssetOutputModel> { assetOutputModel }
+                    AssetRegisterVersions = new List<AssetRegisterVersionOutputModel> { assetOutputModel }
                 });
             _classUnderTest.ControllerContext = new ControllerContext
             {
@@ -61,67 +59,43 @@ namespace WebApiTest.Controller.AssetRegisterVersions
             };
             _classUnderTest.ControllerContext.HttpContext.Request.Headers.Add(
                 new KeyValuePair<string, StringValues>("accept", "text/csv"));
-            var request = new SearchAssetApiRequest
-            {
-                SchemeId = assetOutputModel.SchemeId,
-                AssetRegisterVersionId = 1,
-            };
+            var request = new GetAssetRegisterVersionsRequest();
             //act
             var response = await _classUnderTest.Get(request).ConfigureAwait(false);
             //assert
             response.Should().NotBeNull();
             var result = response as ObjectResult;
             result.Should().NotBeNull();
-            result.Value.Should().BeOfType<List<AssetOutputModel>>();
+            result.Value.Should().BeOfType<List<AssetRegisterVersionOutputModel>>();
         }
 
-        [TestCase(null, null, 1, 1, 1)]
-        [TestCase(0, null, 1, 1, 1)]
-        [TestCase(-1, null, 1, 1, 1)]
-        [TestCase(null, "", 1, 1, 1)]
-        [TestCase(null, " ", 1, 1, 1)]
-        [TestCase(1, "address", -1, 1, 1)]
-        [TestCase(1, "address", 0, 1, 1)]
-        [TestCase(1, "address", 1, -1, 1)]
-        [TestCase(1, "address", 1, 0, 1)]
-        [TestCase(1, "address", 1, 1, null)]
-        public void GivenInvalidRequest_ThenIsInvalid(int? schemeId, string address, int? page,
-            int? pageSize, int? assetRegisterVersionId)
+        [TestCase(0, 1)]
+        [TestCase(1, 0)]
+        [TestCase(null, 1)]
+        [TestCase(1, null)]
+        [TestCase(null, null)]
+        [TestCase(-1, 1)]
+        [TestCase(1, -1)]
+        public void GivenInvalidRequest_ThenIsInvalid(int? page,int? pageSize)
         {
-            SearchAssetApiRequest apiRequest = new SearchAssetApiRequest
+            var apiRequest = new GetAssetRegisterVersionsRequest
             {
-                SchemeId = schemeId,
-                Address = address,
                 Page = page,
                 PageSize = pageSize,
-                AssetRegisterVersionId = assetRegisterVersionId
             };
 
             apiRequest.IsValid().Should().BeFalse();
         }
 
-        [TestCase(1, null, 1, 1, 1)]
-        [TestCase(2, null, 1, 1, 1)]
-        [TestCase(3, null, 1, 1, 1)]
-        [TestCase(null, "d", 1, 1, 1)]
-        [TestCase(null, "e", 1, 1, 1)]
-        [TestCase(null, "t", 1, 1, 1)]
-        [TestCase(1, "a", 1, 1, 1)]
-        [TestCase(2, "b", 2, 3, 1)]
-        [TestCase(3, "c", 3, 5, 1)]
-        [TestCase(1, "address", null, 1, 1)]
-        [TestCase(1, "address", 1, null, 1)]
-        [TestCase(1, "address", null, null, 1)]
-        public void GivenValidRequest_ThenIsValid(int? schemeId, string address, int? page,
-            int? pageSize, int? assetRegisterVersionId)
+        [TestCase(1, 1)]
+        [TestCase(10, 10)]
+        [TestCase(1, 11)]
+        public void GivenInvalidRequest_ThenIsValid(int? page, int? pageSize)
         {
-            SearchAssetApiRequest apiRequest = new SearchAssetApiRequest
+            var apiRequest = new GetAssetRegisterVersionsRequest
             {
-                SchemeId = schemeId,
-                Address = address,
                 Page = page,
                 PageSize = pageSize,
-                AssetRegisterVersionId = assetRegisterVersionId
             };
 
             apiRequest.IsValid().Should().BeTrue();

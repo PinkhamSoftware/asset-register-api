@@ -19,13 +19,12 @@ namespace WebApi.Controllers
             _getAssetRegisterVersionsUseCase = registerVersionsUseCase;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet]
         [Produces("application/json", "text/csv")]
         [ProducesResponseType(typeof(ResponseData<GetAssetResponse>), 200)]
         public async Task<IActionResult> Get([FromQuery]GetAssetRegisterVersionsRequest request)
         {
-
-            return this.StandardiseResponse<GetAssetRegisterVersionsRequest, AssetRegisterVersionOutputModel>(
+            return this.StandardiseResponse<GetAssetRegisterVersionsResponse, AssetRegisterVersionOutputModel>(
                 await _getAssetRegisterVersionsUseCase.ExecuteAsync(request, CancellationToken.None).ConfigureAwait(false));
         }
     }
