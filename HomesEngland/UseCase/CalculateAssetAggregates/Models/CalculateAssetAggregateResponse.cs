@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using HomesEngland.UseCase.SearchAsset.Models;
+using HomesEngland.UseCase.Models;
 
 namespace HomesEngland.UseCase.CalculateAssetAggregates.Models
 {

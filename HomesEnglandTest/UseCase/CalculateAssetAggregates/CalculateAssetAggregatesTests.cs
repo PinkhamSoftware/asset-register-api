@@ -8,7 +8,6 @@ using HomesEngland.UseCase.CalculateAssetAggregates;
 using HomesEngland.UseCase.CalculateAssetAggregates.Impl;
 using HomesEngland.UseCase.CalculateAssetAggregates.Models;
 using Moq;
-using NSubstitute;
 using NUnit.Framework;
 using TestHelper;
 

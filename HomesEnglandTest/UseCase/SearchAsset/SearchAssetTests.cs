@@ -46,6 +46,25 @@ namespace HomesEnglandTest.UseCase.SearchAsset
                 .Search(Arg.Is<AssetPagedSearchQuery>(req => req.SchemeId == id), Arg.Any<CancellationToken>());
         }
 
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public async Task GivenValidAssetRegisterVersionId_UseCaseCallsGatewayWithCorrectId(int id)
+        {
+            //arrange
+            var asset = TestData.Domain.GenerateAsset();
+            _mockGateway.Search(Arg.Any<IAssetPagedSearchQuery>(), CancellationToken.None)
+                .Returns(new PagedResults<IAsset> { Results = new List<IAsset> { asset } });
+            //act
+            await _classUnderTest.ExecuteAsync(new SearchAssetRequest
+            {
+                AssetRegisterVersionId = id
+            }, CancellationToken.None);
+            //assert
+            await _mockGateway.Received()
+                .Search(Arg.Is<AssetPagedSearchQuery>(req => req.AssetRegisterVersionId == id), Arg.Any<CancellationToken>());
+        }
+
         [TestCase("address1")]
         [TestCase("address2")]
         [TestCase("address3")]
