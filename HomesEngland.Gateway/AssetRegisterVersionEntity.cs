@@ -27,7 +27,7 @@ namespace HomesEngland.Gateway
         {
             Id = assetRegisterVersion.Id;
             ModifiedDateTime = assetRegisterVersion.ModifiedDateTime;
-            Assets = assetRegisterVersion.Assets.Select(s=> new AssetEntity(s)).ToList();
+            Assets = assetRegisterVersion.Assets?.Select(s=> new AssetEntity(s)).ToList();
         }
     }
 }

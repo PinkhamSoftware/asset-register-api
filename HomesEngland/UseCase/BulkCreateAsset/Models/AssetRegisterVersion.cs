@@ -12,7 +12,10 @@ namespace HomesEngland.UseCase.BulkCreateAsset.Models
 
         public virtual IList<IAsset> Assets { get; set; }
 
-        public AssetRegisterVersion() { }
+        public AssetRegisterVersion()
+        {
+
+        }
 
         public AssetRegisterVersion(IAssetRegisterVersion assetRegisterVersion)
         {

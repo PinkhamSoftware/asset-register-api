@@ -23,7 +23,7 @@ namespace HomesEngland.Gateway.Sql
         {
             AssetRegisterVersionEntity assetRegisterVersionEntity = new AssetRegisterVersionEntity(assetRegisterVersion);
 
-            assetRegisterVersionEntity.Assets = assetRegisterVersionEntity.Assets.Select(s =>
+            assetRegisterVersionEntity.Assets = assetRegisterVersionEntity.Assets?.Select(s =>
             {
                 s.AssetRegisterVersion = assetRegisterVersionEntity;
                 return s;
@@ -33,15 +33,37 @@ namespace HomesEngland.Gateway.Sql
             {
                 await context.AssetRegisterVersions.AddAsync(assetRegisterVersionEntity, cancellationToken).ConfigureAwait(false);
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                var t = assetRegisterVersionEntity.Assets.Select(s => new Asset(s) as IAsset);
-                IList<IAsset> list = t.ToList();
+                var t = assetRegisterVersionEntity.Assets?.Select(s => new Asset(s) as IAsset);
+                IList<IAsset> list = t?.ToList();
                 return list;
             }
         }
 
         public async Task<IPagedResults<IAssetRegisterVersion>> Search(IPagedQuery searchRequest, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            using (var context = new AssetRegisterContext(_databaseUrl))
+            {
+                IQueryable<AssetRegisterVersionEntity> queryable = context.AssetRegisterVersions;
+
+                queryable = queryable.OrderByDescending(o=> o.Id)
+                            .Skip((searchRequest.Page.Value - 1) * searchRequest.PageSize.Value)
+                            .Take(searchRequest.PageSize.Value);
+
+                IEnumerable<AssetRegisterVersionEntity> results = queryable.ToList();
+
+                int totalCount = queryable.Select(s => s.Id).Count();
+                IPagedResults<IAssetRegisterVersion> pagedResults = new PagedResults<IAssetRegisterVersion>
+                {
+                    Results = results.Select(s=> new AssetRegisterVersion
+                    {
+                        Id = s.Id,
+                        ModifiedDateTime = s.ModifiedDateTime
+                    } as IAssetRegisterVersion).ToList(),
+                    TotalCount = totalCount,
+                    NumberOfPages = (int)Math.Ceiling(totalCount / (decimal)searchRequest.PageSize.Value)
+                };
+                return pagedResults;
+            }
         }
     }
 }
