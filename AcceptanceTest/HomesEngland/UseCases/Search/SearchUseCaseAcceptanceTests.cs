@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -6,6 +7,7 @@ using FluentAssertions;
 using HomesEngland.Domain;
 using HomesEngland.Gateway;
 using HomesEngland.Gateway.Migrations;
+using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.SearchAsset;
@@ -21,18 +23,14 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
     [TestFixture]
     public class SearchUseCaseAcceptanceTests
     {
-        private readonly ICreateAssetUseCase _createAssetUseCase;
+        private readonly IBulkCreateAssetUseCase _bulkCreateAssetUseCase;
         private readonly ISearchAssetUseCase _classUnderTest;
-        private readonly IGateway<IAsset, int> _gateway;
 
         public SearchUseCaseAcceptanceTests()
         {
-            IServiceCollection services = new ServiceCollection();
             var assetRegister = new AssetRegister();
-            
 
-            _gateway = assetRegister.Get<IGateway<IAsset, int>>();
-            _createAssetUseCase = assetRegister.Get<ICreateAssetUseCase>();
+            _bulkCreateAssetUseCase = assetRegister.Get<IBulkCreateAssetUseCase>();
             _classUnderTest = assetRegister.Get<ISearchAssetUseCase>();
 
             var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
@@ -54,22 +52,29 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var createdAsset = await CreateAsset(schemeId, address);
+                var list = new List<CreateAssetRequest>
+                {
+                    CreateAsset(schemeId, address),                    
+                };
+
+                var responses = await _bulkCreateAssetUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
+                
                 //act
-                var foundAsset = await SearchForAsset(schemeId, searchAddress);
+                var foundAsset = await SearchForAssetAsync(schemeId, searchAddress, responses.GetAssetRegisterVersionId());
                 //assert
-                ExpectFoundAssetIsEqual(foundAsset, createdAsset);
+                ExpectFoundAssetIsEqual(foundAsset, responses[0]);
 
                 trans.Dispose();
             }
         }
 
-        private async Task<SearchAssetResponse> SearchForAsset(int? schemeId, string address)
+        private async Task<SearchAssetResponse> SearchForAssetAsync(int? schemeId, string address, int assetRegisterVersionId)
         {
             var searchForAsset = new SearchAssetRequest
             {
                 SchemeId = schemeId,
-                Address = address
+                Address = address,
+                AssetRegisterVersionId = assetRegisterVersionId
             };
 
             var useCaseResponse = await _classUnderTest.ExecuteAsync(searchForAsset, CancellationToken.None)
@@ -92,20 +97,26 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await CreateAsset(schemeId, address);
-                var createdAsset2 = await CreateAsset(schemeId2, address);
-                await CreateAsset(schemeId3, address);
+                List<CreateAssetRequest> list = new List<CreateAssetRequest>
+                {
+                    CreateAsset(schemeId, address),
+                    CreateAsset(schemeId2, address),
+                    CreateAsset(schemeId3, address),
+                };
+
+                IList<CreateAssetResponse> responses = await _bulkCreateAssetUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
 
                 var assetSearch = new SearchAssetRequest
                 {
                     SchemeId = schemeId2,
+                    AssetRegisterVersionId = responses.GetAssetRegisterVersionId()
                 };
                 //act
                 var useCaseResponse = await _classUnderTest.ExecuteAsync(assetSearch, CancellationToken.None)
                     .ConfigureAwait(false);
                 //assert
                 useCaseResponse.Assets.Count.Should().Be(1);
-                useCaseResponse.Assets.ElementAtOrDefault(0).AssetOutputModelIsEqual(createdAsset2.Asset);
+                useCaseResponse.Assets.ElementAtOrDefault(0).AssetOutputModelIsEqual(responses[1].Asset);
                 trans.Dispose();
             }
         }
@@ -118,12 +129,17 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var entity = TestData.Domain.GenerateAsset();
+                var list = new List<CreateAssetRequest>
+                {
+                    CreateAsset(null, null)
+                };
 
-                await _gateway.CreateAsync(entity).ConfigureAwait(false);
+                var responses = await _bulkCreateAssetUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
+
                 var assetSearch = new SearchAssetRequest
                 {
-                    SchemeId = schemeId
+                    SchemeId = schemeId,
+                    AssetRegisterVersionId = responses.GetAssetRegisterVersionId()
                 };
                 //act 
                 //assert
@@ -142,16 +158,21 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
         {
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
+                var list = new List<CreateAssetRequest>();
                 for (var i = 0; i < 15; i++)
                 {
-                    await CreateAsset(schemeId + i, address);
+                    var createAssetRequest = CreateAsset(schemeId + i, address);
+                    list.Add(createAssetRequest);
                 }
+
+                var responses = await _bulkCreateAssetUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
 
                 var assetSearch = new SearchAssetRequest
                 {
                     Address = address,
                     Page = 2,
-                    PageSize = 10
+                    PageSize = 10,
+                    AssetRegisterVersionId = responses.GetAssetRegisterVersionId()
                 };
 
                 var response = await _classUnderTest.ExecuteAsync(assetSearch, CancellationToken.None)
@@ -165,15 +186,14 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             }
         }
 
-        private async Task<CreateAssetResponse> CreateAsset(int? schemeId, string address)
+        private CreateAssetRequest CreateAsset(int? schemeId, string address)
         {
-            var createAssetRequest = TestData.UseCase.GenerateCreateAssetRequest();
+            CreateAssetRequest createAssetRequest = TestData.UseCase.GenerateCreateAssetRequest();
             if (schemeId.HasValue)
                 createAssetRequest.SchemeId = schemeId;
             if (!string.IsNullOrEmpty(address))
                 createAssetRequest.Address = address;
-            var response = await _createAssetUseCase.ExecuteAsync(createAssetRequest, CancellationToken.None);
-            return response;
+            return createAssetRequest;
         }
     }
 }
