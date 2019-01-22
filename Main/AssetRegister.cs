@@ -3,6 +3,7 @@ using DependencyInjection;
 using HomesEngland.Domain;
 using HomesEngland.Domain.Factory;
 using HomesEngland.Gateway;
+using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.AuthenticationTokens;
 using HomesEngland.Gateway.Migrations;
@@ -24,6 +25,8 @@ using HomesEngland.UseCase.GenerateAssets.Impl;
 using HomesEngland.UseCase.GenerateAssets.Models;
 using HomesEngland.UseCase.GetAsset;
 using HomesEngland.UseCase.GetAsset.Impl;
+using HomesEngland.UseCase.GetAssetRegisterVersions;
+using HomesEngland.UseCase.GetAssetRegisterVersions.Impl;
 using HomesEngland.UseCase.ImportAssets;
 using HomesEngland.UseCase.ImportAssets.Impl;
 using HomesEngland.UseCase.ImportAssets.Models;
@@ -96,7 +99,9 @@ namespace Main
             RegisterExportedDependency<IAssetAggregator>(() => new EFAssetGateway(databaseUrl));
 
             RegisterExportedDependency<IBulkCreateAssetUseCase,BulkCreateAssetUseCase>();
-            RegisterExportedDependency<IBulkAssetCreator>(()=> new EFAssetGateway(databaseUrl));
+            RegisterExportedDependency<IBulkAssetCreator>(()=> new EFAssetRegisterVersionGateway(databaseUrl));
+            RegisterExportedDependency<IGetAssetRegisterVersionsUseCase, GetAssetRegisterVersionsUseCase>();
+            RegisterExportedDependency<IAssetRegisterVersionSearcher>(() => new EFAssetRegisterVersionGateway(databaseUrl));
         }
 
         public override T Get<T>()

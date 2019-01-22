@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.Domain.Impl;
+using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.UseCase.BulkCreateAsset.Models;

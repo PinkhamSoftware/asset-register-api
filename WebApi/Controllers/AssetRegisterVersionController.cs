@@ -24,6 +24,9 @@ namespace WebApi.Controllers
         [ProducesResponseType(typeof(ResponseData<GetAssetResponse>), 200)]
         public async Task<IActionResult> Get([FromQuery]GetAssetRegisterVersionsRequest request)
         {
+            if (!request.IsValid())
+                return StatusCode(400);
+
             return this.StandardiseResponse<GetAssetRegisterVersionsResponse, AssetRegisterVersionOutputModel>(
                 await _getAssetRegisterVersionsUseCase.ExecuteAsync(request, CancellationToken.None).ConfigureAwait(false));
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using HomesEngland.UseCase.BulkCreateAsset.Models;
 
 namespace HomesEngland.UseCase.GetAssetRegisterVersions.Models
 {
@@ -7,5 +8,13 @@ namespace HomesEngland.UseCase.GetAssetRegisterVersions.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public DateTime CreatedAt { get; set; }
+
+        public AssetRegisterVersionOutputModel(){}
+
+        public AssetRegisterVersionOutputModel(IAssetRegisterVersion assetRegisterVersion)
+        {
+            Id = assetRegisterVersion.Id;
+            CreatedAt = assetRegisterVersion.ModifiedDateTime;
+        }
     }
 }

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.UseCase.BulkCreateAsset.Models;
 
-namespace HomesEngland.Gateway
+namespace HomesEngland.Gateway.AssetRegisterVersions
 {
     public interface IBulkAssetCreator
     {

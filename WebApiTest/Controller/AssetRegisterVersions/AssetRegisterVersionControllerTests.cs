@@ -76,6 +76,44 @@ namespace WebApiTest.Controller.AssetRegisterVersions
         [TestCase(null, null)]
         [TestCase(-1, 1)]
         [TestCase(1, -1)]
+        public async Task GivenInValidRequest_WhenValidatingRequest_ThenReturnsBadRequest(int? page, int? pageSize)
+        {
+            //arrange
+            var assetOutputModel = new AssetRegisterVersionOutputModel
+            {
+                Id = Faker.GlobalUniqueIndex
+            };
+            _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<GetAssetRegisterVersionsRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetAssetRegisterVersionsResponse
+                {
+                    AssetRegisterVersions = new List<AssetRegisterVersionOutputModel> { assetOutputModel }
+                });
+            _classUnderTest.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+
+            var request = new GetAssetRegisterVersionsRequest
+            {
+                Page = page,
+                PageSize = pageSize
+            };
+            //act
+            var response = await _classUnderTest.Get(request).ConfigureAwait(false);
+            //assert
+            response.Should().NotBeNull();
+            var result = response as StatusCodeResult;
+            result.Should().NotBeNull();
+            result.StatusCode.Should().Be(400);
+        }
+
+        [TestCase(0, 1)]
+        [TestCase(1, 0)]
+        [TestCase(null, 1)]
+        [TestCase(1, null)]
+        [TestCase(null, null)]
+        [TestCase(-1, 1)]
+        [TestCase(1, -1)]
         public void GivenInvalidRequest_ThenIsInvalid(int? page,int? pageSize)
         {
             var apiRequest = new GetAssetRegisterVersionsRequest
