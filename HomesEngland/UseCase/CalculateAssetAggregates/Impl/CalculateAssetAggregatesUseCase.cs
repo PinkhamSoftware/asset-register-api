@@ -20,7 +20,7 @@ namespace HomesEngland.UseCase.CalculateAssetAggregates.Impl
             {
                 SchemeId = requests?.SchemeId,
                 Address = requests?.Address,
-                AssetRegisterVersionId = requests.AssetRegisterVersionId
+                AssetRegisterVersionId = requests?.AssetRegisterVersionId
             };
             var result = await _assetAggregator.Aggregate(assetSearchQuery, cancellationToken).ConfigureAwait(false);
             var response = new CalculateAssetAggregateResponse

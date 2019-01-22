@@ -23,12 +23,12 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
         {
             IList<CreateAssetRequest> createAssetRequests = GenerateCreateAssetRequest(requests.Records.Value);
 
-            var response = await _bulkCreateAssetUseCase.ExecuteAsync(createAssetRequests, cancellationToken)
+            IList<CreateAssetResponse> response = await _bulkCreateAssetUseCase.ExecuteAsync(createAssetRequests, cancellationToken)
                 .ConfigureAwait(false);
 
             var generateAssetsResponse = new GenerateAssetsResponse
             {
-                RecordsGenerated = response.Select(s => s.Asset).ToList()
+                RecordsGenerated = response?.Select(s => s.Asset).ToList()
             };
             return generateAssetsResponse;
         }

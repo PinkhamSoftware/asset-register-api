@@ -7,6 +7,7 @@ using HomesEngland.Gateway.Assets;
 using HomesEngland.UseCase.CalculateAssetAggregates;
 using HomesEngland.UseCase.CalculateAssetAggregates.Impl;
 using HomesEngland.UseCase.CalculateAssetAggregates.Models;
+using Moq;
 using NSubstitute;
 using NUnit.Framework;
 using TestHelper;
@@ -17,12 +18,12 @@ namespace HomesEnglandTest.UseCase.CalculateAssetAggregates
     public class CalculateAssetAggregatesTests
     {
         private readonly ICalculateAssetAggregatesUseCase _classUnderTest;
-        private readonly IAssetAggregator _mockGateway;
+        private readonly Mock<IAssetAggregator> _mockGateway;
 
         public CalculateAssetAggregatesTests()
         {
-            _mockGateway = Substitute.For<IAssetAggregator>();
-            _classUnderTest = new CalculateAssetAggregatesUseCase(_mockGateway);
+            _mockGateway = new Mock<IAssetAggregator>();
+            _classUnderTest = new CalculateAssetAggregatesUseCase(_mockGateway.Object);
         }
 
         [TestCase(1)]
@@ -34,16 +35,15 @@ namespace HomesEnglandTest.UseCase.CalculateAssetAggregates
             //arrange
             var asset = TestData.Domain.GenerateAsset();
             asset.SchemeId = id;
-            _mockGateway.Aggregate(Arg.Any<IAssetSearchQuery>(), CancellationToken.None)
-                .Returns(new AssetAggregation());
+            _mockGateway.Setup(s=> s.Aggregate(It.IsAny<IAssetSearchQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new AssetAggregation());
             //act
             await _classUnderTest.ExecuteAsync(new CalculateAssetAggregateRequest
             {
                 SchemeId = id
             }, CancellationToken.None);
             //assert
-            await _mockGateway.Received()
-                .Aggregate(Arg.Is<AssetSearchQuery>(req => req.SchemeId == id), Arg.Any<CancellationToken>());
+            _mockGateway.Verify(v=> v.Aggregate(It.Is<AssetSearchQuery>(req => req.SchemeId == id), It.IsAny<CancellationToken>()));
         }
 
         [TestCase("address1")]
@@ -57,16 +57,33 @@ namespace HomesEnglandTest.UseCase.CalculateAssetAggregates
             //arrange
             var asset = TestData.Domain.GenerateAsset();
             asset.Address = address;
-            _mockGateway.Aggregate(Arg.Any<IAssetSearchQuery>(), CancellationToken.None)
-                .Returns(new AssetAggregation());
+            _mockGateway.Setup(s => s.Aggregate(It.IsAny<IAssetSearchQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new AssetAggregation());
             //act
             await _classUnderTest.ExecuteAsync(new CalculateAssetAggregateRequest
             {
-                Address = address
+                Address = address,
+                AssetRegisterVersionId = 1
             }, CancellationToken.None);
             //assert
-            await _mockGateway.Received()
-                .Aggregate(Arg.Is<AssetSearchQuery>(req => req.Address == address), Arg.Any<CancellationToken>());
+            _mockGateway.Verify(v => v.Aggregate(It.Is<AssetSearchQuery>(req => req.Address == address), It.IsAny<CancellationToken>()));
+        }
+
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public async Task GivenValidAssetRegisterVersion_UseCaseCallsGatewayWithCorrectAddress(int assetRegisterVersionId)
+        {
+            //arrange
+            _mockGateway.Setup(s => s.Aggregate(It.IsAny<IAssetSearchQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new AssetAggregation());
+            //act
+            await _classUnderTest.ExecuteAsync(new CalculateAssetAggregateRequest
+            {
+                AssetRegisterVersionId = assetRegisterVersionId
+            }, CancellationToken.None);
+            //assert
+            _mockGateway.Verify(v => v.Aggregate(It.Is<AssetSearchQuery>(req => req.AssetRegisterVersionId.Equals(assetRegisterVersionId)), It.IsAny<CancellationToken>()));
         }
 
 
@@ -76,16 +93,20 @@ namespace HomesEnglandTest.UseCase.CalculateAssetAggregates
         [TestCase(0, 0.0, 0.0, 0.0)]
         public async Task GivenValidInput_WhenGatewayReturnsResults_ThenUseCaseReturnsCorrectlyMappedResponse(int uniqueRecords, decimal moneyPaidOut, decimal assetValue, decimal movementInAssetValue)
         {
-            _mockGateway.Aggregate(Arg.Any<IAssetSearchQuery>(), CancellationToken.None)
-                .Returns( new AssetAggregation
+            _mockGateway.Setup(s => s.Aggregate(It.IsAny<IAssetSearchQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync( new AssetAggregation
                 {
                     UniqueRecords = uniqueRecords, 
                     MoneyPaidOut = moneyPaidOut,
                     AssetValue = assetValue,
                     MovementInAssetValue = movementInAssetValue
                 });
+            var request = new CalculateAssetAggregateRequest
+            {
+                AssetRegisterVersionId = 1,
+            };
             //act
-            var response = await _classUnderTest.ExecuteAsync(null, CancellationToken.None);
+            var response = await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
             //assert
             response.Should().NotBeNull();
             response.AssetAggregates.Should().NotBeNull();

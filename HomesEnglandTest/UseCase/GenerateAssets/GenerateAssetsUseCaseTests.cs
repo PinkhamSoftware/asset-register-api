@@ -23,6 +23,7 @@ namespace HomesEnglandTest.UseCase.GenerateAssets
         public void Setup()
         {
             _mockUseCase = new Mock<IBulkCreateAssetUseCase>();
+            
             _classUnderTest = new GenerateAssetsUseCase(_mockUseCase.Object);
         }
 
@@ -36,6 +37,14 @@ namespace HomesEnglandTest.UseCase.GenerateAssets
             {
                 Records = recordCount
             };
+            var list = new List<CreateAssetResponse>();
+            for (int i = 0; i < recordCount; i++)
+            {
+                list.Add(new CreateAssetResponse());
+            }
+            _mockUseCase
+                .Setup(s => s.ExecuteAsync(It.IsAny<IList<CreateAssetRequest>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(list);
             //act
             var response = await _classUnderTest.ExecuteAsync(request, CancellationToken.None).ConfigureAwait(false);
             //assert
