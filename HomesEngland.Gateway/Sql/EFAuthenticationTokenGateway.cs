@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.Migrations;
@@ -28,11 +29,11 @@ namespace HomesEngland.Gateway.Sql
             }
         }
 
-        public Task<IAuthenticationToken> ReadAsync(int index, CancellationToken cancellationToken)
+        public Task<IAuthenticationToken> ReadAsync(string token, CancellationToken cancellationToken)
         {
             using (var context = new AssetRegisterContext(_databaseUrl))
             {
-                IAuthenticationToken foundAsset = context.AuthenticationTokens.Find(index);
+                IAuthenticationToken foundAsset = context.AuthenticationTokens.First(t => t.Token == token);
                 return Task.FromResult(foundAsset);
             }
         }

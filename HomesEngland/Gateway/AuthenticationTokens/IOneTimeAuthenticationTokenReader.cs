@@ -6,6 +6,6 @@ namespace HomesEngland.Gateway.AuthenticationTokens
 {
     public interface IOneTimeAuthenticationTokenReader
     {
-        Task<IAuthenticationToken> ReadAsync(int index, CancellationToken cancellationToken);
+        Task<IAuthenticationToken> ReadAsync(string token, CancellationToken cancellationToken);
     }
 }
