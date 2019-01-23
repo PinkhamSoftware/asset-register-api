@@ -12,18 +12,18 @@ namespace HomesEngland.UseCase.GenerateAssets.Impl
 {
     public class GenerateAssetsUseCase : IGenerateAssetsUseCase
     {
-        private readonly IBulkCreateAssetUseCase _bulkCreateAssetUseCase;
+        private readonly ICreateAssetRegisterVersionUseCase _createAssetRegisterVersionUseCase;
 
-        public GenerateAssetsUseCase(IBulkCreateAssetUseCase bulkCreateAssetUseCase)
+        public GenerateAssetsUseCase(ICreateAssetRegisterVersionUseCase createAssetRegisterVersionUseCase)
         {
-            _bulkCreateAssetUseCase = bulkCreateAssetUseCase;
+            _createAssetRegisterVersionUseCase = createAssetRegisterVersionUseCase;
         }
 
         public async Task<GenerateAssetsResponse> ExecuteAsync(GenerateAssetsRequest requests, CancellationToken cancellationToken)
         {
             IList<CreateAssetRequest> createAssetRequests = GenerateCreateAssetRequest(requests.Records.Value);
 
-            IList<CreateAssetResponse> response = await _bulkCreateAssetUseCase.ExecuteAsync(createAssetRequests, cancellationToken)
+            IList<CreateAssetResponse> response = await _createAssetRegisterVersionUseCase.ExecuteAsync(createAssetRequests, cancellationToken)
                 .ConfigureAwait(false);
 
             var generateAssetsResponse = new GenerateAssetsResponse

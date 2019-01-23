@@ -19,13 +19,13 @@ namespace HomesEnglandTest.UseCase.ImportAssets
     public class ImportAssetsUseCaseTest
     {
         public IImportAssetsUseCase _classUnderTest;
-        public Mock<IBulkCreateAssetUseCase> _mockBulkCreateAssetUseCase;
+        public Mock<ICreateAssetRegisterVersionUseCase> _mockBulkCreateAssetUseCase;
         public Mock<IFactory<CreateAssetRequest, CsvAsset>> _mockCreateAssetFactory;
 
         [SetUp]
         public void Setup()
         {
-            _mockBulkCreateAssetUseCase = new Mock<IBulkCreateAssetUseCase>();
+            _mockBulkCreateAssetUseCase = new Mock<ICreateAssetRegisterVersionUseCase>();
             _mockCreateAssetFactory = new Mock<IFactory<CreateAssetRequest, CsvAsset>>();
             _classUnderTest = new ImportAssetsUseCase(_mockBulkCreateAssetUseCase.Object, _mockCreateAssetFactory.Object);
         }

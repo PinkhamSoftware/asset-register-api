@@ -23,13 +23,13 @@ namespace HomesEngland.Gateway.Test
     {
         private readonly IAssetSearcher _classUnderTest;
         private readonly IGateway<IAsset, int> _gateway;
-        private readonly IBulkAssetCreator _bulkAssetCreator;
+        private readonly IAssetRegisterVersionCreator _assetRegisterVersionCreator;
 
         public AssetSearchGatewayTests()
         {
             var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
             var assetGateway = new EFAssetGateway(databaseUrl);
-            _bulkAssetCreator = assetGateway;
+            _assetRegisterVersionCreator = new EFAssetRegisterVersionGateway(databaseUrl);
             _gateway = assetGateway;
 
             _classUnderTest = assetGateway;
@@ -47,18 +47,18 @@ namespace HomesEngland.Gateway.Test
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 var createdAsset = CreateAsset(schemeId, null);
-                var assetEntities = await CreateAggregatedAssets(new List<IAsset> { createdAsset})
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset})
                     .ConfigureAwait(false);
 
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     SchemeId = schemeId,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetEntities[0].Id, assetEntities[0]);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetRegisterVersion.Assets[0].Id, assetRegisterVersion.Assets[0]);
                 trans.Dispose();
             }
         }
@@ -76,19 +76,19 @@ namespace HomesEngland.Gateway.Test
                 var createdAsset2 = CreateAsset(schemeId2, null);
                 var createdAsset3 = CreateAsset(schemeId3, null);
 
-                var assetEntities = await CreateAggregatedAssets(new List<IAsset> {createdAsset, createdAsset2, createdAsset3})
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> {createdAsset, createdAsset2, createdAsset3})
                     .ConfigureAwait(false);
 
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     SchemeId = schemeId2,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
                 assets.Results.Count.Should().Be(1);
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetEntities[1].Id, assetEntities[1]);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetRegisterVersion.Assets[1].Id, assetRegisterVersion.Assets[1]);
                 trans.Dispose();
             }
         }
@@ -103,12 +103,12 @@ namespace HomesEngland.Gateway.Test
             {
                 var entity = TestData.Domain.GenerateAsset();
 
-                var assetEntities = await CreateAggregatedAssets(new List<IAsset> { entity })
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { entity })
                     .ConfigureAwait(false);
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     SchemeId = schemeId,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
@@ -118,15 +118,15 @@ namespace HomesEngland.Gateway.Test
             }
         }
 
-        private async Task<IList<IAsset>> CreateAggregatedAssets(IList<IAsset> entities)
+        private async Task<IAssetRegisterVersion> CreateAggregatedAssets(IList<IAsset> entities)
         {
-            var assets = await _bulkAssetCreator.BulkCreateAsync(new AssetRegisterVersion
+            var assetRegisterVersion = await _assetRegisterVersionCreator.CreateAsync(new AssetRegisterVersion
             {
                 Assets = entities,
                 ModifiedDateTime = DateTime.UtcNow,
 
             }, CancellationToken.None);
-            return assets;
+            return assetRegisterVersion;
         }
 
         private IAsset CreateAsset(int? schemeId, string address)
@@ -148,17 +148,17 @@ namespace HomesEngland.Gateway.Test
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 var createdAsset = CreateAsset(null, address);
-                var assetEntities = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
                     .ConfigureAwait(false);
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     Address = address,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetEntities[0].Id, assetEntities[0]);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetRegisterVersion.Assets[0].Id, assetRegisterVersion.Assets[0]);
                 trans.Dispose();
             }
         }
@@ -172,17 +172,17 @@ namespace HomesEngland.Gateway.Test
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 var createdAsset = CreateAsset(null, address);
-                var assetEntities = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
                     .ConfigureAwait(false);
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     Address = searchAddress,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetEntities[0].Id, assetEntities[0]);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetRegisterVersion.Assets[0].Id, assetRegisterVersion.Assets[0]);
                 trans.Dispose();
             }
         }
@@ -201,12 +201,12 @@ namespace HomesEngland.Gateway.Test
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     Address = searchAddress,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetEntities.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetEntities[0].Id, assetEntities[0]);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetEntities.Assets[0].Id, assetEntities.Assets[0]);
                 trans.Dispose();
             }
         }
@@ -220,17 +220,17 @@ namespace HomesEngland.Gateway.Test
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 var createdAsset = CreateAsset(null, address);
-                var assetEntities = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
                     .ConfigureAwait(false);
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     Address = searchAddress,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetEntities[0].Id, assetEntities[0]);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetRegisterVersion.Assets[0].Id, assetRegisterVersion.Assets[0]);
                 trans.Dispose();
             }
         }
@@ -245,12 +245,12 @@ namespace HomesEngland.Gateway.Test
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 var createdAsset = CreateAsset(null, address);
-                var assetEntities = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
                     .ConfigureAwait(false);
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     Address = searchAddress,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
@@ -277,14 +277,14 @@ namespace HomesEngland.Gateway.Test
             {
                 var createdAsset = CreateAsset(null, null);
 
-                var assetEntities = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
                     .ConfigureAwait(false);
                 //act
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     SchemeId = schemeId,
                     Address = searchAddress,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
@@ -318,19 +318,19 @@ namespace HomesEngland.Gateway.Test
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 var createdAsset = CreateAsset(schemeId, address);
-                var assetEntities = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
                     .ConfigureAwait(false);
                 //act
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     SchemeId = schemeId,
                     Address = searchAddress,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetEntities[0].Id, assetEntities[0]);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetRegisterVersion.Assets[0].Id, assetRegisterVersion.Assets[0]);
 
                 trans.Dispose();
             }
@@ -353,14 +353,14 @@ namespace HomesEngland.Gateway.Test
             {
                 var createdAsset = CreateAsset(schemeId, address);
                 var createdAsset2 = CreateAsset(schemeId, address);
-                var assetEntities = await CreateAggregatedAssets(new List<IAsset> { createdAsset, createdAsset2 })
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset, createdAsset2 })
                     .ConfigureAwait(false);
                 //act
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     SchemeId = schemeId,
                     Address = searchAddress,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
@@ -388,13 +388,13 @@ namespace HomesEngland.Gateway.Test
                 var randomInt = random.Next();
                 var createdAsset = CreateAsset(randomInt, address);
                 var createdAsset2 = CreateAsset(randomInt+1, address);
-                var assetEntities = await CreateAggregatedAssets(new List<IAsset> { createdAsset,createdAsset2 })
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset,createdAsset2 })
                     .ConfigureAwait(false);
                 //act
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     Address = searchAddress,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
@@ -421,14 +421,14 @@ namespace HomesEngland.Gateway.Test
                     assets.Add(entity);
                 }
 
-                var assetEntities = await CreateAggregatedAssets(assets)
+                var assetRegisterVersion = await CreateAggregatedAssets(assets)
                     .ConfigureAwait(false);
 
                 var assetQuery = new AssetPagedSearchQuery
                 {
                     Address = address,
                     PageSize = pageSize,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
 
                 var response = await _classUnderTest.Search(assetQuery, CancellationToken.None);
@@ -456,7 +456,7 @@ namespace HomesEngland.Gateway.Test
                     assets.Add(entity);
                 }
 
-                var assetEntities = await CreateAggregatedAssets(assets)
+                var assetRegisterVersion = await CreateAggregatedAssets(assets)
                     .ConfigureAwait(false);
 
                 var assetQuery = new AssetPagedSearchQuery
@@ -464,7 +464,7 @@ namespace HomesEngland.Gateway.Test
                     Address = address,
                     PageSize = pageSize,
                     Page = page,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
 
                 var response = await _classUnderTest.Search(assetQuery, CancellationToken.None);
@@ -492,14 +492,14 @@ namespace HomesEngland.Gateway.Test
                     assets.Add(entity);
                 }
 
-                var assetEntities = await CreateAggregatedAssets(assets)
+                var assetRegisterVersion = await CreateAggregatedAssets(assets)
                     .ConfigureAwait(false);
 
                 var assetQuery = new AssetPagedSearchQuery
                 {
                     Address = address,
                     PageSize = pageSize,
-                    AssetRegisterVersionId = assetEntities.GetAssetRegisterVersionId()
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
 
                 var response = await _classUnderTest.Search(assetQuery, CancellationToken.None);

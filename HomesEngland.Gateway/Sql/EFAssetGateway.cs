@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomesEngland.Gateway.Sql
 {
-    public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator, IBulkAssetCreator
+    public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator
     {
         private readonly string _databaseUrl; 
 
@@ -121,26 +121,6 @@ namespace HomesEngland.Gateway.Sql
                     MovementInAssetValue = assetValue - moneyPaidOut
                 };
                 return Task.FromResult(assetAggregates);
-            }
-        }
-
-        public async Task<IList<IAsset>> BulkCreateAsync(IAssetRegisterVersion assetRegisterVersion, CancellationToken cancellationToken)
-        {
-            AssetRegisterVersionEntity assetRegisterVersionEntity = new AssetRegisterVersionEntity(assetRegisterVersion);
-
-            assetRegisterVersionEntity.Assets = assetRegisterVersionEntity.Assets.Select(s =>
-            {
-                s.AssetRegisterVersion = assetRegisterVersionEntity;
-                return s;
-            }).ToList();
-
-            using (var context = new AssetRegisterContext(_databaseUrl))
-            {
-                await context.AssetRegisterVersions.AddAsync(assetRegisterVersionEntity, cancellationToken).ConfigureAwait(false);       
-                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                var t = assetRegisterVersionEntity.Assets.Select(s => new Asset(s) as IAsset);
-                IList<IAsset> list = t.ToList();
-                return list;
             }
         }
     }

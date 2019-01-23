@@ -23,14 +23,14 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
     [TestFixture]
     public class SearchUseCaseAcceptanceTests
     {
-        private readonly IBulkCreateAssetUseCase _bulkCreateAssetUseCase;
+        private readonly ICreateAssetRegisterVersionUseCase _createAssetRegisterVersionUseCase;
         private readonly ISearchAssetUseCase _classUnderTest;
 
         public SearchUseCaseAcceptanceTests()
         {
             var assetRegister = new AssetRegister();
 
-            _bulkCreateAssetUseCase = assetRegister.Get<IBulkCreateAssetUseCase>();
+            _createAssetRegisterVersionUseCase = assetRegister.Get<ICreateAssetRegisterVersionUseCase>();
             _classUnderTest = assetRegister.Get<ISearchAssetUseCase>();
 
             var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
@@ -57,7 +57,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
                     CreateAsset(schemeId, address),                    
                 };
 
-                var responses = await _bulkCreateAssetUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
+                var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
                 
                 //act
                 var foundAsset = await SearchForAssetAsync(schemeId, searchAddress, responses.GetAssetRegisterVersionId());
@@ -104,7 +104,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
                     CreateAsset(schemeId3, address),
                 };
 
-                IList<CreateAssetResponse> responses = await _bulkCreateAssetUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
+                IList<CreateAssetResponse> responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
 
                 var assetSearch = new SearchAssetRequest
                 {
@@ -134,7 +134,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
                     CreateAsset(null, null)
                 };
 
-                var responses = await _bulkCreateAssetUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
+                var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
 
                 var assetSearch = new SearchAssetRequest
                 {
@@ -165,7 +165,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
                     list.Add(createAssetRequest);
                 }
 
-                var responses = await _bulkCreateAssetUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
+                var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
 
                 var assetSearch = new SearchAssetRequest
                 {

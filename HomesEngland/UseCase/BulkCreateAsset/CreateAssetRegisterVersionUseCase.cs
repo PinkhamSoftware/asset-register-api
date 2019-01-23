@@ -13,13 +13,13 @@ using HomesEngland.UseCase.GetAsset.Models;
 
 namespace HomesEngland.UseCase.BulkCreateAsset
 {
-    public class BulkCreateAssetUseCase : IBulkCreateAssetUseCase
+    public class CreateAssetRegisterVersionUseCase : ICreateAssetRegisterVersionUseCase
     {
-        private readonly IBulkAssetCreator _bulkAssetCreator;
+        private readonly IAssetRegisterVersionCreator _assetRegisterVersionCreator;
 
-        public BulkCreateAssetUseCase(IBulkAssetCreator bulkAssetCreator)
+        public CreateAssetRegisterVersionUseCase(IAssetRegisterVersionCreator assetRegisterVersionCreator)
         {
-            _bulkAssetCreator = bulkAssetCreator;
+            _assetRegisterVersionCreator = assetRegisterVersionCreator;
         }
 
         public async Task<IList<CreateAssetResponse>> ExecuteAsync(IList<CreateAssetRequest> requests, CancellationToken cancellationToken)
@@ -32,11 +32,11 @@ namespace HomesEngland.UseCase.BulkCreateAsset
                 ModifiedDateTime = DateTime.UtcNow
             };
 
-            var result = await _bulkAssetCreator.BulkCreateAsync(assetRegisterVersion, cancellationToken).ConfigureAwait(false);
-            if (result == null || !result.Any())
-                throw new BulkCreateAssetException();
+            var result = await _assetRegisterVersionCreator.CreateAsync(assetRegisterVersion, cancellationToken).ConfigureAwait(false);
+            if (result == null)
+                throw new CreateAssetRegisterVersionException();
 
-            List<CreateAssetResponse> responses = result.Select(s => new CreateAssetResponse
+            List<CreateAssetResponse> responses = result.Assets.Select(s => new CreateAssetResponse
             {
                 Asset = new AssetOutputModel(s)
             }).ToList();

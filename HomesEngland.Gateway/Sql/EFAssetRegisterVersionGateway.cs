@@ -10,7 +10,7 @@ using HomesEngland.UseCase.BulkCreateAsset.Models;
 
 namespace HomesEngland.Gateway.Sql
 {
-    public class EFAssetRegisterVersionGateway : IBulkAssetCreator, IAssetRegisterVersionSearcher
+    public class EFAssetRegisterVersionGateway : IAssetRegisterVersionCreator, IAssetRegisterVersionSearcher
     {
         private readonly string _databaseUrl;
 
@@ -19,7 +19,7 @@ namespace HomesEngland.Gateway.Sql
             _databaseUrl = databaseUrl;
         }
 
-        public async Task<IList<IAsset>> BulkCreateAsync(IAssetRegisterVersion assetRegisterVersion, CancellationToken cancellationToken)
+        public async Task<IAssetRegisterVersion> CreateAsync(IAssetRegisterVersion assetRegisterVersion, CancellationToken cancellationToken)
         {
             AssetRegisterVersionEntity assetRegisterVersionEntity = new AssetRegisterVersionEntity(assetRegisterVersion);
 
@@ -33,13 +33,17 @@ namespace HomesEngland.Gateway.Sql
             {
                 await context.AssetRegisterVersions.AddAsync(assetRegisterVersionEntity, cancellationToken).ConfigureAwait(false);
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-                var t = assetRegisterVersionEntity.Assets?.Select(s => new Asset(s) as IAsset);
-                IList<IAsset> list = t?.ToList();
-                return list;
+                var result = new AssetRegisterVersion
+                {
+                    Id = assetRegisterVersionEntity.Id,
+                    ModifiedDateTime = assetRegisterVersionEntity.ModifiedDateTime,
+                    Assets = assetRegisterVersionEntity.Assets?.Select(s=> new Asset(s) as IAsset).ToList()
+                };
+                return result;
             }
         }
 
-        public async Task<IPagedResults<IAssetRegisterVersion>> Search(IPagedQuery searchRequest, CancellationToken cancellationToken)
+        public Task<IPagedResults<IAssetRegisterVersion>> Search(IPagedQuery searchRequest, CancellationToken cancellationToken)
         {
             using (var context = new AssetRegisterContext(_databaseUrl))
             {
@@ -62,7 +66,7 @@ namespace HomesEngland.Gateway.Sql
                     TotalCount = totalCount,
                     NumberOfPages = (int)Math.Ceiling(totalCount / (decimal)searchRequest.PageSize.Value)
                 };
-                return pagedResults;
+                return Task.FromResult(pagedResults);
             }
         }
     }

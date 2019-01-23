@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace HomesEngland.Gateway.Test
     public class AssetRegisterVersionSearcherTests
     {
         private IAssetRegisterVersionSearcher _classUnderTest;
-        private IBulkAssetCreator _bulkAssetCreator;
+        private IAssetRegisterVersionCreator _assetRegisterVersionCreator;
 
         [SetUp]
         public void Setup()
@@ -26,7 +27,7 @@ namespace HomesEngland.Gateway.Test
             var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
             var assetGateway = new EFAssetRegisterVersionGateway(databaseUrl);
             _classUnderTest = assetGateway;
-            _bulkAssetCreator = assetGateway;
+            _assetRegisterVersionCreator = assetGateway;
 
             var assetRegisterContext = new AssetRegisterContext(databaseUrl);
             assetRegisterContext.Database.Migrate();
@@ -58,8 +59,14 @@ namespace HomesEngland.Gateway.Test
         {
             for (int i = 0; i < count; i++)
             {
-                var assetRegisterVersion = new AssetRegisterVersion();
-                await _bulkAssetCreator.BulkCreateAsync(assetRegisterVersion, CancellationToken.None).ConfigureAwait(false);
+                var assetRegisterVersion = new AssetRegisterVersion
+                {
+                    Assets = new List<IAsset> { new Asset
+                    {
+                        Address = $"test {i}"
+                    } }
+                };
+                await _assetRegisterVersionCreator.CreateAsync(assetRegisterVersion, CancellationToken.None).ConfigureAwait(false);
             }
         }
 
@@ -124,6 +131,7 @@ namespace HomesEngland.Gateway.Test
                 var assetQuery = new PagedQuery
                 {
                     PageSize = pageSize,
+                    Page = 1,
                 };
 
                 var response = await _classUnderTest.Search(assetQuery, CancellationToken.None);

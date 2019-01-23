@@ -23,13 +23,13 @@ namespace AssetRegisterTests.HomesEngland.UseCases.CalculateAssetAggregates
     public class CalculateAssetAggregatesUseCaseAcceptanceTests
     {
         private readonly ICalculateAssetAggregatesUseCase _classUnderTest;
-        private readonly IBulkCreateAssetUseCase _bulkCreateAssetUseCase;
+        private readonly ICreateAssetRegisterVersionUseCase _createAssetRegisterVersionUseCase;
 
         public CalculateAssetAggregatesUseCaseAcceptanceTests()
         {
             var assetRegister = new AssetRegister();
 
-            _bulkCreateAssetUseCase = assetRegister.Get<IBulkCreateAssetUseCase>();
+            _createAssetRegisterVersionUseCase = assetRegister.Get<ICreateAssetRegisterVersionUseCase>();
             _classUnderTest = assetRegister.Get<ICalculateAssetAggregatesUseCase>();
 
             var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
@@ -159,7 +159,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.CalculateAssetAggregates
                 list.Add(CreateAsset(schemeId, address, agencyFairValue, agencyEquityValue));
             }
 
-            var responses = await _bulkCreateAssetUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
+            var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
             return responses.Select(s=> s.Asset).ToList();
         }
 

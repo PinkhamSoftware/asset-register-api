@@ -4,7 +4,7 @@ using HomesEngland.UseCase.CreateAsset.Models;
 
 namespace HomesEngland.UseCase.BulkCreateAsset
 {
-    public interface IBulkCreateAssetUseCase : IAsyncUseCaseTask<IList<CreateAssetRequest>, IList<CreateAssetResponse>>
+    public interface ICreateAssetRegisterVersionUseCase : IAsyncUseCaseTask<IList<CreateAssetRequest>, IList<CreateAssetResponse>>
     {
     }
 }

@@ -98,8 +98,8 @@ namespace Main
             RegisterExportedDependency<ICalculateAssetAggregatesUseCase, CalculateAssetAggregatesUseCase>();
             RegisterExportedDependency<IAssetAggregator>(() => new EFAssetGateway(databaseUrl));
 
-            RegisterExportedDependency<IBulkCreateAssetUseCase,BulkCreateAssetUseCase>();
-            RegisterExportedDependency<IBulkAssetCreator>(()=> new EFAssetRegisterVersionGateway(databaseUrl));
+            RegisterExportedDependency<ICreateAssetRegisterVersionUseCase,CreateAssetRegisterVersionUseCase>();
+            RegisterExportedDependency<IAssetRegisterVersionCreator>(()=> new EFAssetRegisterVersionGateway(databaseUrl));
             RegisterExportedDependency<IGetAssetRegisterVersionsUseCase, GetAssetRegisterVersionsUseCase>();
             RegisterExportedDependency<IAssetRegisterVersionSearcher>(() => new EFAssetRegisterVersionGateway(databaseUrl));
         }

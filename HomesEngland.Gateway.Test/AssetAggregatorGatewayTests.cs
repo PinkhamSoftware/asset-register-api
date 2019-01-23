@@ -23,7 +23,7 @@ namespace HomesEngland.Gateway.Test
     {
         private readonly IAssetAggregator _classUnderTest;
         private readonly IGateway<IAsset, int> _gateway;
-        private readonly IBulkAssetCreator _bulkAssetCreator;
+        private readonly IAssetRegisterVersionCreator _assetRegisterVersionCreator;
 
         public AssetAggregatorGatewayTests()
         {
@@ -31,7 +31,7 @@ namespace HomesEngland.Gateway.Test
             var assetGateway = new EFAssetGateway(databaseUrl);
 
             _gateway = assetGateway;
-            _bulkAssetCreator = assetGateway;
+            _assetRegisterVersionCreator = new EFAssetRegisterVersionGateway(databaseUrl);
 
             _classUnderTest = assetGateway;
 
@@ -199,13 +199,13 @@ namespace HomesEngland.Gateway.Test
                 entities.Add(CustomiseGeneratedAssetEntity(schemeId, address, agencyFairValue, agencyEquityValue, _gateway));
             }
 
-            var assets = await _bulkAssetCreator.BulkCreateAsync(new AssetRegisterVersion
+            var assets = await _assetRegisterVersionCreator.CreateAsync(new AssetRegisterVersion
             {
                 Assets = entities,
                 ModifiedDateTime = DateTime.UtcNow,
 
             }, CancellationToken.None);
-            return assets.Select(s => s.AssetRegisterVersionId.Value).FirstOrDefault();
+            return assets.Assets.Select(s => s.AssetRegisterVersionId.Value).FirstOrDefault();
         }
 
         private IAsset CustomiseGeneratedAssetEntity(int? schemeId, string address, decimal? agencyFairValue, decimal? agencyEquityValue, IGateway<IAsset, int> gateway)

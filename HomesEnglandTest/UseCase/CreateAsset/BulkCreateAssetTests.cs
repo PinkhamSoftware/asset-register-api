@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using HomesEngland.Domain;
 using HomesEngland.Exception;
-using HomesEngland.Gateway;
 using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.BulkCreateAsset.Models;
@@ -19,14 +18,14 @@ namespace HomesEnglandTest.UseCase.CreateAsset
     public class BulkCreateAssetTests
     {
 
-        private readonly IBulkCreateAssetUseCase _classUnderTest;
-        private readonly Mock<IBulkAssetCreator> _gateway;
+        private readonly ICreateAssetRegisterVersionUseCase _classUnderTest;
+        private readonly Mock<IAssetRegisterVersionCreator> _gateway;
 
         public BulkCreateAssetTests()
         {
-            _gateway = new Mock<IBulkAssetCreator>();
+            _gateway = new Mock<IAssetRegisterVersionCreator>();
 
-            _classUnderTest = new BulkCreateAssetUseCase(_gateway.Object);
+            _classUnderTest = new CreateAssetRegisterVersionUseCase(_gateway.Object);
         }
 
         [TestCase(1, 2)]
@@ -37,15 +36,15 @@ namespace HomesEnglandTest.UseCase.CreateAsset
             //arrange
             var request = TestData.UseCase.GenerateCreateAssetRequest();
             request.SchemeId = schemeId;
-            _gateway.Setup(s => s.BulkCreateAsync(It.IsAny<IAssetRegisterVersion>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<IAsset>(){ new Asset(request)});
+            _gateway.Setup(s => s.CreateAsync(It.IsAny<IAssetRegisterVersion>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new AssetRegisterVersion{ Assets = new List<IAsset>(){ new Asset(request)}});
 
             var list = new List<CreateAssetRequest> {request};
             
             //act
             var useCaseResponse = await _classUnderTest.ExecuteAsync(list, CancellationToken.None);
             //assert
-            _gateway.Verify(s => s.BulkCreateAsync(It.Is<IAssetRegisterVersion>(i => i.Assets[0].SchemeId.Equals(schemeId)), It.IsAny<CancellationToken>()));
+            _gateway.Verify(s => s.CreateAsync(It.Is<IAssetRegisterVersion>(i => i.Assets[0].SchemeId.Equals(schemeId)), It.IsAny<CancellationToken>()));
             useCaseResponse.Should().NotBeNull();
             useCaseResponse[0].Asset.Should().NotBeNull();
             useCaseResponse[0].Asset.AssetOutputModelIsEqual(request);
@@ -59,8 +58,8 @@ namespace HomesEnglandTest.UseCase.CreateAsset
             //arrange
             var request = TestData.UseCase.GenerateCreateAssetRequest();
             request.SchemeId = schemeId;
-            _gateway.Setup(s => s.BulkCreateAsync(It.IsAny<IAssetRegisterVersion>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<IAsset>() { new Asset(request) });
+            _gateway.Setup(s => s.CreateAsync(It.IsAny<IAssetRegisterVersion>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new AssetRegisterVersion { Assets = new List<IAsset>() { new Asset(request) } });
             var list = new List<CreateAssetRequest> {request};
             //act
             var useCaseResponse = await _classUnderTest.ExecuteAsync(list, CancellationToken.None);
@@ -79,10 +78,10 @@ namespace HomesEnglandTest.UseCase.CreateAsset
             var request = TestData.UseCase.GenerateCreateAssetRequest();
             request.SchemeId = schemeId;
             var list = new List<CreateAssetRequest> {request};
-            _gateway.Setup(s => s.BulkCreateAsync(It.IsAny<IAssetRegisterVersion>(), It.IsAny<CancellationToken>())).ReturnsAsync((IList<IAsset>)null);
+            _gateway.Setup(s => s.CreateAsync(It.IsAny<IAssetRegisterVersion>(), It.IsAny<CancellationToken>())).ReturnsAsync((IAssetRegisterVersion)null);
             //act
             //assert
-            Assert.ThrowsAsync<BulkCreateAssetException>(async () => await _classUnderTest.ExecuteAsync(list, CancellationToken.None));
+            Assert.ThrowsAsync<CreateAssetRegisterVersionException>(async () => await _classUnderTest.ExecuteAsync(list, CancellationToken.None));
         }
 
         [Test]
@@ -91,12 +90,12 @@ namespace HomesEnglandTest.UseCase.CreateAsset
             //arrange
             var request = TestData.UseCase.GenerateCreateAssetRequest();
             var list = new List<CreateAssetRequest> { request };
-            _gateway.Setup(s => s.BulkCreateAsync(It.IsAny<IAssetRegisterVersion>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<IAsset>() { new Asset(request) });
+            _gateway.Setup(s => s.CreateAsync(It.IsAny<IAssetRegisterVersion>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new AssetRegisterVersion { Assets = new List<IAsset>() { new Asset(request) } });
             //act
             await _classUnderTest.ExecuteAsync(list, CancellationToken.None);
             //assert
-            _gateway.Verify(s => s.BulkCreateAsync(It.Is<IAssetRegisterVersion>(i => i.ModifiedDateTime != DateTime.MinValue), It.IsAny<CancellationToken>()));
+            _gateway.Verify(s => s.CreateAsync(It.Is<IAssetRegisterVersion>(i => i.ModifiedDateTime != DateTime.MinValue), It.IsAny<CancellationToken>()));
         }
 
         [Test]
@@ -105,12 +104,12 @@ namespace HomesEnglandTest.UseCase.CreateAsset
             //arrange
             var request = TestData.UseCase.GenerateCreateAssetRequest();
             var list = new List<CreateAssetRequest> { request };
-            _gateway.Setup(s => s.BulkCreateAsync(It.IsAny<IAssetRegisterVersion>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<IAsset>() { new Asset(request) });
+            _gateway.Setup(s => s.CreateAsync(It.IsAny<IAssetRegisterVersion>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new AssetRegisterVersion { Assets = new List<IAsset>() { new Asset(request) } });
             //act
             await _classUnderTest.ExecuteAsync(list, CancellationToken.None);
             //assert
-            _gateway.Verify(s => s.BulkCreateAsync(It.Is<IAssetRegisterVersion>(i => i.Assets[0].AssetIsEqual(request)), It.IsAny<CancellationToken>()));
+            _gateway.Verify(s => s.CreateAsync(It.Is<IAssetRegisterVersion>(i => i.Assets[0].AssetIsEqual(request)), It.IsAny<CancellationToken>()));
         }
     }
 }

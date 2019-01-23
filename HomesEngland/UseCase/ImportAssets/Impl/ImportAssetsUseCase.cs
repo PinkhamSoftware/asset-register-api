@@ -12,12 +12,12 @@ namespace HomesEngland.UseCase.ImportAssets.Impl
 {
     public class ImportAssetsUseCase : IImportAssetsUseCase
     {
-        private readonly IBulkCreateAssetUseCase _bulkCreateAssetUseCase;
+        private readonly ICreateAssetRegisterVersionUseCase _createAssetRegisterVersionUseCase;
         private readonly IFactory<CreateAssetRequest, CsvAsset> _createAssetRequestFactory;
 
-        public ImportAssetsUseCase(IBulkCreateAssetUseCase bulkCreateAssetUseCase, IFactory<CreateAssetRequest, CsvAsset> createAssetRequestFactory)
+        public ImportAssetsUseCase(ICreateAssetRegisterVersionUseCase createAssetRegisterVersionUseCase, IFactory<CreateAssetRequest, CsvAsset> createAssetRequestFactory)
         {
-            _bulkCreateAssetUseCase = bulkCreateAssetUseCase;
+            _createAssetRegisterVersionUseCase = createAssetRegisterVersionUseCase;
             _createAssetRequestFactory = createAssetRequestFactory;
         }
 
@@ -30,7 +30,7 @@ namespace HomesEngland.UseCase.ImportAssets.Impl
                 createAssetRequests.Add(createAssetRequest);
             }
 
-            var responses = await _bulkCreateAssetUseCase.ExecuteAsync(createAssetRequests, cancellationToken).ConfigureAwait(false);
+            var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(createAssetRequests, cancellationToken).ConfigureAwait(false);
 
             ImportAssetsResponse response = new ImportAssetsResponse
             {

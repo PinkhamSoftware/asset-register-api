@@ -20,13 +20,13 @@ namespace HomesEngland.Gateway.Test
     public class BulkAssetCreatorTests
     {
         private readonly IGateway<IAsset, int> _gateway;
-        private readonly IBulkAssetCreator _classUnderTest;
+        private readonly IAssetRegisterVersionCreator _classUnderTest;
 
         public BulkAssetCreatorTests()
         {
             var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
             var assetGateway = new EFAssetGateway(databaseUrl);
-            _classUnderTest = assetGateway;
+            _classUnderTest = new EFAssetRegisterVersionGateway(databaseUrl);
             _gateway = assetGateway;
 
             var assetRegisterContext = new AssetRegisterContext(databaseUrl);
@@ -49,14 +49,14 @@ namespace HomesEngland.Gateway.Test
                     assets.Add(entity);
                 }
                 
-                var createdAssets = await _classUnderTest.BulkCreateAsync(new AssetRegisterVersion
+                var createdAssets = await _classUnderTest.CreateAsync(new AssetRegisterVersion
                 {
                     Assets = assets
                 }, CancellationToken.None).ConfigureAwait(false);
                 //act
                 for (int i = 0; i < count; i++)
                 {
-                    var createdAsset = createdAssets.ElementAtOrDefault(i);
+                    var createdAsset = createdAssets.Assets.ElementAtOrDefault(i);
                     var readAsset = await _gateway.ReadAsync(createdAsset.Id).ConfigureAwait(false);
                     //assert
                     createdAsset.Id.Should().NotBe(0);
@@ -82,14 +82,14 @@ namespace HomesEngland.Gateway.Test
                     assets.Add(entity);
                 }
 
-                var createdAssets = await _classUnderTest.BulkCreateAsync(new AssetRegisterVersion
+                var createdAssets = await _classUnderTest.CreateAsync(new AssetRegisterVersion
                 {
                     Assets = assets,
                 }, CancellationToken.None).ConfigureAwait(false);
                 //act
                 for (int i = 0; i < count; i++)
                 {
-                    var createdAsset = createdAssets.ElementAtOrDefault(i);
+                    var createdAsset = createdAssets.Assets.ElementAtOrDefault(i);
                     var readAsset = await _gateway.ReadAsync(createdAsset.Id).ConfigureAwait(false);
                     //assert
                     readAsset.AssetRegisterVersionId.Should().NotBeNull();
@@ -115,7 +115,7 @@ namespace HomesEngland.Gateway.Test
                 }
 
                 var timeStamp = DateTime.UtcNow;
-                var createdAssets = await _classUnderTest.BulkCreateAsync(new AssetRegisterVersion
+                var assetRegisterVersion = await _classUnderTest.CreateAsync(new AssetRegisterVersion
                 {
                     Assets = assets,
                     ModifiedDateTime = timeStamp
@@ -123,7 +123,7 @@ namespace HomesEngland.Gateway.Test
                 //act
                 for (int i = 0; i < count; i++)
                 {
-                    var createdAsset = createdAssets.ElementAtOrDefault(i);
+                    var createdAsset = assetRegisterVersion.Assets.ElementAtOrDefault(i);
                     var readAsset = await _gateway.ReadAsync(createdAsset.Id).ConfigureAwait(false);
                     //assert
                     readAsset.AssetRegisterVersionId.Should().NotBeNull();
