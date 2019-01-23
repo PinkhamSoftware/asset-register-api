@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bogus;
 using FluentAssertions;
+using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
@@ -22,11 +23,12 @@ namespace WebApiTest.Controller.Asset.Search
     {
         private readonly SearchAssetController _classUnderTest;
         private readonly Mock<ISearchAssetUseCase> _mockUseCase;
+        private readonly Mock<IAssetRegisterVersionSearcher> _mockAssetRegisterVersionSearcher;
 
         public SearchAssetControllerTests()
         {
             _mockUseCase = new Mock<ISearchAssetUseCase>();
-            _classUnderTest = new SearchAssetController(_mockUseCase.Object);
+            _classUnderTest = new SearchAssetController(_mockUseCase.Object, _mockAssetRegisterVersionSearcher.Object);
         }
 
         [Test]
