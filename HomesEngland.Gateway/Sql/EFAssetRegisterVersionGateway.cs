@@ -55,7 +55,7 @@ namespace HomesEngland.Gateway.Sql
 
                 IEnumerable<AssetRegisterVersionEntity> results = queryable.ToList();
 
-                int totalCount = queryable.Select(s => s.Id).Count();
+                int totalCount = context.AssetRegisterVersions.Select(s => s.Id).Count();
                 IPagedResults<IAssetRegisterVersion> pagedResults = new PagedResults<IAssetRegisterVersion>
                 {
                     Results = results.Select(s=> new AssetRegisterVersion

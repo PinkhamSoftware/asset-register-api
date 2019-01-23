@@ -55,19 +55,25 @@ namespace HomesEngland.Gateway.Test
             }
         }
 
-        private async Task CreateAssetRegisterVersions(int count)
+        private async Task<IList<IAssetRegisterVersion>> CreateAssetRegisterVersions(int count)
         {
+            IList<IAssetRegisterVersion> assetRegisterVersions = new List<IAssetRegisterVersion>();
             for (int i = 0; i < count; i++)
             {
                 var assetRegisterVersion = new AssetRegisterVersion
                 {
-                    Assets = new List<IAsset> { new Asset
+                    Assets = new List<IAsset>
                     {
-                        Address = $"test {i}"
-                    } }
+                        new Asset
+                        {
+                            Address = $"test {i}"
+                        }
+                    }
                 };
-                await _assetRegisterVersionCreator.CreateAsync(assetRegisterVersion, CancellationToken.None).ConfigureAwait(false);
+                assetRegisterVersions.Add(await _assetRegisterVersionCreator.CreateAsync(assetRegisterVersion, CancellationToken.None).ConfigureAwait(false));
             }
+
+            return assetRegisterVersions;
         }
 
         [TestCase(1, 3, 1)]
@@ -126,7 +132,7 @@ namespace HomesEngland.Gateway.Test
         {
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await CreateAssetRegisterVersions(numberOfAssets);
+                var list = await CreateAssetRegisterVersions(numberOfAssets);
 
                 var assetQuery = new PagedQuery
                 {
