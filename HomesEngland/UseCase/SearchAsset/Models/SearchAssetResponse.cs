@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using HomesEngland.UseCase.GetAsset.Models;
+using HomesEngland.UseCase.Models;
 
 namespace HomesEngland.UseCase.SearchAsset.Models
 {
@@ -12,10 +13,5 @@ namespace HomesEngland.UseCase.SearchAsset.Models
         {
             return Assets;
         }
-    }
-
-    public interface IResponse<T>
-    {
-        IList<T> ToCsv();
     }
 }

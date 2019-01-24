@@ -93,6 +93,7 @@ namespace HomesEngland.Domain
 
         public Asset(IAsset request)
         {
+            Id = request.Id;
             Programme = request.Programme;
             EquityOwner = request.EquityOwner;
             SchemeId = request.SchemeId;
@@ -172,6 +173,8 @@ namespace HomesEngland.Domain
 
             HouseholdIncome = request.HouseholdIncome;
             EstimatedValuation = request.EstimatedValuation;
+
+            AssetRegisterVersionId = request.AssetRegisterVersionId;
         }
 
         public string Programme { get; set; }
@@ -252,5 +255,7 @@ namespace HomesEngland.Domain
         public decimal? HouseholdFiveKIncomeBand { get; set; }
         public decimal? HouseholdFiftyKIncomeBand { get; set; }
         public bool? FirstTimeBuyer { get; set; }
+
+        public int? AssetRegisterVersionId { get; set; }
     }
 }

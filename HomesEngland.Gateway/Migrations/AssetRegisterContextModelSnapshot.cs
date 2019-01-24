@@ -46,6 +46,11 @@ namespace HomesEngland.Gateway.Migrations
                     b.Property<string>("ArrearsEffectAppliedOrLimited")
                         .HasColumnName("arrearseffectappliedorlimited");
 
+                    b.Property<int?>("AssetRegisterVersionEntityId");
+
+                    b.Property<int?>("AssetRegisterVersionId")
+                        .HasColumnName("assetregisterversionid");
+
                     b.Property<int?>("CalendarYear")
                         .HasColumnName("calendaryear");
 
@@ -264,7 +269,25 @@ namespace HomesEngland.Gateway.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AssetRegisterVersionEntityId");
+
+                    b.HasIndex("AssetRegisterVersionId");
+
                     b.ToTable("assets");
+                });
+
+            modelBuilder.Entity("HomesEngland.Gateway.AssetRegisterVersionEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("ModifiedDateTime")
+                        .HasColumnName("modifieddatetime");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("assetregisterversions");
                 });
 
             modelBuilder.Entity("HomesEngland.Gateway.AuthenticationTokenEntity", b =>
@@ -288,6 +311,17 @@ namespace HomesEngland.Gateway.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("authenticationtokens");
+                });
+
+            modelBuilder.Entity("HomesEngland.Gateway.AssetEntity", b =>
+                {
+                    b.HasOne("HomesEngland.Gateway.AssetRegisterVersionEntity")
+                        .WithMany("Assets")
+                        .HasForeignKey("AssetRegisterVersionEntityId");
+
+                    b.HasOne("HomesEngland.Gateway.AssetRegisterVersionEntity", "AssetRegisterVersion")
+                        .WithMany()
+                        .HasForeignKey("AssetRegisterVersionId");
                 });
 #pragma warning restore 612, 618
         }

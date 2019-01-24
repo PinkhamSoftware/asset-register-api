@@ -179,11 +179,15 @@ namespace HomesEngland.UseCase.CreateAsset.Models.Factory
 
         private bool ParseIsPaid(string isPaid)
         {
+            if (string.IsNullOrEmpty(isPaid) || string.IsNullOrWhiteSpace(isPaid))
+                return false;
             return isPaid.Trim().ToLower().Equals("paid");
         }
 
         private bool ParseIsAsset(string isAsset)
         {
+            if (string.IsNullOrEmpty(isAsset) || string.IsNullOrWhiteSpace(isAsset))
+                return false;
             return isAsset.Trim().ToLower().Equals("asset");
         }
 
@@ -195,11 +199,15 @@ namespace HomesEngland.UseCase.CreateAsset.Models.Factory
 
         private bool ParseIsLondon(string isLondon)
         {
+            if (string.IsNullOrEmpty(isLondon) || string.IsNullOrWhiteSpace(isLondon))
+                return false;
             return !isLondon.Trim().ToLower().Equals("non-london");
         }
 
         private bool ParseFirstTimeBuyer(string isFirstTimeBuyer)
         {
+            if (string.IsNullOrEmpty(isFirstTimeBuyer) || string.IsNullOrWhiteSpace(isFirstTimeBuyer))
+                return false;
             return isFirstTimeBuyer.Trim().ToLower().Equals("y");
         }
     }

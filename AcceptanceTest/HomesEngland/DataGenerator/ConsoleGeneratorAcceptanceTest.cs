@@ -48,7 +48,7 @@ namespace AssetRegisterTests.HomesEngland.DataGenerator
                 {
                     var generatedAsset = response.ElementAtOrDefault(i);
 
-                    var record = await FindAsset(generatedAsset, i);
+                    var record = await FindAsset(generatedAsset, generatedAsset.AssetRegisterVersionId.Value);
                     
                     record.Should().NotBeNull();
                     record.AssetOutputModelIsEqual(generatedAsset);
@@ -57,11 +57,12 @@ namespace AssetRegisterTests.HomesEngland.DataGenerator
             }
         }
 
-        private async Task<AssetOutputModel> FindAsset(AssetOutputModel generatedAsset, int i)
+        private async Task<AssetOutputModel> FindAsset(AssetOutputModel generatedAsset, int assetRegisterVersionId)
         {
             var record = await _searchAssetUseCase.ExecuteAsync(new SearchAssetRequest
             {
                 SchemeId = generatedAsset?.SchemeId,
+                AssetRegisterVersionId = assetRegisterVersionId
                 
             }, CancellationToken.None).ConfigureAwait(false);
             return record.Assets.ElementAtOrDefault(0);

@@ -62,7 +62,8 @@ namespace WebApiTest.Controller.Asset.Search
                 new KeyValuePair<string, StringValues>("accept", "text/csv"));
             var request = new SearchAssetApiRequest
             {
-                SchemeId = assetOutputModel.SchemeId
+                SchemeId = assetOutputModel.SchemeId,
+                AssetRegisterVersionId = 1,
             };
             //act
             var response = await _classUnderTest.Get(request).ConfigureAwait(false);
@@ -73,50 +74,53 @@ namespace WebApiTest.Controller.Asset.Search
             result.Value.Should().BeOfType<List<AssetOutputModel>>();
         }
 
-        [TestCase(null, null, 1, 1)]
-        [TestCase(0, null, 1, 1)]
-        [TestCase(-1, null, 1, 1)]
-        [TestCase(null, "", 1, 1)]
-        [TestCase(null, " ", 1, 1)]
-        [TestCase(1, "address", -1, 1)]
-        [TestCase(1, "address", 0, 1)]
-        [TestCase(1, "address", 1, -1)]
-        [TestCase(1, "address", 1, 0)]
+        [TestCase(null, null     , 1, 1, 1)]
+        [TestCase(0   , null     , 1, 1, 1)]
+        [TestCase(-1  , null     , 1, 1, 1)]
+        [TestCase(null, ""       , 1, 1, 1)]
+        [TestCase(null, " "      , 1, 1, 1)]
+        [TestCase(1   , "address",-1, 1, 1)]
+        [TestCase(1   , "address", 0, 1, 1)]
+        [TestCase(1   , "address", 1,-1, 1)]
+        [TestCase(1   , "address", 1, 0, 1)]
+        [TestCase(1   , "address", 1, 1, null)]
         public void GivenInvalidRequest_ThenIsInvalid(int? schemeId, string address, int? page,
-            int? pageSize)
+            int? pageSize, int? assetRegisterVersionId)
         {
             SearchAssetApiRequest apiRequest = new SearchAssetApiRequest
             {
                 SchemeId = schemeId,
                 Address = address,
                 Page = page,
-                PageSize = pageSize
+                PageSize = pageSize,
+                AssetRegisterVersionId = assetRegisterVersionId
             };
             
             apiRequest.IsValid().Should().BeFalse();
         }
         
-        [TestCase(1, null, 1, 1)]
-        [TestCase(2, null, 1, 1)]
-        [TestCase(3, null, 1, 1)]
-        [TestCase(null, "d", 1, 1)]
-        [TestCase(null, "e", 1, 1)]
-        [TestCase(null, "t", 1, 1)]
-        [TestCase(1, "a", 1, 1)]
-        [TestCase(2, "b", 2, 3)]
-        [TestCase(3, "c", 3, 5)]
-        [TestCase(1, "address", null, 1)]
-        [TestCase(1, "address", 1, null)]
-        [TestCase(1, "address", null, null)]
+        [TestCase(1   , null     ,    1, 1   ,1)]
+        [TestCase(2   , null     ,    1, 1   ,1)]
+        [TestCase(3   , null     ,    1, 1   ,1)]
+        [TestCase(null, "d"      ,    1, 1   ,1)]
+        [TestCase(null, "e"      ,    1, 1   ,1)]
+        [TestCase(null, "t"      ,    1, 1   ,1)]
+        [TestCase(1   , "a"      ,    1, 1   ,1)]
+        [TestCase(2   , "b"      ,    2, 3   ,1)]
+        [TestCase(3   , "c"      ,    3, 5   ,1)]
+        [TestCase(1   , "address", null, 1   ,1)]
+        [TestCase(1   , "address",    1, null,1)]
+        [TestCase(1   , "address", null, null,1)]
         public void GivenValidRequest_ThenIsValid(int? schemeId, string address, int? page,
-            int? pageSize)
+            int? pageSize, int? assetRegisterVersionId)
         {
             SearchAssetApiRequest apiRequest = new SearchAssetApiRequest
             {
                 SchemeId = schemeId,
                 Address = address,
                 Page = page,
-                PageSize = pageSize
+                PageSize = pageSize,
+                AssetRegisterVersionId = assetRegisterVersionId
             };
 
             apiRequest.IsValid().Should().BeTrue();

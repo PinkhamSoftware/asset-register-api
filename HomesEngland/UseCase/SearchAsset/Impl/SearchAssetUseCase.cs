@@ -18,11 +18,11 @@ namespace HomesEngland.UseCase.SearchAsset.Impl
             _assetSearcher = assetSearcher;
         }
 
-        public async Task<SearchAssetResponse> ExecuteAsync(SearchAssetRequest request,
+        public async Task<SearchAssetResponse> ExecuteAsync(SearchAssetRequest requests,
             CancellationToken cancellationToken)
         {
             
-            var foundAssets = await SearchAssets(request, cancellationToken);
+            var foundAssets = await SearchAssets(requests, cancellationToken);
 
             var response = new SearchAssetResponse
             {
@@ -39,7 +39,8 @@ namespace HomesEngland.UseCase.SearchAsset.Impl
             var assetSearch = new AssetPagedSearchQuery
                           {
                               SchemeId = request.SchemeId,
-                              Address = request.Address
+                              Address = request.Address,
+                              AssetRegisterVersionId = request.AssetRegisterVersionId
                           };
 
             if (request.Page != null) assetSearch.Page = request.Page;

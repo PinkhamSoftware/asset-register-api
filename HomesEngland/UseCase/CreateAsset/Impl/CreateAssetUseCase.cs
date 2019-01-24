@@ -17,9 +17,9 @@ namespace HomesEngland.UseCase.CreateAsset.Impl
             _assetCreator = assetCreator;
         }
 
-        public async Task<CreateAssetResponse> ExecuteAsync(CreateAssetRequest request, CancellationToken cancellationToken)
+        public async Task<CreateAssetResponse> ExecuteAsync(CreateAssetRequest requests, CancellationToken cancellationToken)
         {
-            IAsset asset = new Asset(request);
+            IAsset asset = new Asset(requests);
 
             var createdAsset = await _assetCreator.CreateAsync(asset);
             if(createdAsset == null)

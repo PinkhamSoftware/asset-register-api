@@ -1,18 +1,20 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.Domain.Impl;
+using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.Migrations;
+using HomesEngland.UseCase.BulkCreateAsset.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomesEngland.Gateway.Sql
 {
-    public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator,
-        IAssetSearcher, IAssetAggregator
+    public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator
     {
         private readonly string _databaseUrl; 
 
@@ -46,8 +48,7 @@ namespace HomesEngland.Gateway.Sql
             }
         }
 
-        public Task<IPagedResults<IAsset>> Search(IAssetPagedSearchQuery searchRequest,
-            CancellationToken cancellationToken)
+        public Task<IPagedResults<IAsset>> Search(IAssetPagedSearchQuery searchRequest, CancellationToken cancellationToken)
         {
             using (var context = new AssetRegisterContext(_databaseUrl))
             {
@@ -70,10 +71,15 @@ namespace HomesEngland.Gateway.Sql
             }
         }
 
-        private IQueryable<AssetEntity> GenerateFilteringCriteria(AssetRegisterContext context,
-            IAssetSearchQuery searchRequest)
+        private IQueryable<AssetEntity> GenerateFilteringCriteria(AssetRegisterContext context, IAssetSearchQuery searchRequest)
         {
             IQueryable<AssetEntity> queryable = context.Assets;
+
+            if(!searchRequest.AssetRegisterVersionId.HasValue)
+                throw new ArgumentNullException("AssetRegisterVersionId is null");
+
+            queryable = queryable.Where(w => w.AssetRegisterVersionId.Equals(searchRequest.AssetRegisterVersionId));
+
             if (!string.IsNullOrEmpty(searchRequest.Address) && !string.IsNullOrWhiteSpace(searchRequest.Address))
             {
                 queryable = queryable.Where(w =>

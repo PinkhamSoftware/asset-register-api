@@ -373,6 +373,7 @@ namespace TestHelper
 
             readAsset.HouseholdIncome.Should().Be(entity.HouseholdIncome);
             readAsset.EstimatedValuation.Should().Be(entity.EstimatedValuation);
+            readAsset.AssetRegisterVersionId.Should().Be(entity.AssetRegisterVersionId);
         }
     }
 }

@@ -6,6 +6,7 @@
         public int? Page { get; set; }
         public int? PageSize { get; set; }
         public string Address { get; set; }
+        public int? AssetRegisterVersionId { get; set; }
 
         public SearchAssetRequest()
         {
