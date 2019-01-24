@@ -1,4 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using HomesEngland.Domain;
+using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
@@ -13,10 +17,12 @@ namespace WebApi.Controllers.Search
     public class SearchAssetController : ControllerBase
     {
         private readonly ISearchAssetUseCase _useCase;
+        private readonly IAssetRegisterVersionSearcher _assetRegisterVersionSearcher;
 
-        public SearchAssetController(ISearchAssetUseCase useCase)
+        public SearchAssetController(ISearchAssetUseCase useCase, IAssetRegisterVersionSearcher assetRegisterVersionSearcher)
         {
             _useCase = useCase;
+            _assetRegisterVersionSearcher = assetRegisterVersionSearcher;
         }
 
         [HttpGet("search")]
@@ -29,18 +35,40 @@ namespace WebApi.Controllers.Search
                 return StatusCode(400);
             }
 
-            SearchAssetRequest searchAssetUseCaseRequest = new SearchAssetRequest
+            var assetRegisterVersionId = await GetLatestAssetRegisterVersionIdIfNull(request);
+
+            var searchAssetUseCaseRequest = new SearchAssetRequest
             {
                 SchemeId = request.SchemeId,
                 Address = request.Address,
                 Page = request.Page,
                 PageSize = request.PageSize,
-                AssetRegisterVersionId = request.AssetRegisterVersionId,
+                AssetRegisterVersionId = assetRegisterVersionId,
             };
 
             SearchAssetResponse result = await _useCase
                 .ExecuteAsync(searchAssetUseCaseRequest, this.GetCancellationToken()).ConfigureAwait(false);
             return this.StandardiseResponse<SearchAssetResponse, AssetOutputModel>(result);
+        }
+
+        private async Task<int?> GetLatestAssetRegisterVersionIdIfNull(SearchAssetApiRequest request)
+        {
+            int? assetRegisterVersionId = null;
+            if (request.AssetRegisterVersionId.HasValue)
+            {
+                assetRegisterVersionId = request.AssetRegisterVersionId;
+            }
+            else
+            {
+                var latestAssetRegister = await _assetRegisterVersionSearcher.Search(new PagedQuery
+                {
+                    Page = 1,
+                    PageSize = 1
+                }, CancellationToken.None).ConfigureAwait(false);
+                assetRegisterVersionId = latestAssetRegister?.Results?.ElementAtOrDefault(0)?.Id;
+            }
+
+            return assetRegisterVersionId;
         }
     }
 }
