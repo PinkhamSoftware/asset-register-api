@@ -1,13 +1,17 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using FluentAssertions;
 using HomesEngland.Gateway;
 using HomesEngland.Gateway.Migrations;
+using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.CalculateAssetAggregates;
 using HomesEngland.UseCase.CalculateAssetAggregates.Models;
 using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
+using HomesEngland.UseCase.GetAsset.Models;
 using Main;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -18,15 +22,14 @@ namespace AssetRegisterTests.HomesEngland.UseCases.CalculateAssetAggregates
     [TestFixture]
     public class CalculateAssetAggregatesUseCaseAcceptanceTests
     {
-        private readonly ICreateAssetUseCase _createAssetUseCase;
         private readonly ICalculateAssetAggregatesUseCase _classUnderTest;
-        private readonly IDatabaseConnectionFactory _databaseConnectionFactory;
+        private readonly ICreateAssetRegisterVersionUseCase _createAssetRegisterVersionUseCase;
 
         public CalculateAssetAggregatesUseCaseAcceptanceTests()
         {
             var assetRegister = new AssetRegister();
-            
-            _createAssetUseCase = assetRegister.Get<ICreateAssetUseCase>();
+
+            _createAssetRegisterVersionUseCase = assetRegister.Get<ICreateAssetRegisterVersionUseCase>();
             _classUnderTest = assetRegister.Get<ICalculateAssetAggregatesUseCase>();
 
             var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
@@ -47,9 +50,9 @@ namespace AssetRegisterTests.HomesEngland.UseCases.CalculateAssetAggregates
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await GenerateAssetsForAggregation(createdCount, schemeId, address, null, null);
+                var assets = await GenerateAssetsForAggregation(createdCount, schemeId, address, null, null);
                 //act
-                var searchAggregate = await CalculateAggregatesForSearchCriteria(schemeId, searchAddress);
+                var searchAggregate = await CalculateAggregatesForSearchCriteria(schemeId, searchAddress, assets.GetAssetRegisterVersionId());
                 //assert
                 searchAggregate.AssetAggregates.UniqueRecords.Should().Be(expectedCount);
                 trans.Dispose();
@@ -70,9 +73,9 @@ namespace AssetRegisterTests.HomesEngland.UseCases.CalculateAssetAggregates
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await GenerateAssetsForAggregation(createdCount, schemeId, address, null, agencyEquityValue);
+                var assets = await GenerateAssetsForAggregation(createdCount, schemeId, address, null, agencyEquityValue);
                 //act
-                var searchAggregate = await CalculateAggregatesForSearchCriteria(schemeId, searchAddress);
+                var searchAggregate = await CalculateAggregatesForSearchCriteria(schemeId, searchAddress, assets.GetAssetRegisterVersionId());
                 //assert
                 searchAggregate.AssetAggregates.MoneyPaidOut.Should().Be(expectedCount * agencyEquityValue);
                 trans.Dispose();
@@ -93,9 +96,9 @@ namespace AssetRegisterTests.HomesEngland.UseCases.CalculateAssetAggregates
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await GenerateAssetsForAggregation(createdCount, schemeId, address, agencyFairValue, null);
+                var assets = await GenerateAssetsForAggregation(createdCount, schemeId, address, agencyFairValue, null);
                 //act
-                var searchAggregate = await CalculateAggregatesForSearchCriteria(schemeId, searchAddress);
+                var searchAggregate = await CalculateAggregatesForSearchCriteria(schemeId, searchAddress, assets.GetAssetRegisterVersionId());
                 //assert
                 searchAggregate.AssetAggregates.AssetValue.Should().Be(expectedCount * agencyFairValue);
                 trans.Dispose();
@@ -116,9 +119,9 @@ namespace AssetRegisterTests.HomesEngland.UseCases.CalculateAssetAggregates
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await GenerateAssetsForAggregation(createdCount, schemeId, address, null, agencyEquityValue);
+                var assets = await GenerateAssetsForAggregation(createdCount, schemeId, address, null, agencyEquityValue);
                 //act
-                var searchAggregate = await CalculateAggregatesForSearchCriteria(schemeId, searchAddress);
+                var searchAggregate = await CalculateAggregatesForSearchCriteria(schemeId, searchAddress, assets.GetAssetRegisterVersionId());
                 //assert
                 searchAggregate.AssetAggregates.MoneyPaidOut.Should().Be(expectedCount * agencyEquityValue);
                 trans.Dispose();
@@ -139,36 +142,41 @@ namespace AssetRegisterTests.HomesEngland.UseCases.CalculateAssetAggregates
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await GenerateAssetsForAggregation(createdCount, schemeId, address, agencyFairValue, agencyEquityValue);
+                var assetEntities = await GenerateAssetsForAggregation(createdCount, schemeId, address, agencyFairValue, agencyEquityValue);
                 //act
-                var searchAggregate = await CalculateAggregatesForSearchCriteria(schemeId, searchAddress);
+                var searchAggregate = await CalculateAggregatesForSearchCriteria(schemeId, searchAddress, assetEntities.GetAssetRegisterVersionId());
                 //assert
                 searchAggregate.AssetAggregates.MovementInAssetValue.Should().Be((agencyFairValue * expectedCount) - (expectedCount * agencyEquityValue));
                 trans.Dispose();
             }
         }
 
-        private async Task GenerateAssetsForAggregation(int createdCount, int? schemeId, string address, decimal? agencyFairValue, decimal? agencyEquityValue)
+        private async Task<IList<AssetOutputModel>> GenerateAssetsForAggregation(int createdCount, int? schemeId, string address, decimal? agencyFairValue, decimal? agencyEquityValue)
         {
+            var list = new List<CreateAssetRequest>();
             for (int i = 0; i < createdCount; i++)
             {
-                await CreateAsset(schemeId, address, agencyFairValue, agencyEquityValue);
+                list.Add(CreateAsset(schemeId, address, agencyFairValue, agencyEquityValue));
             }
+
+            var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
+            return responses.Select(s=> s.Asset).ToList();
         }
 
-        private async Task<CalculateAssetAggregateResponse> CalculateAggregatesForSearchCriteria(int? schemeId, string address)
+        private async Task<CalculateAssetAggregateResponse> CalculateAggregatesForSearchCriteria(int? schemeId, string address, int assetRegisterVersionId)
         {
             var searchForAsset = new CalculateAssetAggregateRequest
             {
                 SchemeId = schemeId,
-                Address = address
+                Address = address,
+                AssetRegisterVersionId = assetRegisterVersionId
             };
 
             var useCaseResponse = await _classUnderTest.ExecuteAsync(searchForAsset, CancellationToken.None).ConfigureAwait(false);
             return useCaseResponse;
         }
 
-        private async Task<CreateAssetResponse> CreateAsset(int? schemeId, string address, decimal? agencyFairValue, decimal? agencyEquityValue)
+        private CreateAssetRequest CreateAsset(int? schemeId, string address, decimal? agencyFairValue, decimal? agencyEquityValue)
         {
             var createAssetRequest = TestData.UseCase.GenerateCreateAssetRequest();
             if (schemeId.HasValue)
@@ -179,8 +187,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.CalculateAssetAggregates
                 createAssetRequest.AgencyFairValue = agencyFairValue;
             if (agencyEquityValue.HasValue)
                 createAssetRequest.AgencyEquityLoan = agencyEquityValue;
-            var response = await _createAssetUseCase.ExecuteAsync(createAssetRequest, CancellationToken.None);
-            return response;
+            return createAssetRequest;
         }
     }
 }

@@ -1,9 +1,10 @@
-using System.Data;
+﻿using System.Data;
 using DependencyInjection;
 using HomesEngland.Domain;
 using HomesEngland.Domain.Factory;
 using HomesEngland.Gateway;
 using HomesEngland.Gateway.AccessTokens;
+using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.AuthenticationTokens;
 using HomesEngland.Gateway.JWT;
@@ -14,7 +15,9 @@ using HomesEngland.Gateway.Sql;
 using HomesEngland.Gateway.Sql.Postgres;
 using HomesEngland.UseCase.AuthenticateUser;
 using HomesEngland.UseCase.AuthenticateUser.Impl;
+using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.CalculateAssetAggregates;
+using HomesEngland.UseCase.CalculateAssetAggregates.Impl;
 using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Impl;
 using HomesEngland.UseCase.CreateAsset.Models;
@@ -26,6 +29,8 @@ using HomesEngland.UseCase.GetAccessToken;
 using HomesEngland.UseCase.GetAccessToken.Impl;
 using HomesEngland.UseCase.GetAsset;
 using HomesEngland.UseCase.GetAsset.Impl;
+using HomesEngland.UseCase.GetAssetRegisterVersions;
+using HomesEngland.UseCase.GetAssetRegisterVersions.Impl;
 using HomesEngland.UseCase.ImportAssets;
 using HomesEngland.UseCase.ImportAssets.Impl;
 using HomesEngland.UseCase.ImportAssets.Models;
@@ -103,6 +108,11 @@ namespace Main
             RegisterExportedDependency<IFactory<CreateAssetRequest, CsvAsset>, CreateAssetRequestFactory>();
             RegisterExportedDependency<ICalculateAssetAggregatesUseCase, CalculateAssetAggregatesUseCase>();
             RegisterExportedDependency<IAssetAggregator>(() => new EFAssetGateway(databaseUrl));
+
+            RegisterExportedDependency<ICreateAssetRegisterVersionUseCase,CreateAssetRegisterVersionUseCase>();
+            RegisterExportedDependency<IAssetRegisterVersionCreator>(()=> new EFAssetRegisterVersionGateway(databaseUrl));
+            RegisterExportedDependency<IGetAssetRegisterVersionsUseCase, GetAssetRegisterVersionsUseCase>();
+            RegisterExportedDependency<IAssetRegisterVersionSearcher>(() => new EFAssetRegisterVersionGateway(databaseUrl));
         }
 
         public override T Get<T>()

@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using FluentAssertions;
 using HomesEngland.Domain;
+using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.Gateway.Sql;
+using HomesEngland.UseCase.BulkCreateAsset.Models;
 using HomesEngland.UseCase.SearchAsset.Models;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
@@ -20,12 +23,13 @@ namespace HomesEngland.Gateway.Test
     {
         private readonly IAssetSearcher _classUnderTest;
         private readonly IGateway<IAsset, int> _gateway;
+        private readonly IAssetRegisterVersionCreator _assetRegisterVersionCreator;
 
         public AssetSearchGatewayTests()
         {
             var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
             var assetGateway = new EFAssetGateway(databaseUrl);
-
+            _assetRegisterVersionCreator = new EFAssetRegisterVersionGateway(databaseUrl);
             _gateway = assetGateway;
 
             _classUnderTest = assetGateway;
@@ -42,15 +46,19 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var createdAsset = await CreateAsset(schemeId, null, _gateway);
+                var createdAsset = CreateAsset(schemeId, null);
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset})
+                    .ConfigureAwait(false);
+
                 var assetSearch = new AssetPagedSearchQuery
                 {
-                    SchemeId = schemeId
+                    SchemeId = schemeId,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(createdAsset.Id, createdAsset);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetRegisterVersion.Assets[0].Id, assetRegisterVersion.Assets[0]);
                 trans.Dispose();
             }
         }
@@ -64,19 +72,23 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var createdAsset = await CreateAsset(schemeId, null, _gateway);
-                var createdAsset2 = await CreateAsset(schemeId2, null, _gateway);
-                var createdAsset3 = await CreateAsset(schemeId3, null, _gateway);
+                var createdAsset = CreateAsset(schemeId, null);
+                var createdAsset2 = CreateAsset(schemeId2, null);
+                var createdAsset3 = CreateAsset(schemeId3, null);
+
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> {createdAsset, createdAsset2, createdAsset3})
+                    .ConfigureAwait(false);
 
                 var assetSearch = new AssetPagedSearchQuery
                 {
-                    SchemeId = schemeId2
+                    SchemeId = schemeId2,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
                 assets.Results.Count.Should().Be(1);
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(createdAsset2.Id, createdAsset2);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetRegisterVersion.Assets[1].Id, assetRegisterVersion.Assets[1]);
                 trans.Dispose();
             }
         }
@@ -90,11 +102,13 @@ namespace HomesEngland.Gateway.Test
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 var entity = TestData.Domain.GenerateAsset();
-                
-                await _gateway.CreateAsync(entity).ConfigureAwait(false);
+
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { entity })
+                    .ConfigureAwait(false);
                 var assetSearch = new AssetPagedSearchQuery
                 {
-                    SchemeId = schemeId
+                    SchemeId = schemeId,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
@@ -104,15 +118,25 @@ namespace HomesEngland.Gateway.Test
             }
         }
 
-        private async Task<IAsset> CreateAsset(int? schemeId, string address, IGateway<IAsset,int> gateway)
+        private async Task<IAssetRegisterVersion> CreateAggregatedAssets(IList<IAsset> entities)
         {
-            var entity = TestData.Domain.GenerateAsset();
-            if(schemeId.HasValue)
+            var assetRegisterVersion = await _assetRegisterVersionCreator.CreateAsync(new AssetRegisterVersion
+            {
+                Assets = entities,
+                ModifiedDateTime = DateTime.UtcNow,
+
+            }, CancellationToken.None);
+            return assetRegisterVersion;
+        }
+
+        private IAsset CreateAsset(int? schemeId, string address)
+        {
+            IAsset entity = TestData.Domain.GenerateAsset();
+            if (schemeId.HasValue)
                 entity.SchemeId = schemeId;
             if (!string.IsNullOrEmpty(address))
                 entity.Address = address;
-            IAsset createdAsset = await gateway.CreateAsync(entity).ConfigureAwait(false);
-            return createdAsset;
+            return entity;
         }
 
         [TestCase("Address 1")]
@@ -123,15 +147,18 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var createdAsset = await CreateAsset(null, address, _gateway);
+                var createdAsset = CreateAsset(null, address);
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                    .ConfigureAwait(false);
                 var assetSearch = new AssetPagedSearchQuery
                 {
-                    Address = address
+                    Address = address,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(createdAsset.Id, createdAsset);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetRegisterVersion.Assets[0].Id, assetRegisterVersion.Assets[0]);
                 trans.Dispose();
             }
         }
@@ -144,15 +171,18 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var createdAsset = await CreateAsset(null, address, _gateway);
+                var createdAsset = CreateAsset(null, address);
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                    .ConfigureAwait(false);
                 var assetSearch = new AssetPagedSearchQuery
                 {
-                    Address = searchAddress
+                    Address = searchAddress,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(createdAsset.Id, createdAsset);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetRegisterVersion.Assets[0].Id, assetRegisterVersion.Assets[0]);
                 trans.Dispose();
             }
         }
@@ -165,15 +195,18 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var createdAsset = await CreateAsset(null, address, _gateway);
+                var createdAsset = CreateAsset(null, address);
+                var assetEntities = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                    .ConfigureAwait(false);
                 var assetSearch = new AssetPagedSearchQuery
                 {
-                    Address = searchAddress
+                    Address = searchAddress,
+                    AssetRegisterVersionId = assetEntities.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(createdAsset.Id, createdAsset);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetEntities.Assets[0].Id, assetEntities.Assets[0]);
                 trans.Dispose();
             }
         }
@@ -186,15 +219,18 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var createdAsset = await CreateAsset(null, address, _gateway);
+                var createdAsset = CreateAsset(null, address);
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                    .ConfigureAwait(false);
                 var assetSearch = new AssetPagedSearchQuery
                 {
-                    Address = searchAddress
+                    Address = searchAddress,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(createdAsset.Id, createdAsset);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetRegisterVersion.Assets[0].Id, assetRegisterVersion.Assets[0]);
                 trans.Dispose();
             }
         }
@@ -208,10 +244,13 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await CreateAsset(null, address, _gateway);
+                var createdAsset = CreateAsset(null, address);
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                    .ConfigureAwait(false);
                 var assetSearch = new AssetPagedSearchQuery
                 {
-                    Address = searchAddress
+                    Address = searchAddress,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
@@ -236,12 +275,16 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                await CreateAsset(null, null,_gateway);
+                var createdAsset = CreateAsset(null, null);
+
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                    .ConfigureAwait(false);
                 //act
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     SchemeId = schemeId,
-                    Address = searchAddress
+                    Address = searchAddress,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
@@ -274,17 +317,20 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var createdAsset = await CreateAsset(schemeId, address, _gateway);
+                var createdAsset = CreateAsset(schemeId, address);
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                    .ConfigureAwait(false);
                 //act
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     SchemeId = schemeId,
-                    Address = searchAddress
+                    Address = searchAddress,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
                 //assert
-                assets.Results.ElementAtOrDefault(0).AssetIsEqual(createdAsset.Id, createdAsset);
+                assets.Results.ElementAtOrDefault(0).AssetIsEqual(assetRegisterVersion.Assets[0].Id, assetRegisterVersion.Assets[0]);
 
                 trans.Dispose();
             }
@@ -305,13 +351,16 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var createdAsset = await CreateAsset(schemeId, address, _gateway);
-                var createdAsset2 = await CreateAsset(schemeId, address, _gateway);
+                var createdAsset = CreateAsset(schemeId, address);
+                var createdAsset2 = CreateAsset(schemeId, address);
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset, createdAsset2 })
+                    .ConfigureAwait(false);
                 //act
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     SchemeId = schemeId,
-                    Address = searchAddress
+                    Address = searchAddress,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
@@ -337,12 +386,15 @@ namespace HomesEngland.Gateway.Test
             {
                 var random = new Random();
                 var randomInt = random.Next();
-                await CreateAsset(randomInt, address, _gateway);
-                await CreateAsset(randomInt+1, address, _gateway);
+                var createdAsset = CreateAsset(randomInt, address);
+                var createdAsset2 = CreateAsset(randomInt+1, address);
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset,createdAsset2 })
+                    .ConfigureAwait(false);
                 //act
                 var assetSearch = new AssetPagedSearchQuery
                 {
-                    Address = searchAddress
+                    Address = searchAddress,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act
                 var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
@@ -361,18 +413,22 @@ namespace HomesEngland.Gateway.Test
         {
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
+                var assets = new List<IAsset>();
                 for (var i = 0; i < numberOfAssets; i++)
                 {
-                    
                     var entity = TestData.Domain.GenerateAsset();
                     entity.Address = address;
-                    await _gateway.CreateAsync(entity);
+                    assets.Add(entity);
                 }
+
+                var assetRegisterVersion = await CreateAggregatedAssets(assets)
+                    .ConfigureAwait(false);
 
                 var assetQuery = new AssetPagedSearchQuery
                 {
                     Address = address,
-                    PageSize = pageSize
+                    PageSize = pageSize,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
 
                 var response = await _classUnderTest.Search(assetQuery, CancellationToken.None);
@@ -392,19 +448,23 @@ namespace HomesEngland.Gateway.Test
         {
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
+                var assets = new List<IAsset>();
                 for (var i = 0; i < numberOfAssets; i++)
                 {
-                    
                     var entity = TestData.Domain.GenerateAsset();
                     entity.Address = address;
-                    await _gateway.CreateAsync(entity);
+                    assets.Add(entity);
                 }
+
+                var assetRegisterVersion = await CreateAggregatedAssets(assets)
+                    .ConfigureAwait(false);
 
                 var assetQuery = new AssetPagedSearchQuery
                 {
                     Address = address,
                     PageSize = pageSize,
-                    Page = page
+                    Page = page,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
 
                 var response = await _classUnderTest.Search(assetQuery, CancellationToken.None);
@@ -423,18 +483,23 @@ namespace HomesEngland.Gateway.Test
         {
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
+                var assets = new List<IAsset>();
                 for (var i = 0; i < numberOfAssets; i++)
                 {
-                    
+
                     var entity = TestData.Domain.GenerateAsset();
                     entity.Address = address;
-                    await _gateway.CreateAsync(entity);
+                    assets.Add(entity);
                 }
+
+                var assetRegisterVersion = await CreateAggregatedAssets(assets)
+                    .ConfigureAwait(false);
 
                 var assetQuery = new AssetPagedSearchQuery
                 {
                     Address = address,
-                    PageSize = pageSize
+                    PageSize = pageSize,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
                 };
 
                 var response = await _classUnderTest.Search(assetQuery, CancellationToken.None);

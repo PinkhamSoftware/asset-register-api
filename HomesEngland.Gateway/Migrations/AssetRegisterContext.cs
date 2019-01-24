@@ -19,10 +19,18 @@ namespace HomesEngland.Gateway.Migrations
             _databaseUrl = System.Environment.GetEnvironmentVariable("DATABASE_URL");
         }
 
+        public DbSet<AssetRegisterVersionEntity> AssetRegisterVersions { get; set; }
         public DbSet<AssetEntity> Assets { get; set; }
         public DbSet<AuthenticationTokenEntity> AuthenticationTokens { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
             => optionsBuilder.UseNpgsql(new PostgresDatabaseConnectionStringFormatter().BuildConnectionStringFromUrl(_databaseUrl));
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AssetRegisterVersionEntity>()
+                .HasMany<AssetEntity>(b=> b.Assets)
+                .WithOne();
+        }
     }  
 }

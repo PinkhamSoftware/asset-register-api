@@ -202,7 +202,7 @@ namespace HomesEnglandTest.Domain
         [TestCase("  Non-London  ", false)]
         [TestCase("  NoN-lOnDoN  ", false)]
         [TestCase("London", true)]
-        [TestCase("", true)]
+        [TestCase("", false)]
         public void GivenNonLondonField_ThenIsLondonSetToCorrectValue(string input, bool expectedIsLondon)
         {
             var asset = CreateAssetRequestForColumn(input, 69);

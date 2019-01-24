@@ -6,6 +6,7 @@ using HomesEngland.Exception;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Impl;
+using HomesEngland.UseCase.GetAsset.Models;
 using Moq;
 using NUnit.Framework;
 using TestHelper;

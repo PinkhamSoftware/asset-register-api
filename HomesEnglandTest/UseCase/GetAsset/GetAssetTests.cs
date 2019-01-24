@@ -40,7 +40,7 @@ namespace HomesEnglandTest.UseCase.GetAsset
             //assert
             response.Should().NotBeNull();
             response.Asset.Should().NotBeNull();
-            response.Asset.Should().BeEquivalentTo(asset);
+            response.Asset.AssetOutputModelIsEqual(new AssetOutputModel(asset));
         }
 
         [TestCase(4)]

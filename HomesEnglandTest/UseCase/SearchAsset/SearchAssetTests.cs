@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.Assets;
+using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Impl;
 using HomesEngland.UseCase.SearchAsset.Models;
@@ -43,6 +44,25 @@ namespace HomesEnglandTest.UseCase.SearchAsset
             //assert
             await _mockGateway.Received()
                 .Search(Arg.Is<AssetPagedSearchQuery>(req => req.SchemeId == id), Arg.Any<CancellationToken>());
+        }
+
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public async Task GivenValidAssetRegisterVersionId_UseCaseCallsGatewayWithCorrectId(int id)
+        {
+            //arrange
+            var asset = TestData.Domain.GenerateAsset();
+            _mockGateway.Search(Arg.Any<IAssetPagedSearchQuery>(), CancellationToken.None)
+                .Returns(new PagedResults<IAsset> { Results = new List<IAsset> { asset } });
+            //act
+            await _classUnderTest.ExecuteAsync(new SearchAssetRequest
+            {
+                AssetRegisterVersionId = id
+            }, CancellationToken.None);
+            //assert
+            await _mockGateway.Received()
+                .Search(Arg.Is<AssetPagedSearchQuery>(req => req.AssetRegisterVersionId == id), Arg.Any<CancellationToken>());
         }
 
         [TestCase("address1")]
@@ -152,7 +172,7 @@ namespace HomesEnglandTest.UseCase.SearchAsset
         public async Task GivenValidRequestId_UseCaseReturnsCorrectlyMappedAsset(int? id, string address)
         {
             //arrange
-            var asset = TestData.Domain.GenerateAsset();
+            IAsset asset = TestData.Domain.GenerateAsset();
             if (id.HasValue)
                 asset.SchemeId = id;
             if (!string.IsNullOrEmpty(address))
@@ -168,7 +188,7 @@ namespace HomesEnglandTest.UseCase.SearchAsset
             //assert
             response.Should().NotBeNull();
             response.Assets.Should().NotBeNullOrEmpty();
-            response.Assets[0].Should().BeEquivalentTo(asset);
+            response.Assets[0].AssetOutputModelIsEqual(new AssetOutputModel(asset));
         }
 
         [TestCase(1, 2)]
@@ -177,10 +197,10 @@ namespace HomesEnglandTest.UseCase.SearchAsset
         public async Task GivenValidRequestIdAndMultipleAssetsReturned_UseCaseReturnsCorrectlyMappedAssets(int idOne,
             int idTwo)
         {
-            var assetOne = TestData.Domain.GenerateAsset();
+            IAsset assetOne = TestData.Domain.GenerateAsset();
             assetOne.SchemeId = idOne;
 
-            var assetTwo = TestData.Domain.GenerateAsset();
+            IAsset assetTwo = TestData.Domain.GenerateAsset();
             assetOne.SchemeId = idTwo;
 
             _mockGateway.Search(Arg.Any<IAssetPagedSearchQuery>(), CancellationToken.None)
@@ -193,8 +213,8 @@ namespace HomesEnglandTest.UseCase.SearchAsset
             //assert
             response.Should().NotBeNull();
             response.Assets.Should().NotBeNullOrEmpty();
-            response.Assets[0].Should().BeEquivalentTo(assetOne);
-            response.Assets[1].Should().BeEquivalentTo(assetTwo);
+            response.Assets[0].AssetOutputModelIsEqual(new AssetOutputModel(assetOne));
+            response.Assets[1].AssetOutputModelIsEqual(new AssetOutputModel(assetTwo));
         }
 
         [TestCase("address1", 1)]
