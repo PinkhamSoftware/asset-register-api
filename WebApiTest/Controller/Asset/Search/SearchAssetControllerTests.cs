@@ -3,7 +3,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bogus;
 using FluentAssertions;
+using HomesEngland.Domain;
 using HomesEngland.Gateway.AssetRegisterVersions;
+using HomesEngland.UseCase.BulkCreateAsset.Models;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
@@ -28,6 +30,7 @@ namespace WebApiTest.Controller.Asset.Search
         public SearchAssetControllerTests()
         {
             _mockUseCase = new Mock<ISearchAssetUseCase>();
+            _mockAssetRegisterVersionSearcher = new Mock<IAssetRegisterVersionSearcher>();
             _classUnderTest = new SearchAssetController(_mockUseCase.Object, _mockAssetRegisterVersionSearcher.Object);
         }
 
@@ -76,18 +79,18 @@ namespace WebApiTest.Controller.Asset.Search
             result.Value.Should().BeOfType<List<AssetOutputModel>>();
         }
 
-        [TestCase(null, null     , 1, 1, 1)]
-        [TestCase(0   , null     , 1, 1, 1)]
-        [TestCase(-1  , null     , 1, 1, 1)]
-        [TestCase(null, ""       , 1, 1, 1)]
-        [TestCase(null, " "      , 1, 1, 1)]
-        [TestCase(1   , "address",-1, 1, 1)]
-        [TestCase(1   , "address", 0, 1, 1)]
-        [TestCase(1   , "address", 1,-1, 1)]
-        [TestCase(1   , "address", 1, 0, 1)]
-        [TestCase(1   , "address", 1, 1, null)]
+        [TestCase(null, null     , 1, 1)]
+        [TestCase(0   , null     , 1, 1)]
+        [TestCase(-1  , null     , 1, 1)]
+        [TestCase(null, ""       , 1, 1)]
+        [TestCase(null, " "      , 1, 1)]
+        [TestCase(1   , "address",-1, 1)]
+        [TestCase(1   , "address", 0, 1)]
+        [TestCase(1   , "address", 1,-1)]
+        [TestCase(1   , "address", 1, 0)]
+        
         public void GivenInvalidRequest_ThenIsInvalid(int? schemeId, string address, int? page,
-            int? pageSize, int? assetRegisterVersionId)
+            int? pageSize)
         {
             SearchAssetApiRequest apiRequest = new SearchAssetApiRequest
             {
@@ -95,38 +98,103 @@ namespace WebApiTest.Controller.Asset.Search
                 Address = address,
                 Page = page,
                 PageSize = pageSize,
-                AssetRegisterVersionId = assetRegisterVersionId
             };
             
             apiRequest.IsValid().Should().BeFalse();
         }
         
-        [TestCase(1   , null     ,    1, 1   ,1)]
-        [TestCase(2   , null     ,    1, 1   ,1)]
-        [TestCase(3   , null     ,    1, 1   ,1)]
-        [TestCase(null, "d"      ,    1, 1   ,1)]
-        [TestCase(null, "e"      ,    1, 1   ,1)]
-        [TestCase(null, "t"      ,    1, 1   ,1)]
-        [TestCase(1   , "a"      ,    1, 1   ,1)]
-        [TestCase(2   , "b"      ,    2, 3   ,1)]
-        [TestCase(3   , "c"      ,    3, 5   ,1)]
-        [TestCase(1   , "address", null, 1   ,1)]
-        [TestCase(1   , "address",    1, null,1)]
-        [TestCase(1   , "address", null, null,1)]
+        [TestCase(1   , null     ,    1, 1   )]
+        [TestCase(2   , null     ,    1, 1   )]
+        [TestCase(3   , null     ,    1, 1   )]
+        [TestCase(null, "d"      ,    1, 1   )]
+        [TestCase(null, "e"      ,    1, 1   )]
+        [TestCase(null, "t"      ,    1, 1   )]
+        [TestCase(1   , "a"      ,    1, 1   )]
+        [TestCase(2   , "b"      ,    2, 3   )]
+        [TestCase(3   , "c"      ,    3, 5   )]
+        [TestCase(1   , "address", null, 1   )]
+        [TestCase(1   , "address",    1, null)]
+        [TestCase(1   , "address", null, null)]
         public void GivenValidRequest_ThenIsValid(int? schemeId, string address, int? page,
-            int? pageSize, int? assetRegisterVersionId)
+            int? pageSize)
         {
             SearchAssetApiRequest apiRequest = new SearchAssetApiRequest
             {
                 SchemeId = schemeId,
                 Address = address,
                 Page = page,
-                PageSize = pageSize,
-                AssetRegisterVersionId = assetRegisterVersionId
+                PageSize = pageSize
             };
 
             apiRequest.IsValid().Should().BeTrue();
         }
 
+
+        [Test]
+        public async Task GivenRequestWithoutAssetRegisterVersion_ThenCallsUseCaseWithMostRecentVersionOfAssetRegister()
+        {
+            //arrange
+            _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<SearchAssetRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new SearchAssetResponse());
+            _mockAssetRegisterVersionSearcher
+                .Setup(s => s.Search(It.IsAny<PagedQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(
+                    new PagedResults<IAssetRegisterVersion>
+                    {
+                        Results = new List<IAssetRegisterVersion>
+                        {
+                            new AssetRegisterVersion
+                            {
+                                Id = 10
+                            }
+                        },
+                        TotalCount = 1,
+                        NumberOfPages = 1
+                    });
+            var request = new SearchAssetApiRequest
+            {
+                Address = "test",
+                Page = 1,
+                PageSize = 25
+            };
+
+            //act
+            await _classUnderTest.Get(request);
+            //assert
+            _mockUseCase.Verify(v=> v.ExecuteAsync(It.Is<SearchAssetRequest>(i=> i.AssetRegisterVersionId.Equals( 10)), It.IsAny<CancellationToken>()));
+        }
+
+        [Test]
+        public async Task GivenRequestWithoutAssetRegisterVersion_ThenCallsAssetRegisterVersionSearcher_WithCorrectParams()
+        {
+            //arrange
+            _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<SearchAssetRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new SearchAssetResponse());
+            _mockAssetRegisterVersionSearcher
+                .Setup(s => s.Search(It.IsAny<PagedQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(
+                    new PagedResults<IAssetRegisterVersion>
+                    {
+                        Results = new List<IAssetRegisterVersion>
+                        {
+                            new AssetRegisterVersion
+                            {
+                                Id = 10
+                            }
+                        },
+                        TotalCount = 1,
+                        NumberOfPages = 1
+                    });
+
+            var request = new SearchAssetApiRequest
+            {
+                Address = "test",
+                Page = 1,
+                PageSize = 25
+            };
+
+            //act
+            await _classUnderTest.Get(request);
+            //assert
+            _mockAssetRegisterVersionSearcher.Verify(v => v.Search(It.Is<PagedQuery>(i => i.Page.Equals(1) && i.PageSize.Equals(1)), It.IsAny<CancellationToken>()));
+        }
     }
 }

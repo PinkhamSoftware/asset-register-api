@@ -32,16 +32,6 @@ namespace WebApi.Extensions.Requests
                 return false;
             }
 
-            if (AssetRegisterVersionIdIsNull())
-            {
-                return false;
-            }
-
-            if (AssetRegisterVersionIdInvalidIndex())
-            {
-                return false;
-            }
-
             return true;
         }
 
