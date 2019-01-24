@@ -3,8 +3,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.AssetRegisterVersions;
+using HomesEngland.UseCase.AuthenticateUser.Models;
 using HomesEngland.UseCase.CalculateAssetAggregates;
 using HomesEngland.UseCase.CalculateAssetAggregates.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 using WebApi.Extensions.Requests;
@@ -14,6 +16,7 @@ namespace WebApi.Controllers.Search.Calculations
     
     [Route("api/v1/asset/search")]
     [ApiController]
+    [Authorize]
     public class CalculateAssetAggregatesController : ControllerBase
     {
         private readonly ICalculateAssetAggregatesUseCase _useCase;

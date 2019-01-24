@@ -1,4 +1,5 @@
-﻿using Infrastructure.Documentation;
+﻿using System.Text;
+using Infrastructure.Documentation;
 using Main;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,7 +8,9 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HomesEngland.Gateway.Migrations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using WebApiContrib.Core.Formatter.Csv;
 
@@ -28,6 +31,20 @@ namespace WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
+            {
+                var secret = Configuration["HmacSecret"];
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    IssuerSigningKey = key,
+                    RequireExpirationTime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = false,
+                    ValidateLifetime = true,
+                    ValidateAudience = false
+                };
+            });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
 
@@ -45,11 +62,13 @@ namespace WebApi
 
             services.ConfigureDocumentation(_apiName);
 
+
             services
                 .AddEntityFrameworkNpgsql()
                 .AddDbContext<AssetRegisterContext>();
 
-            AssetRegisterContext assetRegisterContext = services.BuildServiceProvider().GetService<AssetRegisterContext>();
+            AssetRegisterContext assetRegisterContext =
+                services.BuildServiceProvider().GetService<AssetRegisterContext>();
             assetRegisterContext.Database.Migrate();
         }
 
@@ -81,6 +100,7 @@ namespace WebApi
                     .AllowAnyMethod()
             );
 
+            app.UseAuthentication();
             app.UseHttpsRedirection();
             app.UseMvc();
         }

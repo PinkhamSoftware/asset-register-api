@@ -6,6 +6,7 @@ using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 using WebApi.Extensions.Requests;
@@ -14,6 +15,7 @@ namespace WebApi.Controllers.Search
 {
     [Route("api/v1/asset")]
     [ApiController]
+    [Authorize]
     public class SearchAssetController : ControllerBase
     {
         private readonly ISearchAssetUseCase _useCase;

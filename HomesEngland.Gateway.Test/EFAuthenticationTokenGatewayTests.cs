@@ -28,10 +28,11 @@ namespace HomesEngland.Gateway.Test
             assetRegisterContext.Database.Migrate();
         }
 
-        [TestCase("secure",5)]
-        [TestCase("token",6)]
+        [TestCase("secure", 5)]
+        [TestCase("token", 6)]
         [TestCase("test", 7)]
-        public async Task GivenAnAssetHasBeenCreated_WhenTheAssetIsReadFromTheGateway_ThenItIsTheSame(string token, int seconds)
+        public async Task GivenAnAssetHasBeenCreated_WhenTheAssetIsReadFromTheGateway_ThenItIsTheSame(string token,
+            int seconds)
         {
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -44,13 +45,39 @@ namespace HomesEngland.Gateway.Test
                     Token = token,
                 };
                 //act
-                var createdAuthenticationToken = await _classUnderTest.CreateAsync(authenticationToken, CancellationToken.None).ConfigureAwait(false);
-                var readAuthenticationToken = await _classUnderTest.ReadAsync(createdAuthenticationToken.Token, CancellationToken.None).ConfigureAwait(false);
+                var createdAuthenticationToken = await _classUnderTest
+                    .CreateAsync(authenticationToken, CancellationToken.None).ConfigureAwait(false);
+                var readAuthenticationToken = await _classUnderTest
+                    .ReadAsync(createdAuthenticationToken.Token, CancellationToken.None).ConfigureAwait(false);
                 //assert
                 readAuthenticationToken.Token.Should().BeEquivalentTo(authenticationToken.Token);
                 readAuthenticationToken.Expiry.Should().BeCloseTo(authenticationToken.Expiry);
                 readAuthenticationToken.ReferenceNumber.Should().Be(authenticationToken.ReferenceNumber);
                 trans.Dispose();
+            }
+        }
+
+        [TestCase("secure")]
+        [TestCase("token")]
+        [TestCase("test")]
+        public async Task GivenAnAuthenticationTokenHasBeenCreated_WhenItIsDeleted_ItCanNoLongerBeRead(string token)
+        {
+            using (new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                IAuthenticationToken authenticationToken = new AuthenticationToken
+                {
+                    Token = token,
+                    Expiry = DateTime.UtcNow,
+                    ReferenceNumber = "RefNumber"
+                };
+
+                await _classUnderTest.CreateAsync(authenticationToken, CancellationToken.None).ConfigureAwait(false);
+                await _classUnderTest.DeleteAsync(token, CancellationToken.None).ConfigureAwait(false);
+
+                var foundToken = await _classUnderTest.ReadAsync(token, CancellationToken.None)
+                    .ConfigureAwait(false);
+
+                foundToken.Should().BeNull();
             }
         }
     }

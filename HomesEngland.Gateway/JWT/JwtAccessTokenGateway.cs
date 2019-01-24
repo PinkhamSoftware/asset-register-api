@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.Domain.Impl;
 using HomesEngland.Gateway.AccessTokens;
+using HomesEngland.UseCase.ImportAssets.Impl;
 using JWT;
 using Microsoft.IdentityModel.Tokens;
 
@@ -48,7 +49,8 @@ namespace HomesEngland.Gateway.JWT
 
         private static SigningCredentials GetSigningCredentials()
         {
-            string key = Environment.GetEnvironmentVariable("HMAC_SECRET");
+            string key = Environment.GetEnvironmentVariable("HmacSecret");
+            Console.WriteLine(key);
             SigningCredentials signingCredentials = new SigningCredentials(
                 new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
                 SecurityAlgorithms.HmacSha512);

@@ -56,7 +56,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases
             Environment.SetEnvironmentVariable("GOV_NOTIFY_URL", "http://localhost:7654/");
             Environment.SetEnvironmentVariable("GOV_NOTIFY_API_KEY", BuildValidGovNotifyApiKeyFromHexFragment("1111"));
             Environment.SetEnvironmentVariable("EMAIL_WHITELIST", "test@example.com");
-            Environment.SetEnvironmentVariable("HMAC_SECRET", "super duper mega secret key");
+            Environment.SetEnvironmentVariable("HmacSecret", "super duper mega secret key");
         }
 
         [Test]
@@ -90,6 +90,27 @@ namespace AssetRegisterTests.HomesEngland.UseCases
 
                 response.Should().NotBeNull();
                 response.AccessToken.Should().NotBeNull();
+            }
+        }
+
+        [Test]
+        public async Task GivenUserIsAuthorised_AndTheyGetAOneTimeUseToken_TheyCanOnlyGetAnApiKeyOnce()
+        {
+            using (ATransaction())
+            {
+                var notifyRequest = await RequestAccessToApplication();
+                string token = GetTokenFromNotifyRequest(notifyRequest);
+
+                GetAccessTokenRequest tokenRequest = new GetAccessTokenRequest
+                {
+                    Token = token
+                };
+
+                await _getAccessToken.ExecuteAsync(tokenRequest, CancellationToken.None);
+                var response = await _getAccessToken.ExecuteAsync(tokenRequest, CancellationToken.None);
+
+                response.Should().NotBeNull();
+                response.Authorised.Should().BeFalse();
             }
         }
 
