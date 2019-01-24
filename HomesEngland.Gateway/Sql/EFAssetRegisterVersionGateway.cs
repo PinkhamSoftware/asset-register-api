@@ -23,22 +23,32 @@ namespace HomesEngland.Gateway.Sql
         {
             AssetRegisterVersionEntity assetRegisterVersionEntity = new AssetRegisterVersionEntity(assetRegisterVersion);
 
+            Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Start Associate Entities with Asset Register Version");
+
             assetRegisterVersionEntity.Assets = assetRegisterVersionEntity.Assets?.Select(s =>
             {
                 s.AssetRegisterVersion = assetRegisterVersionEntity;
                 return s;
             }).ToList();
 
+            Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Finish Associate Entities with Asset Register Version");
+
             using (var context = new AssetRegisterContext(_databaseUrl))
             {
+                Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Start Add async");
                 await context.AssetRegisterVersions.AddAsync(assetRegisterVersionEntity, cancellationToken).ConfigureAwait(false);
+                Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Finish Add async");
+                Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Start Save Changes async");
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
+                Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Finish Save Changes async");
+                Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Start Marshall Data");
                 var result = new AssetRegisterVersion
                 {
                     Id = assetRegisterVersionEntity.Id,
                     ModifiedDateTime = assetRegisterVersionEntity.ModifiedDateTime,
                     Assets = assetRegisterVersionEntity.Assets?.Select(s=> new Asset(s) as IAsset).ToList()
                 };
+                Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Finish Marshall Data");
                 return result;
             }
         }
