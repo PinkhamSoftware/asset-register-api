@@ -55,7 +55,9 @@ namespace WebApi.Controllers.Search
         {
             int? assetRegisterVersionId = null;
             if (request.AssetRegisterVersionId.HasValue)
+            {
                 assetRegisterVersionId = request.AssetRegisterVersionId;
+            }
             else
             {
                 var latestAssetRegister = await _assetRegisterVersionSearcher.Search(new PagedQuery
