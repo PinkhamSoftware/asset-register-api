@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,14 +24,21 @@ namespace HomesEngland.UseCase.ImportAssets.Impl
 
         public async Task<ImportAssetsResponse> ExecuteAsync(ImportAssetsRequest requests, CancellationToken cancellationToken)
         {
+            Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Start Creating asset Requests");
             List<CreateAssetRequest> createAssetRequests = new List<CreateAssetRequest>();
-            foreach (var requestAssetLine in requests.AssetLines)
+            for (int i = 0; i < requests.AssetLines.Count; i++)
             {
-                var createAssetRequest = await CreateAssetForLine(requests, cancellationToken, requestAssetLine);
+                var requestAssetLine = requests.AssetLines.ElementAtOrDefault(i);
+                var createAssetRequest = CreateAssetForLine(requests, cancellationToken, requestAssetLine);
                 createAssetRequests.Add(createAssetRequest);
+                Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Creating asset Request: {i} of {requests.AssetLines.Count}");
             }
+            Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Finished Creating asset Requests");
 
+            Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Start Creating AssetRegisterVersion");
             var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(createAssetRequests, cancellationToken).ConfigureAwait(false);
+            Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Finished Creating AssetRegisterVersion");
+
 
             ImportAssetsResponse response = new ImportAssetsResponse
             {
@@ -40,7 +48,7 @@ namespace HomesEngland.UseCase.ImportAssets.Impl
             return response;
         }
 
-        private async Task<CreateAssetRequest> CreateAssetForLine(ImportAssetsRequest request, CancellationToken cancellationToken, string requestAssetLine)
+        private CreateAssetRequest CreateAssetForLine(ImportAssetsRequest request, CancellationToken cancellationToken, string requestAssetLine)
         {
             CsvAsset csvAsset = new CsvAsset
             {

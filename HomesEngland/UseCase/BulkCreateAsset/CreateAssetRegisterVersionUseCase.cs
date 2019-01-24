@@ -31,11 +31,11 @@ namespace HomesEngland.UseCase.BulkCreateAsset
                 Assets = assets,
                 ModifiedDateTime = DateTime.UtcNow
             };
-
+            Console.WriteLine($" Inserting AssetRegisterVersion Start {DateTime.UtcNow.TimeOfDay.ToString("g")}");
             var result = await _assetRegisterVersionCreator.CreateAsync(assetRegisterVersion, cancellationToken).ConfigureAwait(false);
             if (result == null)
                 throw new CreateAssetRegisterVersionException();
-
+            Console.WriteLine($" Inserting AssetRegisterVersion Finish {DateTime.UtcNow.TimeOfDay.ToString("g")}");
             List<CreateAssetResponse> responses = result.Assets.Select(s => new CreateAssetResponse
             {
                 Asset = new AssetOutputModel(s)
