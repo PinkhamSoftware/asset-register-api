@@ -5,7 +5,7 @@ using FluentAssertions;
 using HomesEngland.Domain;
 using HomesEngland.Gateway;
 using HomesEngland.Gateway.AssetRegisterVersions;
-using HomesEngland.UseCase.BulkCreateAsset.Models;
+using HomesEngland.UseCase.CreateAssetRegisterVersion.Models;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Impl;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;

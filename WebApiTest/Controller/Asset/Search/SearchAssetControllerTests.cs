@@ -5,7 +5,7 @@ using Bogus;
 using FluentAssertions;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.AssetRegisterVersions;
-using HomesEngland.UseCase.BulkCreateAsset.Models;
+using HomesEngland.UseCase.CreateAssetRegisterVersion.Models;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;

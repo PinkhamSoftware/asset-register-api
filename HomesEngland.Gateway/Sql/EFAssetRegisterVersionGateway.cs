@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.Gateway.Migrations;
-using HomesEngland.UseCase.BulkCreateAsset.Models;
+using HomesEngland.UseCase.CreateAssetRegisterVersion.Models;
 
 namespace HomesEngland.Gateway.Sql
 {

@@ -10,7 +10,7 @@ using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.Gateway.Sql;
-using HomesEngland.UseCase.BulkCreateAsset.Models;
+using HomesEngland.UseCase.CreateAssetRegisterVersion.Models;
 using HomesEngland.UseCase.SearchAsset.Models;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;

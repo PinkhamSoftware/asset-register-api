@@ -1,5 +1,5 @@
 ﻿using System;
-using HomesEngland.UseCase.BulkCreateAsset.Models;
+using HomesEngland.UseCase.CreateAssetRegisterVersion.Models;
 
 namespace HomesEngland.UseCase.GetAssetRegisterVersions.Models
 {
