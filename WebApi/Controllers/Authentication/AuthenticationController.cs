@@ -36,6 +36,7 @@ namespace WebApi.Controllers.Authentication
 
         [HttpPost("authorise")]
         [Produces("application/json")]
+        [AllowAnonymous]
         public async Task<IActionResult> AuthorisePost(
             [FromBody] AuthenticationAuthoriseRequest authenticationAuthoriseRequest)
         {
@@ -58,6 +59,7 @@ namespace WebApi.Controllers.Authentication
         [HttpPost("access_token")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(GetAccessTokenResponse), 200)]
+        [AllowAnonymous]
         public async Task<IActionResult> AccessTokenPost(
             [FromBody] AuthenticationAccessTokenRequest authenticationAccessTokenRequest)
         {
@@ -81,7 +83,6 @@ namespace WebApi.Controllers.Authentication
 
         [HttpGet("verification")]
         [Produces("application/json")]
-        [Authorize]
         public IActionResult VerifyToken()
         {
             return StatusCode(200);

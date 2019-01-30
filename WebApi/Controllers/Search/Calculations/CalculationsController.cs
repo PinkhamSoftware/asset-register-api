@@ -16,7 +16,6 @@ namespace WebApi.Controllers.Search.Calculations
     
     [Route("api/v1/asset/search")]
     [ApiController]
-    [Authorize]
     public class CalculateAssetAggregatesController : ControllerBase
     {
         private readonly ICalculateAssetAggregatesUseCase _useCase;
