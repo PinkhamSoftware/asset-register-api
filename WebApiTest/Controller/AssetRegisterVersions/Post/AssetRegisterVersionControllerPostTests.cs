@@ -4,8 +4,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bogus;
 using FluentAssertions;
+using HomesEngland.UseCase.CreateAssetRegisterVersion;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
+using HomesEngland.UseCase.ImportAssets;
+using HomesEngland.UseCase.ImportAssets.Impl;
 using HomesEngland.UseCase.SaveUploadedAssetRegisterFile;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
@@ -21,15 +24,17 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
     public class AssetRegisterVersionControllerPostTests
     {
         private AssetRegisterVersionController _classUnderTest;
-        private Mock<ISaveUploadedAssetRegisterFileUseCase> _mockUseCase;
+        private Mock<IImportAssetsUseCase> _mockUseCase;
         private Mock<IGetAssetRegisterVersionsUseCase> _mockGetUseCase;
+        private ITextSplitter _textSplitter;
 
         [SetUp]
         public void  Setup()
         {
-            _mockUseCase = new Mock<ISaveUploadedAssetRegisterFileUseCase>();
+            _mockUseCase = new Mock<IImportAssetsUseCase>();
             _mockGetUseCase = new Mock<IGetAssetRegisterVersionsUseCase>();
-            _classUnderTest = new AssetRegisterVersionController(_mockGetUseCase.Object,_mockUseCase.Object);
+            _textSplitter = new TextSplitter();
+            _classUnderTest = new AssetRegisterVersionController(_mockGetUseCase.Object,_mockUseCase.Object, _textSplitter);
         }
 
         [TestCase(1, "--file", "asset-register-1-rows.csv", "--delimiter", ";")]
@@ -47,7 +52,7 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
                 new List<IFormFile>{new FormFile(memoryStream, 0, memoryStream.Length, fileValue, fileValue)});
             //asset
             response.Should().NotBeNull();
-            response.ExecuteResultAsync()
+
         }
     }
 }

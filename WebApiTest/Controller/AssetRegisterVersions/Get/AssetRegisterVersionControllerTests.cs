@@ -5,6 +5,8 @@ using Bogus;
 using FluentAssertions;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
+using HomesEngland.UseCase.ImportAssets;
+using HomesEngland.UseCase.ImportAssets.Impl;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
@@ -19,11 +21,15 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Get
     {
         private readonly AssetRegisterVersionController _classUnderTest;
         private readonly Mock<IGetAssetRegisterVersionsUseCase> _mockUseCase;
+        private readonly Mock<IImportAssetsUseCase> _mockImportAssetsUseCase;
+        private readonly ITextSplitter _textSplitter;
 
         public AssetRegisterVersionControllerTests()
         {
             _mockUseCase = new Mock<IGetAssetRegisterVersionsUseCase>();
-            _classUnderTest = new AssetRegisterVersionController(_mockUseCase.Object);
+            _mockImportAssetsUseCase = new Mock<IImportAssetsUseCase>();
+            _textSplitter = new TextSplitter();
+            _classUnderTest = new AssetRegisterVersionController(_mockUseCase.Object,_mockImportAssetsUseCase.Object,_textSplitter);
         }
 
         [Test]
