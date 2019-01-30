@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.Models;
-using HomesEngland.UseCase.SearchAsset.Models;
 
 namespace HomesEngland.UseCase.ImportAssets.Models
 {
@@ -12,7 +10,7 @@ namespace HomesEngland.UseCase.ImportAssets.Models
 
         public IList<AssetOutputModel> ToCsv()
         {
-            throw new NotImplementedException();
+            return AssetsImported;
         }
     }
 }

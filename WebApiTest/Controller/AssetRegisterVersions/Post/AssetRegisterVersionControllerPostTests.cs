@@ -2,14 +2,13 @@
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Bogus;
 using FluentAssertions;
-using HomesEngland.UseCase.CreateAssetRegisterVersion;
+using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
 using HomesEngland.UseCase.ImportAssets;
 using HomesEngland.UseCase.ImportAssets.Impl;
-using HomesEngland.UseCase.SaveUploadedAssetRegisterFile;
+using HomesEngland.UseCase.ImportAssets.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
@@ -40,9 +39,14 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
         [TestCase(1, "--file", "asset-register-1-rows.csv", "--delimiter", ";")]
         [TestCase(5, "--file", "asset-register-5-rows.csv", "--delimiter", ";")]
         [TestCase(10, "--file", "asset-register-10-rows.csv", "--delimiter", ";")]
-        public async Task GivenValidFile_WhenUploading_ThenCanSaveFile(int expectedCount, string fileFlag, string fileValue, string delimiterFlag, string delimiterValue)
+        public async Task GivenValidFile_WhenUploading_ThenCallImport(int expectedCount, string fileFlag, string fileValue, string delimiterFlag, string delimiterValue)
         {
             //arrange
+            _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<ImportAssetsRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ImportAssetsResponse
+                {
+                    AssetsImported = new List<AssetOutputModel>()
+                });
             var directory = Directory.GetCurrentDirectory();
             var path = Path.Combine(directory, "Controller", "AssetRegisterVersions","Post", fileValue);
             var fileStream = await File.ReadAllBytesAsync(path).ConfigureAwait(false);
@@ -52,7 +56,40 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
                 new List<IFormFile>{new FormFile(memoryStream, 0, memoryStream.Length, fileValue, fileValue)});
             //asset
             response.Should().NotBeNull();
+        }
 
+        [TestCase(1, "--file", "asset-register-1-rows.csv", "--delimiter", ";")]
+        [TestCase(5, "--file", "asset-register-5-rows.csv", "--delimiter", ";")]
+        [TestCase(10, "--file", "asset-register-10-rows.csv", "--delimiter", ";")]
+        public async Task GivenValidFile_WhenUploading_ThenOutputCSV(int expectedCount, string fileFlag, string fileValue, string delimiterFlag, string delimiterValue)
+        {
+            //arrange
+            _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<ImportAssetsRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new ImportAssetsResponse
+                {
+                    AssetsImported = new List<AssetOutputModel>() {new AssetOutputModel
+                    {
+                        Id = 1
+                    } }
+                });
+            _classUnderTest.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+            _classUnderTest.ControllerContext.HttpContext.Request.Headers.Add(
+                new KeyValuePair<string, StringValues>("accept", "text/csv"));
+
+            var directory = Directory.GetCurrentDirectory();
+            var path = Path.Combine(directory, "Controller", "AssetRegisterVersions", "Post", fileValue);
+            var fileStream = await File.ReadAllBytesAsync(path).ConfigureAwait(false);
+            var memoryStream = new MemoryStream(fileStream);
+            //act
+            var response = await _classUnderTest.Post(
+                new List<IFormFile> { new FormFile(memoryStream, 0, memoryStream.Length, fileValue, fileValue) });
+            //asset
+            var result = response as ObjectResult;
+            result.Should().NotBeNull();
+            result.Value.Should().BeOfType<List<AssetOutputModel>>();
         }
     }
 }
