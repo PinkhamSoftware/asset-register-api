@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.Gateway;
 using HomesEngland.Gateway.AssetRegisterVersions;
-using HomesEngland.UseCase.BulkCreateAsset.Models;
+using HomesEngland.UseCase.CreateAssetRegisterVersion.Models;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
 
 namespace HomesEngland.UseCase.GetAssetRegisterVersions.Impl

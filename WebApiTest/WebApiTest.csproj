@@ -23,4 +23,16 @@
       <ProjectReference Include="..\WebApi\WebApi.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="Controller\AssetRegisterVersions\Post\asset-register-1-rows.csv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Controller\AssetRegisterVersions\Post\asset-register-10-rows.csv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="Controller\AssetRegisterVersions\Post\asset-register-5-rows.csv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
 </Project>

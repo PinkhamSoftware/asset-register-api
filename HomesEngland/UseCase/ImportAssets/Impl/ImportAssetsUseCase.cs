@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain.Factory;
-using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.CreateAsset.Models.Factory;
+using HomesEngland.UseCase.CreateAssetRegisterVersion;
 using HomesEngland.UseCase.ImportAssets.Models;
 
 namespace HomesEngland.UseCase.ImportAssets.Impl

@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bogus;
-using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
+using HomesEngland.UseCase.CreateAssetRegisterVersion;
 using HomesEngland.UseCase.GenerateAssets.Models;
 
 namespace HomesEngland.UseCase.GenerateAssets.Impl

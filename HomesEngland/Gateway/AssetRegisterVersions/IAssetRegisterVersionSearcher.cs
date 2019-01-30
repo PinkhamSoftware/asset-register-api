@@ -1,5 +1,5 @@
 ﻿using HomesEngland.Domain;
-using HomesEngland.UseCase.BulkCreateAsset.Models;
+using HomesEngland.UseCase.CreateAssetRegisterVersion.Models;
 
 namespace HomesEngland.Gateway.AssetRegisterVersions
 {

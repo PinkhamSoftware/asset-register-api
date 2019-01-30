@@ -9,7 +9,6 @@ using HomesEngland.Domain.Impl;
 using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.Gateway.Assets;
 using HomesEngland.Gateway.Migrations;
-using HomesEngland.UseCase.BulkCreateAsset.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomesEngland.Gateway.Sql

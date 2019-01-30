@@ -2,9 +2,9 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using HomesEngland.UseCase.BulkCreateAsset;
 using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
+using HomesEngland.UseCase.CreateAssetRegisterVersion;
 using HomesEngland.UseCase.GenerateAssets;
 using HomesEngland.UseCase.GenerateAssets.Impl;
 using HomesEngland.UseCase.GenerateAssets.Models;
