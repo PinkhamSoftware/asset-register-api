@@ -54,7 +54,7 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
         private async Task<List<IFormFile>> GetFormFiles(string fileValue)
         {
             var directory = Directory.GetCurrentDirectory();
-            var path = Path.Combine(directory, "Controller", "AssetRegisterVersions", "Post", fileValue);
+            var path = Path.Combine(directory,"HomesEngland", "Controller", "AssetRegisterVersions", "Post", fileValue);
             var fileStream = await File.ReadAllBytesAsync(path).ConfigureAwait(false);
             var memoryStream = new MemoryStream(fileStream);
             var formFiles = new List<IFormFile>
