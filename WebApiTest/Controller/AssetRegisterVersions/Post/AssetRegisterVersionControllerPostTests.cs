@@ -32,15 +32,22 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
             _classUnderTest = new AssetRegisterVersionController(_mockGetUseCase.Object,_mockUseCase.Object);
         }
 
-        [Test]
-        public async Task GivenValidFile_WhenUploading_ThenCanSaveFile()
+        [TestCase(1, "--file", "asset-register-1-rows.csv", "--delimiter", ";")]
+        [TestCase(5, "--file", "asset-register-5-rows.csv", "--delimiter", ";")]
+        [TestCase(10, "--file", "asset-register-10-rows.csv", "--delimiter", ";")]
+        public async Task GivenValidFile_WhenUploading_ThenCanSaveFile(int expectedCount, string fileFlag, string fileValue, string delimiterFlag, string delimiterValue)
         {
             //arrange
-            var memoryStream = new MemoryStream();
+            var directory = Directory.GetCurrentDirectory();
+            var path = Path.Combine(directory, "Controller", "AssetRegisterVersions","Post", fileValue);
+            var fileStream = await File.ReadAllBytesAsync(path).ConfigureAwait(false);
+            var memoryStream = new MemoryStream(fileStream);
             //act
-            _classUnderTest.Post(new List<IFormFile>{new FormFile(memoryStream,0,)})
+            var response = await _classUnderTest.Post(
+                new List<IFormFile>{new FormFile(memoryStream, 0, memoryStream.Length, fileValue, fileValue)});
             //asset
-
+            response.Should().NotBeNull();
+            response.ExecuteResultAsync()
         }
     }
 }
