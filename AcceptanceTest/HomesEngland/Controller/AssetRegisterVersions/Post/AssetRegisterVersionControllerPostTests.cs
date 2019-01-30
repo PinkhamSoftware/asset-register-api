@@ -37,15 +37,11 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
         public async Task GivenValidFile_WhenUploading_ThenCanImport(int expectedCount,string fileValue)
         {
             //arrange
-            var directory = Directory.GetCurrentDirectory();
-            var path = Path.Combine(directory,"HomesEngland", "Controller", "AssetRegisterVersions","Post", fileValue);
-            var fileStream = await File.ReadAllBytesAsync(path).ConfigureAwait(false);
-            var memoryStream = new MemoryStream(fileStream);
+            var formFiles = await GetFormFiles(fileValue);
             //act
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var response = await _classUnderTest.Post(
-                    new List<IFormFile> {new FormFile(memoryStream, 0, memoryStream.Length, fileValue, fileValue)});
+                var response = await _classUnderTest.Post(formFiles);
                 //asset
                 var result = response as ObjectResult;
                 result.Should().NotBeNull();
@@ -53,6 +49,17 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
                 var data = result.Value as ResponseData<ImportAssetsResponse>;
                 data.Data.AssetsImported.Count.Should().Be(expectedCount);
             }
+        }
+
+        private async Task<List<IFormFile>> GetFormFiles(string fileValue)
+        {
+            var directory = Directory.GetCurrentDirectory();
+            var path = Path.Combine(directory, "Controller", "AssetRegisterVersions", "Post", fileValue);
+            var fileStream = await File.ReadAllBytesAsync(path).ConfigureAwait(false);
+            var memoryStream = new MemoryStream(fileStream);
+            var formFiles = new List<IFormFile>
+                {new FormFile(memoryStream, 0, memoryStream.Length, fileValue, fileValue)};
+            return formFiles;
         }
     }
 }

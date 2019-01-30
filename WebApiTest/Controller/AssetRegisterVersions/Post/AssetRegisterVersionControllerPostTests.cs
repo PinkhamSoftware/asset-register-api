@@ -47,15 +47,22 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
                 {
                     AssetsImported = new List<AssetOutputModel>()
                 });
-            var directory = Directory.GetCurrentDirectory();
-            var path = Path.Combine(directory, "Controller", "AssetRegisterVersions","Post", fileValue);
-            var fileStream = await File.ReadAllBytesAsync(path).ConfigureAwait(false);
-            var memoryStream = new MemoryStream(fileStream);
+            var formFiles = await GetFormFiles(fileValue);
             //act
-            var response = await _classUnderTest.Post(
-                new List<IFormFile>{new FormFile(memoryStream, 0, memoryStream.Length, fileValue, fileValue)});
+            var response = await _classUnderTest.Post(formFiles);
             //asset
             response.Should().NotBeNull();
+        }
+
+        private async Task<List<IFormFile>> GetFormFiles(string fileValue)
+        {
+            var directory = Directory.GetCurrentDirectory();
+            var path = Path.Combine(directory, "Controller", "AssetRegisterVersions", "Post", fileValue);
+            var fileStream = await File.ReadAllBytesAsync(path).ConfigureAwait(false);
+            var memoryStream = new MemoryStream(fileStream);
+            var formFiles = new List<IFormFile>
+                {new FormFile(memoryStream, 0, memoryStream.Length, fileValue, fileValue)};
+            return formFiles;
         }
 
         [TestCase(1, "asset-register-1-rows.csv")]
@@ -79,13 +86,9 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
             _classUnderTest.ControllerContext.HttpContext.Request.Headers.Add(
                 new KeyValuePair<string, StringValues>("accept", "text/csv"));
 
-            var directory = Directory.GetCurrentDirectory();
-            var path = Path.Combine(directory, "Controller", "AssetRegisterVersions", "Post", fileValue);
-            var fileStream = await File.ReadAllBytesAsync(path).ConfigureAwait(false);
-            var memoryStream = new MemoryStream(fileStream);
+            var formFiles = await GetFormFiles(fileValue);
             //act
-            var response = await _classUnderTest.Post(
-                new List<IFormFile> { new FormFile(memoryStream, 0, memoryStream.Length, fileValue, fileValue) });
+            var response = await _classUnderTest.Post(formFiles);
             //asset
             var result = response as ObjectResult;
             result.Should().NotBeNull();
