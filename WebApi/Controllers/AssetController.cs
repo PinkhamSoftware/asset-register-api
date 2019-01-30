@@ -10,7 +10,6 @@ namespace WebApi.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    [Authorize]
     public class AssetController : ControllerBase
     {
         private readonly IGetAssetUseCase _assetUseCase;
