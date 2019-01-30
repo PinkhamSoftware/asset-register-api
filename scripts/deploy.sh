@@ -23,7 +23,11 @@ curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&source=
 
 ./cf target -o "${CF_ORG}" -s "${ENVIRONMENT_NAME}"
 
-./cf push -f "deploy-manifests/${APP_NAME}.yml"
-./cf set-env "asset-register-api-${APP_NAME}" circle_commit "${CIRCLE_SHA1}"
-./cf set-env "asset-register-api-${APP_NAME}" SENTRY_DSN "${SENTRY_DSN}"
-./cf set-env "asset-register-api-${APP_NAME}" CorsOrigins "${FRONTEND_URI}"
+./cf push -f "deploy-manifests/${APP_NAME}.yml" \
+  --var "circle_commit=${CIRCLE_SHA1}" \
+  --var "SENTRY_DSN=${SENTRY_DSN}" \
+  --var "CorsOrigins=${FRONTEND_URI}" \
+  --var "HmacSecret=${HMAC_SECRET}" \
+  --var "EMAIL_WHITELIST=${EMAIL_WHITELIST}" \
+  --var "GOV_NOTIFY_URL=${GOV_NOTIFY_URL}" \
+  --var "GOV_NOTIFY_API_KEY=${GOV_NOTIFY_API_KEY}"
