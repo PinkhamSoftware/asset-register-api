@@ -76,8 +76,8 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
 
         private bool UserIsAuthorised(string email)
         {
-            var whitelist = System.Environment.GetEnvironmentVariable("EMAIL_WHITELIST").Split(";").ToList();
-            return whitelist.Contains(email);
+            var whitelist = System.Environment.GetEnvironmentVariable("EMAIL_WHITELIST").Split(";").Select(s=> s.ToLower()).ToList();
+            return whitelist.Contains(email.ToLower());
         }
     }
 }

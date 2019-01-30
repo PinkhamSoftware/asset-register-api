@@ -2,3 +2,13 @@
 applications:
 - name: asset-register-api-production-dark
   memory: 1G
+  services:
+    - asset-register-api-production-db
+  env:
+    circle_commit: ((circle_commit))
+    SENTRY_DSN: ((SENTRY_DSN))
+    CorsOrigins: ((CorsOrigins))
+    HmacSecret: ((HmacSecret))
+    EMAIL_WHITELIST: ((EMAIL_WHITELIST))
+    GOV_NOTIFY_URL: ((GOV_NOTIFY_URL))
+    GOV_NOTIFY_API_KEY: ((GOV_NOTIFY_API_KEY))
