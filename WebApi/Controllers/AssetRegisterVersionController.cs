@@ -44,7 +44,7 @@ namespace WebApi.Controllers
         }
 
         [HttpPost]
-        [ProducesResponseType(typeof(ResponseData<SaveAssetRegisterFileResponse>), 200)]
+        [ProducesResponseType(typeof(ResponseData<ImportAssetsResponse>), 200)]
         public async Task<IActionResult> Post(IList<IFormFile> files)
         {
             if (files == null || !files.Any())
