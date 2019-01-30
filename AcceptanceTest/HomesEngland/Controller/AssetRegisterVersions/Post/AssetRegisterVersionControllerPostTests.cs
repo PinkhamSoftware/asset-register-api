@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using System.Transactions;
 using FluentAssertions;
-using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.ImportAssets;
 using HomesEngland.UseCase.ImportAssets.Models;
@@ -11,7 +10,6 @@ using Main;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using WebApi.Controllers;
 using WebApi.Extensions;
@@ -24,7 +22,7 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
         private AssetRegisterVersionController _classUnderTest;
 
         [SetUp]
-        public void  Setup()
+        public void Setup()
         {
             var assetRegister = new AssetRegister();
             var importUseCase = assetRegister.Get<IImportAssetsUseCase>();

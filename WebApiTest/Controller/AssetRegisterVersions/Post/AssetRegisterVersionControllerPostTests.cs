@@ -36,10 +36,10 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
             _classUnderTest = new AssetRegisterVersionController(_mockGetUseCase.Object,_mockUseCase.Object, _textSplitter);
         }
 
-        [TestCase(1, "--file", "asset-register-1-rows.csv", "--delimiter", ";")]
-        [TestCase(5, "--file", "asset-register-5-rows.csv", "--delimiter", ";")]
-        [TestCase(10, "--file", "asset-register-10-rows.csv", "--delimiter", ";")]
-        public async Task GivenValidFile_WhenUploading_ThenCallImport(int expectedCount, string fileFlag, string fileValue, string delimiterFlag, string delimiterValue)
+        [TestCase(1, "asset-register-1-rows.csv")]
+        [TestCase(5, "asset-register-5-rows.csv")]
+        [TestCase(10,"asset-register-10-rows.csv")]
+        public async Task GivenValidFile_WhenUploading_ThenCallImport(int expectedCount,string fileValue)
         {
             //arrange
             _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<ImportAssetsRequest>(), It.IsAny<CancellationToken>()))
@@ -58,10 +58,10 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
             response.Should().NotBeNull();
         }
 
-        [TestCase(1, "--file", "asset-register-1-rows.csv", "--delimiter", ";")]
-        [TestCase(5, "--file", "asset-register-5-rows.csv", "--delimiter", ";")]
-        [TestCase(10, "--file", "asset-register-10-rows.csv", "--delimiter", ";")]
-        public async Task GivenValidFile_WhenUploading_ThenOutputCSV(int expectedCount, string fileFlag, string fileValue, string delimiterFlag, string delimiterValue)
+        [TestCase(1, "asset-register-1-rows.csv")]
+        [TestCase(5,"asset-register-5-rows.csv")]
+        [TestCase(10,"asset-register-10-rows.csv")]
+        public async Task GivenValidFile_WhenUploading_ThenOutputCSV(int expectedCount, string fileValue)
         {
             //arrange
             _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<ImportAssetsRequest>(), It.IsAny<CancellationToken>()))
