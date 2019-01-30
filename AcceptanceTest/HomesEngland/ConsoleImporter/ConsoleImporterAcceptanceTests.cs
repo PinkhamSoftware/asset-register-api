@@ -23,10 +23,10 @@ namespace AssetRegisterTests.HomesEngland.ConsoleImporter
             var context = assetRegister.Get<AssetRegisterContext>();
             context.Database.Migrate();
         }
-        
-        [TestCase(1,"asset-register-1-rows.csv", "--delimiter", ";")]
-        [TestCase(5,"asset-register-5-rows.csv", "--delimiter", ";")]
-        [TestCase(10,"asset-register-10-rows.csv","--delimiter", ";")]
+
+        [TestCase(1, "--file", "asset-register-1-rows.csv", "--delimiter", ";")]
+        [TestCase(5, "--file", "asset-register-5-rows.csv", "--delimiter", ";")]
+        [TestCase(10, "--file", "asset-register-10-rows.csv", "--delimiter", ";")]
         public async Task GivenValidFilePathAndDemiliter_WhenWeCallProcess_ThenWeImportTheCsv(int expectedCount, string fileFlag, string fileValue, string delimiterFlag, string delimiterValue)
         {
             //arrange
