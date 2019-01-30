@@ -15,7 +15,6 @@ namespace WebApi.Controllers.Search
 {
     [Route("api/v1/asset")]
     [ApiController]
-    [Authorize]
     public class SearchAssetController : ControllerBase
     {
         private readonly ISearchAssetUseCase _useCase;
