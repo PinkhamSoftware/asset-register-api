@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 
@@ -10,6 +11,7 @@ namespace WebApi.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
+    [Authorize]
     public class AssetRegisterVersionController : ControllerBase
     {
         private readonly IGetAssetRegisterVersionsUseCase _getAssetRegisterVersionsUseCase;
