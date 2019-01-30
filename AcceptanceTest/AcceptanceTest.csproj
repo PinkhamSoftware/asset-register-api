@@ -38,5 +38,14 @@
       <None Update="HomesEngland\ConsoleImporter\asset-register-5-rows.csv">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Update="HomesEngland\Controller\AssetRegisterVersions\Post\asset-register-1-rows.csv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="HomesEngland\Controller\AssetRegisterVersions\Post\asset-register-10-rows.csv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="HomesEngland\Controller\AssetRegisterVersions\Post\asset-register-5-rows.csv">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 </Project>
