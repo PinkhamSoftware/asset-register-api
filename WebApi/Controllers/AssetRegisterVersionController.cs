@@ -8,10 +8,13 @@ using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
 using HomesEngland.UseCase.ImportAssets;
 using HomesEngland.UseCase.ImportAssets.Models;
+using HomesEngland.UseCase.SaveFile;
+using HomesEngland.UseCase.SaveFile.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Internal;
+using WebApi.BackgroundProcessing;
 using WebApi.Extensions;
 
 namespace WebApi.Controllers
@@ -24,12 +27,14 @@ namespace WebApi.Controllers
         private readonly IGetAssetRegisterVersionsUseCase _getAssetRegisterVersionsUseCase;
         private readonly IImportAssetsUseCase _importAssetsUseCase;
         private readonly ITextSplitter _textSplitter;
+        private readonly ISaveAssetRegisterFileUseCase _saveAssetRegisterFileUseCase;
 
-        public AssetRegisterVersionController(IGetAssetRegisterVersionsUseCase registerVersionsUseCase, IImportAssetsUseCase importAssetsUseCase, ITextSplitter textSplitter)
+        public AssetRegisterVersionController(IGetAssetRegisterVersionsUseCase registerVersionsUseCase, IImportAssetsUseCase importAssetsUseCase, ITextSplitter textSplitter, ISaveAssetRegisterFileUseCase saveAssetRegisterFileUseCase)
         {
             _getAssetRegisterVersionsUseCase = registerVersionsUseCase;
             _importAssetsUseCase = importAssetsUseCase;
             _textSplitter = textSplitter;
+            _saveAssetRegisterFileUseCase = saveAssetRegisterFileUseCase;
         }
 
         [HttpGet]
@@ -53,9 +58,9 @@ namespace WebApi.Controllers
 
             var request = await CreateSaveAssetRegisterFileRequest(files);
 
-            var response = await _importAssetsUseCase.ExecuteAsync(request, this.GetCancellationToken()).ConfigureAwait(false);
+            await _importAssetsUseCase.ExecuteAsync(request, this.GetCancellationToken()).ConfigureAwait(false);
 
-            return this.StandardiseResponse<ImportAssetsResponse, AssetOutputModel>(response);
+            return Ok();
         }
 
         private async Task<ImportAssetsRequest> CreateSaveAssetRegisterFileRequest(IList<IFormFile> files)
@@ -63,6 +68,16 @@ namespace WebApi.Controllers
             var memoryStream = new MemoryStream();
             await files[0].CopyToAsync(memoryStream, this.GetCancellationToken()).ConfigureAwait(false);
             var text = Encoding.UTF8.GetString(memoryStream.GetBuffer());
+            var fileName = files[0]?.FileName;
+            var saveAssetRegisterFileRequest = new SaveAssetRegisterFileRequest
+            {
+                Text = text,
+                FileName = fileName
+            };
+
+            await _saveAssetRegisterFileUseCase.ExecuteAsync(saveAssetRegisterFileRequest, this.GetCancellationToken())
+                .ConfigureAwait(false);
+
             var assetLines = _textSplitter.SplitIntoLines(text);
             var importAssetsRequest = new ImportAssetsRequest
             {

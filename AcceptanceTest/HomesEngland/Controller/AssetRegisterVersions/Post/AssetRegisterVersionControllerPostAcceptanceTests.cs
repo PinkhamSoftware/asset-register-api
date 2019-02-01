@@ -6,6 +6,7 @@ using FluentAssertions;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.ImportAssets;
 using HomesEngland.UseCase.ImportAssets.Models;
+using HomesEngland.UseCase.SaveFile;
 using Main;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
@@ -17,7 +18,7 @@ using WebApi.Extensions;
 namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
 {
     [TestFixture]
-    public class AssetRegisterVersionControllerPostTests
+    public class AssetRegisterVersionControllerPostAcceptanceTests
     {
         private AssetRegisterVersionController _classUnderTest;
 
@@ -28,7 +29,8 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
             var importUseCase = assetRegister.Get<IImportAssetsUseCase>();
             var textSplitter = assetRegister.Get<ITextSplitter>();
             var getAssetRegisterVersionUseCase = assetRegister.Get<IGetAssetRegisterVersionsUseCase>();
-            _classUnderTest = new AssetRegisterVersionController(getAssetRegisterVersionUseCase, importUseCase,textSplitter);
+            var saveAssetRegisterFileUseCase = assetRegister.Get<ISaveAssetRegisterFileUseCase>();
+            _classUnderTest = new AssetRegisterVersionController(getAssetRegisterVersionUseCase, importUseCase,textSplitter, saveAssetRegisterFileUseCase);
         }
 
         [TestCase(1, "asset-register-1-rows.csv")]
