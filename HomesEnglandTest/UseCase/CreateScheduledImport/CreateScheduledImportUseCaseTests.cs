@@ -31,10 +31,15 @@ namespace HomesEnglandTest.UseCase.CreateScheduledImport
         [TestCase("test.csv", "text")]
         [TestCase("test2.csv", "text2")]
         [TestCase("test3.csv", "text3")]
-        public async Task GivenValidInput_WhenExecuting_ThenReturnsResponse(string fileName, string text)
+        public async Task GivenValidInput_WhenExecuting_ThenReturnsId(string fileName, string text)
         {
             //arrange
-
+            _mockSaveFileUseCase
+                .Setup(s => s.ExecuteAsync(It.IsAny<SaveAssetRegisterFileRequest>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new SaveAssetRegisterFileResponse
+                {
+                    Id = 1
+                });
             //act
             var response = await _classUnderTest.ExecuteAsync(new CreateScheduledImportRequest
             {
@@ -43,6 +48,8 @@ namespace HomesEnglandTest.UseCase.CreateScheduledImport
             }, CancellationToken.None).ConfigureAwait(false);
             //assert
             response.Should().NotBeNull();
+
+            response.Id.Should().BeGreaterThan(0);
         }
 
         [TestCase("test.csv", "text")]

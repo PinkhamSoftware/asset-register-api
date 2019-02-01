@@ -2,6 +2,6 @@
 {
     public class SaveAssetRegisterFileResponse
     {
-
+        public int Id { get; set; }
     }
 }
