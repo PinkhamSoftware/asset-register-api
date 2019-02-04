@@ -29,7 +29,6 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
         private AssetRegisterVersionController _classUnderTest;
         private Mock<IImportAssetsUseCase> _mockUseCase;
         private Mock<IGetAssetRegisterVersionsUseCase> _mockGetUseCase;
-        private Mock<ISaveAssetRegisterFileUseCase> _mockSaveFileUseCase;
         private ITextSplitter _textSplitter;
         private IBackgroundProcessor _backgroundProcessor;
 
@@ -38,8 +37,8 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
         {
             _mockUseCase = new Mock<IImportAssetsUseCase>();
             _mockGetUseCase = new Mock<IGetAssetRegisterVersionsUseCase>();
-            _mockSaveFileUseCase = new Mock<ISaveAssetRegisterFileUseCase>();
             _textSplitter = new TextSplitter();
+            _backgroundProcessor = new BackgroundProcessor();
             _classUnderTest = new AssetRegisterVersionController(_mockGetUseCase.Object, _mockUseCase.Object, _textSplitter,_backgroundProcessor );
         }
 
@@ -100,24 +99,6 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
             var result = response as StatusCodeResult;
             result.Should().NotBeNull();
             result.StatusCode.Should().Be(200);
-        }
-
-        [TestCase(1, "asset-register-1-rows.csv")]
-        [TestCase(5, "asset-register-5-rows.csv")]
-        [TestCase(10, "asset-register-10-rows.csv")]
-        public async Task GivenValidFile_WhenUploading_ThenSaveFile(int expectedCount, string fileValue)
-        {
-            //arrange
-            _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<ImportAssetsRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new ImportAssetsResponse
-                {
-                    AssetsImported = new List<AssetOutputModel>()
-                });
-            var formFiles = await GetFormFiles(fileValue);
-            //act
-            await _classUnderTest.Post(formFiles);
-            //asset
-            _mockSaveFileUseCase.Verify(v=> v.ExecuteAsync(It.IsAny<SaveAssetRegisterFileRequest>(), It.IsAny<CancellationToken>()));
         }
     }
 }
