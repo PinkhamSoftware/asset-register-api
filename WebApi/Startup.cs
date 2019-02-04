@@ -77,7 +77,8 @@ namespace WebApi
                 services.BuildServiceProvider().GetService<AssetRegisterContext>();
             assetRegisterContext.Database.Migrate();
 
-            services.AddHostedService<IBackgroundProcessor>();
+            services.AddSingleton<IBackgroundProcessor, BackgroundProcessor>();
+            services.AddHostedService<BackgroundProcessor>();
         }
 
         private static CsvFormatterOptions GetCsvOptions()
