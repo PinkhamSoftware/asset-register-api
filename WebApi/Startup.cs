@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
+using WebApi.BackgroundProcessing;
 using WebApiContrib.Core.Formatter.Csv;
 
 namespace WebApi
@@ -75,6 +76,8 @@ namespace WebApi
             AssetRegisterContext assetRegisterContext =
                 services.BuildServiceProvider().GetService<AssetRegisterContext>();
             assetRegisterContext.Database.Migrate();
+
+            services.AddHostedService<IBackgroundProcessor>();
         }
 
         private static CsvFormatterOptions GetCsvOptions()

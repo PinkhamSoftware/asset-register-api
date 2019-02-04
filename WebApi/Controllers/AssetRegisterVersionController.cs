@@ -56,7 +56,7 @@ namespace WebApi.Controllers
 
             var request = await CreateSaveAssetRegisterFileRequest(files);
 
-            await _importAssetsUseCase.ExecuteAsync(request, this.GetCancellationToken()).ConfigureAwait(false);
+            await _backgroundProcessor.QueueBackgroundTask(async () => await _importAssetsUseCase.ExecuteAsync(request, this.GetCancellationToken()).ConfigureAwait(false));
 
             return Ok();
         }
