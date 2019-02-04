@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
+using WebApi.BackgroundProcessing;
 using WebApi.Controllers;
 using WebApi.Extensions;
 
@@ -30,7 +31,8 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
             var textSplitter = assetRegister.Get<ITextSplitter>();
             var getAssetRegisterVersionUseCase = assetRegister.Get<IGetAssetRegisterVersionsUseCase>();
             var saveAssetRegisterFileUseCase = assetRegister.Get<ISaveAssetRegisterFileUseCase>();
-            _classUnderTest = new AssetRegisterVersionController(getAssetRegisterVersionUseCase, importUseCase,textSplitter, saveAssetRegisterFileUseCase);
+            var backgroundProcessor = assetRegister.Get<IBackgroundProcessor>();
+            _classUnderTest = new AssetRegisterVersionController(getAssetRegisterVersionUseCase, importUseCase,textSplitter, backgroundProcessor);
         }
 
         [TestCase(1, "asset-register-1-rows.csv")]

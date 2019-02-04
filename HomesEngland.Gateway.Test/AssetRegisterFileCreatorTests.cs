@@ -26,7 +26,7 @@ namespace HomesEngland.Gateway.Test
         {
             var databaseUrl = Environment.GetEnvironmentVariable("SCHEDULE_DATABASE_URL");
             var context = new AssetRegisterScheduleContext(databaseUrl);
-
+            _classUnderTest = new AssetRegisterFileGateway(databaseUrl);
             context.Database.Migrate();
         }
 

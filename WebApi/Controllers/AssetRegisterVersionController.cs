@@ -8,8 +8,6 @@ using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
 using HomesEngland.UseCase.ImportAssets;
 using HomesEngland.UseCase.ImportAssets.Models;
-using HomesEngland.UseCase.SaveFile;
-using HomesEngland.UseCase.SaveFile.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,14 +25,14 @@ namespace WebApi.Controllers
         private readonly IGetAssetRegisterVersionsUseCase _getAssetRegisterVersionsUseCase;
         private readonly IImportAssetsUseCase _importAssetsUseCase;
         private readonly ITextSplitter _textSplitter;
-        private readonly ISaveAssetRegisterFileUseCase _saveAssetRegisterFileUseCase;
+        private readonly IBackgroundProcessor _backgroundProcessor;
 
-        public AssetRegisterVersionController(IGetAssetRegisterVersionsUseCase registerVersionsUseCase, IImportAssetsUseCase importAssetsUseCase, ITextSplitter textSplitter, ISaveAssetRegisterFileUseCase saveAssetRegisterFileUseCase)
+        public AssetRegisterVersionController(IGetAssetRegisterVersionsUseCase registerVersionsUseCase, IImportAssetsUseCase importAssetsUseCase, ITextSplitter textSplitter, IBackgroundProcessor backgroundProcessor)
         {
             _getAssetRegisterVersionsUseCase = registerVersionsUseCase;
             _importAssetsUseCase = importAssetsUseCase;
             _textSplitter = textSplitter;
-            _saveAssetRegisterFileUseCase = saveAssetRegisterFileUseCase;
+            _backgroundProcessor = backgroundProcessor;
         }
 
         [HttpGet]
@@ -69,14 +67,6 @@ namespace WebApi.Controllers
             await files[0].CopyToAsync(memoryStream, this.GetCancellationToken()).ConfigureAwait(false);
             var text = Encoding.UTF8.GetString(memoryStream.GetBuffer());
             var fileName = files[0]?.FileName;
-            var saveAssetRegisterFileRequest = new SaveAssetRegisterFileRequest
-            {
-                Text = text,
-                FileName = fileName
-            };
-
-            await _saveAssetRegisterFileUseCase.ExecuteAsync(saveAssetRegisterFileRequest, this.GetCancellationToken())
-                .ConfigureAwait(false);
 
             var assetLines = _textSplitter.SplitIntoLines(text);
             var importAssetsRequest = new ImportAssetsRequest

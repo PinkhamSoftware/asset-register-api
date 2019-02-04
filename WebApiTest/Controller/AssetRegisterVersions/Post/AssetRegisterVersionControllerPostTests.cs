@@ -31,6 +31,7 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
         private Mock<IGetAssetRegisterVersionsUseCase> _mockGetUseCase;
         private Mock<ISaveAssetRegisterFileUseCase> _mockSaveFileUseCase;
         private ITextSplitter _textSplitter;
+        private IBackgroundProcessor _backgroundProcessor;
 
         [SetUp]
         public void  Setup()
@@ -39,7 +40,7 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
             _mockGetUseCase = new Mock<IGetAssetRegisterVersionsUseCase>();
             _mockSaveFileUseCase = new Mock<ISaveAssetRegisterFileUseCase>();
             _textSplitter = new TextSplitter();
-            _classUnderTest = new AssetRegisterVersionController(_mockGetUseCase.Object, _mockUseCase.Object, _textSplitter,_mockSaveFileUseCase.Object);
+            _classUnderTest = new AssetRegisterVersionController(_mockGetUseCase.Object, _mockUseCase.Object, _textSplitter,_backgroundProcessor );
         }
 
         [TestCase(1, "asset-register-1-rows.csv")]

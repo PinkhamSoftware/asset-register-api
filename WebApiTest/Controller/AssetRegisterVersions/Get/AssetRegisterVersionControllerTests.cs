@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using NUnit.Framework;
+using WebApi.BackgroundProcessing;
 using WebApi.Controllers;
 
 namespace WebApiTest.Controller.AssetRegisterVersions.Get
@@ -24,15 +25,15 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Get
         private readonly Mock<IGetAssetRegisterVersionsUseCase> _mockUseCase;
         private readonly Mock<IImportAssetsUseCase> _mockImportAssetsUseCase;
         private readonly ITextSplitter _textSplitter;
-        private readonly Mock<ISaveAssetRegisterFileUseCase> _mockSaveFileUseCase;
+        private readonly Mock<IBackgroundProcessor> _mockBackgroundProcessor;
 
         public AssetRegisterVersionControllerTests()
         {
             _mockUseCase = new Mock<IGetAssetRegisterVersionsUseCase>();
             _mockImportAssetsUseCase = new Mock<IImportAssetsUseCase>();
-            _mockSaveFileUseCase = new Mock<ISaveAssetRegisterFileUseCase>();
+            _mockBackgroundProcessor = new Mock<IBackgroundProcessor>();
             _textSplitter = new TextSplitter();
-            _classUnderTest = new AssetRegisterVersionController(_mockUseCase.Object,_mockImportAssetsUseCase.Object,_textSplitter, _mockSaveFileUseCase.Object);
+            _classUnderTest = new AssetRegisterVersionController(_mockUseCase.Object,_mockImportAssetsUseCase.Object,_textSplitter,_mockBackgroundProcessor.Object);
         }
 
         [Test]
