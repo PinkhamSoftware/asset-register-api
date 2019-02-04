@@ -36,9 +36,10 @@ namespace WebApiTest.BackgroundProcessing
             {
                 await _classUnderTest.QueueBackgroundTask(async () => await _mockImportAssetsUseCase.Object.ExecuteAsync(new ImportAssetsRequest(), CancellationToken.None));
             }
-            
+
+           await Task.Delay(500);
             //assert
-            _mockImportAssetsUseCase.Verify(v=>v.ExecuteAsync(It.IsAny<ImportAssetsRequest>(), It.IsAny<CancellationToken>()));
+            _mockImportAssetsUseCase.Verify(v=>v.ExecuteAsync(It.IsAny<ImportAssetsRequest>(), It.IsAny<CancellationToken>()), Times.Exactly(count));
         }
     }
 }

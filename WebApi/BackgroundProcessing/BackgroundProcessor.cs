@@ -32,6 +32,7 @@ namespace WebApi.BackgroundProcessing
         public BackgroundProcessor()
         {
             _readerWriterLockSlim = new ReaderWriterLockSlim();
+            _cancellationTokenSource = new CancellationTokenSource();
             Tasks = new List<Task>();
         }
 
@@ -49,8 +50,9 @@ namespace WebApi.BackgroundProcessing
         public Task QueueBackgroundTask(Action workItem)
         {
             Task task = new Task(workItem, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning)
-                .ContinueWith(task1 => Tasks.Remove(task1));
+                ;
             Tasks.Add(task);
+            task.ContinueWith(task1 => Tasks.Remove(task1));
             task.Start();
             return Task.CompletedTask;
         }
