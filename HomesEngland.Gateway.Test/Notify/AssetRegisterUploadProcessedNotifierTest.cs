@@ -21,6 +21,7 @@ namespace HomesEngland.Gateway.Test.Notify
         private class NotifyRequest
         {
             public string email_address { get; set; }
+            public string template_id { get; set; }
         }
 
         private static string BuildValidGovNotifyApiKeyFromHexFragment(string fragment)
@@ -107,6 +108,40 @@ namespace HomesEngland.Gateway.Test.Notify
             NotifyRequest notifyRequest = _simulator.ReceivedRequests[0].BodyAs<NotifyRequest>();
 
             notifyRequest.email_address.Should().Be(email);
+        }
+
+        [TestCase("cat@meow.com")]
+        [TestCase("dog@woof.com")]
+        public async Task GivenSuccessful_SendsUploadSuccessfulEmail(string email)
+        {
+            UploadProcessedNotification notification = new UploadProcessedNotification
+            {
+                Email = email,
+                UploadSuccessfullyProcessed = true
+            };
+
+            await _classUnderTest.SendUploadProcessedNotification(notification, CancellationToken.None);
+
+            NotifyRequest notifyRequest = _simulator.ReceivedRequests[0].BodyAs<NotifyRequest>();
+
+            notifyRequest.template_id.Should().Be("434e8133-b995-4363-a177-2bad0ea70773");
+        }
+
+        [TestCase("cat@meow.com")]
+        [TestCase("dog@woof.com")]
+        public async Task GivenNotSuccessful_SendsUploadFailureEmail(string email)
+        {
+            UploadProcessedNotification notification = new UploadProcessedNotification
+            {
+                Email = email,
+                UploadSuccessfullyProcessed = false
+            };
+
+            await _classUnderTest.SendUploadProcessedNotification(notification, CancellationToken.None);
+
+            NotifyRequest notifyRequest = _simulator.ReceivedRequests[0].BodyAs<NotifyRequest>();
+
+            notifyRequest.template_id.Should().Be("3e4d2aea-4305-461f-84f8-584361169c36");
         }
     }
 }
