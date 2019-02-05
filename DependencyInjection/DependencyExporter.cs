@@ -11,6 +11,9 @@ namespace DependencyInjection
     {
         private readonly Dictionary<Type, Func<object>> _dependencies;
         private readonly Dictionary<Type, Type> _typeDependencies;
+
+        private readonly Dictionary<Type, Func<object>> _singletonDependencies;
+        private readonly Dictionary<Type, Type> _singletonTypeDependencies;
         [SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
         protected DependencyExporter()
         {
@@ -41,6 +44,22 @@ namespace DependencyInjection
             }
         }
 
+        public void ExportSingletonDependencies(IDependencyReceiver dependencyReceiver)
+        {
+            foreach (var (type, provider) in _singletonDependencies)
+            {
+                dependencyReceiver(type, provider);
+            }
+        }
+
+        public void ExportSingletonTypeDependencies(ITypeDependencyReceiver dependencyReceiver)
+        {
+            foreach (var (type, typeDependency) in _singletonTypeDependencies)
+            {
+                dependencyReceiver(type, typeDependency);
+            }
+        }
+
         protected void RegisterExportedDependency<T>(Func<object> provider)
         {
             _dependencies.Add(typeof(T), provider);
@@ -49,6 +68,16 @@ namespace DependencyInjection
         protected void RegisterExportedDependency<TInterface, TDependency>()
         {
             _typeDependencies.Add(typeof(TInterface), typeof(TDependency));
+        }
+
+        protected void RegisterExportedSingletonDependency<T>(Func<object> provider)
+        {
+            _singletonDependencies.Add(typeof(T), provider);
+        }
+
+        protected void RegisterExportedSingletonDependency<TInterface, TDependency>()
+        {
+            _singletonTypeDependencies.Add(typeof(TInterface), typeof(TDependency));
         }
 
         protected abstract void ConstructHiddenDependencies();
