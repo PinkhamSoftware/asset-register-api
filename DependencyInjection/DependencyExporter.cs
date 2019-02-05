@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
 
 namespace DependencyInjection
 {
@@ -19,6 +20,9 @@ namespace DependencyInjection
         {
             _dependencies = new Dictionary<Type,Func<object>>();
             _typeDependencies = new Dictionary<Type, Type>();
+            _singletonTypeDependencies = new Dictionary<Type, Type>();
+            _singletonDependencies = new Dictionary<Type, Func<object>>(); 
+
             RegisterAllExportedDependencies();
             ConstructHiddenDependencies();
         }
