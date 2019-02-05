@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 using FluentAssertions;
+using HomesEngland.BackgroundProcessing;
+using HomesEngland.Gateway.Migrations;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.ImportAssets;
 using HomesEngland.UseCase.ImportAssets.Models;
@@ -12,7 +15,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
-using WebApi.BackgroundProcessing;
 using WebApi.Controllers;
 using WebApi.Extensions;
 
@@ -22,6 +24,7 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
     public class AssetRegisterVersionControllerPostAcceptanceTests
     {
         private AssetRegisterVersionController _classUnderTest;
+        private AssetRegisterContext _assetRegisterContext;
 
         [SetUp]
         public void Setup()
@@ -30,8 +33,8 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
             var importUseCase = assetRegister.Get<IImportAssetsUseCase>();
             var textSplitter = assetRegister.Get<ITextSplitter>();
             var getAssetRegisterVersionUseCase = assetRegister.Get<IGetAssetRegisterVersionsUseCase>();
-            var saveAssetRegisterFileUseCase = assetRegister.Get<ISaveAssetRegisterFileUseCase>();
             var backgroundProcessor = assetRegister.Get<IBackgroundProcessor>();
+            _assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
             _classUnderTest = new AssetRegisterVersionController(getAssetRegisterVersionUseCase, importUseCase,textSplitter, backgroundProcessor);
         }
 
@@ -47,11 +50,13 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
             {
                 var response = await _classUnderTest.Post(formFiles);
                 //asset
-                var result = response as ObjectResult;
+                
+                
+                var result = response as StatusCodeResult;
                 result.Should().NotBeNull();
-                result.Value.Should().BeOfType<ResponseData<ImportAssetsResponse>>();
-                var data = result.Value as ResponseData<ImportAssetsResponse>;
-                data.Data.AssetsImported.Count.Should().Be(expectedCount);
+                result.StatusCode.Should().Be(200);
+                await Task.Delay(50000);
+                _assetRegisterContext.Assets.Select(s => s.Id).Count().Should().Be(expectedCount);
             }
         }
 

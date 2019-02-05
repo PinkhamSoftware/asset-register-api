@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 
-namespace WebApi.BackgroundProcessing
+namespace HomesEngland.BackgroundProcessing
 {
     public interface IBackgroundProcessor:IHostedService
     {

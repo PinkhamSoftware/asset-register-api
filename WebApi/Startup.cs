@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using HomesEngland.BackgroundProcessing;
 using Infrastructure.Documentation;
 using Main;
 using Microsoft.AspNetCore.Builder;
@@ -14,7 +15,6 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
-using WebApi.BackgroundProcessing;
 using WebApiContrib.Core.Formatter.Csv;
 
 namespace WebApi
@@ -77,8 +77,8 @@ namespace WebApi
                 services.BuildServiceProvider().GetService<AssetRegisterContext>();
             assetRegisterContext.Database.Migrate();
 
-            services.AddSingleton<IBackgroundProcessor, BackgroundProcessor>();
-            services.AddHostedService<IBackgroundProcessor>();
+
+            services.AddHostedService<BackgroundProcessor>();
         }
 
         private static CsvFormatterOptions GetCsvOptions()

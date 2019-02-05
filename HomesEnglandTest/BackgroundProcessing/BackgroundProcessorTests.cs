@@ -1,12 +1,12 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using HomesEngland.BackgroundProcessing;
 using HomesEngland.UseCase.ImportAssets;
 using HomesEngland.UseCase.ImportAssets.Models;
 using Moq;
 using NUnit.Framework;
-using WebApi.BackgroundProcessing;
 
-namespace WebApiTest.BackgroundProcessing
+namespace HomesEnglandTest.BackgroundProcessing
 {
     [TestFixture]
     public class BackgroundProcessorTests

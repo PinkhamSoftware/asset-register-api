@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using HomesEngland.BackgroundProcessing;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
@@ -18,7 +19,6 @@ using Microsoft.Extensions.Primitives;
 using Moq;
 using NUnit.Framework;
 using Sentry.Extensibility;
-using WebApi.BackgroundProcessing;
 using WebApi.Controllers;
 
 namespace WebApiTest.Controller.AssetRegisterVersions.Post

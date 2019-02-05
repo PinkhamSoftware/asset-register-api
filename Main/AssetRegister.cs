@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using DependencyInjection;
+using HomesEngland.BackgroundProcessing;
 using HomesEngland.Domain;
 using HomesEngland.Domain.Factory;
 using HomesEngland.Gateway;
@@ -55,6 +56,9 @@ namespace Main
             ExportTypeDependencies((type, provider) => serviceCollection.AddTransient(type, provider));
 
             serviceCollection.AddEntityFrameworkNpgsql().AddDbContext<AssetRegisterContext>();
+
+            serviceCollection.AddSingleton<IBackgroundProcessor, BackgroundProcessor>();
+            serviceCollection.AddHostedService<BackgroundProcessor>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
         }
