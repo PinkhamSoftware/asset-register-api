@@ -6,19 +6,15 @@ using FluentAssertions;
 using HomesEngland.BackgroundProcessing;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
-using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
 using HomesEngland.UseCase.ImportAssets;
 using HomesEngland.UseCase.ImportAssets.Impl;
 using HomesEngland.UseCase.ImportAssets.Models;
-using HomesEngland.UseCase.SaveFile;
-using HomesEngland.UseCase.SaveFile.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Moq;
 using NUnit.Framework;
-using Sentry.Extensibility;
 using WebApi.Controllers;
 
 namespace WebApiTest.Controller.AssetRegisterVersions.Post

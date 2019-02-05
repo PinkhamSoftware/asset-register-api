@@ -8,15 +8,12 @@ using HomesEngland.BackgroundProcessing;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.ImportAssets;
-using HomesEngland.UseCase.ImportAssets.Models;
-using HomesEngland.UseCase.SaveFile;
 using Main;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.AspNetCore.Mvc;
 using NUnit.Framework;
 using WebApi.Controllers;
-using WebApi.Extensions;
 
 namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
 {
