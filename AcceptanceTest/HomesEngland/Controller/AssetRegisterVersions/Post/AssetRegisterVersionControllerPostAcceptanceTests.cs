@@ -47,12 +47,10 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
             {
                 var response = await _classUnderTest.Post(formFiles);
                 //asset
-                
-                
                 var result = response as StatusCodeResult;
                 result.Should().NotBeNull();
                 result.StatusCode.Should().Be(200);
-                await Task.Delay(50000);
+                await Task.Delay(2550+ (expectedCount * 150));
                 _assetRegisterContext.Assets.Select(s => s.Id).Count().Should().Be(expectedCount);
             }
         }

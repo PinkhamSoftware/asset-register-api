@@ -59,7 +59,6 @@ namespace WebApi.Controllers
             await _backgroundProcessor.QueueBackgroundTask(
                 async ()=> await _importAssetsUseCase.ExecuteAsync(request, this.GetCancellationToken()).ConfigureAwait(false));
 
-
             return Ok();
         }
 
@@ -68,7 +67,6 @@ namespace WebApi.Controllers
             var memoryStream = new MemoryStream();
             await files[0].CopyToAsync(memoryStream, this.GetCancellationToken()).ConfigureAwait(false);
             var text = Encoding.UTF8.GetString(memoryStream.GetBuffer());
-            var fileName = files[0]?.FileName;
 
             var assetLines = _textSplitter.SplitIntoLines(text);
             var importAssetsRequest = new ImportAssetsRequest
