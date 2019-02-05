@@ -10,7 +10,7 @@ using Notify.Interfaces;
 
 namespace HomesEngland.Gateway.Notify
 {
-    public class GovNotifyNotificationsGateway : IOneTimeLinkNotifier
+    public class GovNotifyNotificationsGateway : IOneTimeLinkNotifier, IAssetRegisterUploadProcessedNotifier
     {
         public async Task<bool> SendOneTimeLinkAsync(IOneTimeLinkNotification notification,
             CancellationToken cancellationToken)
@@ -24,6 +24,33 @@ namespace HomesEngland.Gateway.Notify
             );
 
             return true;
+        }
+
+        public async Task<bool> SendUploadProcessedNotification(IUploadProcessedNotification notification,
+            CancellationToken cancellationToken)
+        {
+            INotificationClient client = NotificationClient();
+
+            if (notification.UploadSuccessfullyProcessed)
+            {
+                client.SendEmail(notification.Email, ProcessSuccessfulTemplateId());
+            }
+            else
+            {
+                client.SendEmail(notification.Email, ProcessUnsuccessfulTemplateId());
+            }
+
+            return true;
+        }
+
+        private static string ProcessSuccessfulTemplateId()
+        {
+            return "434e8133-b995-4363-a177-2bad0ea70773";
+        }
+
+        private static string ProcessUnsuccessfulTemplateId()
+        {
+            return "3e4d2aea-4305-461f-84f8-584361169c36";
         }
 
         private static INotificationClient NotificationClient()
