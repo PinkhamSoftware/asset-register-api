@@ -29,7 +29,7 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
                 return UnauthorisedResponse();
             }
 
-            var createdToken = await CreateAuthenticationTokenForEmail(cancellationToken).ConfigureAwait(false);
+            var createdToken = await CreateAuthenticationTokenForEmail(requests, cancellationToken).ConfigureAwait(false);
             
             await SendOneTimeLink(requests.Email, createdToken, requests.Url, cancellationToken).ConfigureAwait(false);
 
@@ -54,10 +54,11 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
             }, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task<IAuthenticationToken> CreateAuthenticationTokenForEmail(CancellationToken cancellationToken)
+        private async Task<IAuthenticationToken> CreateAuthenticationTokenForEmail(AuthenticateUserRequest request, CancellationToken cancellationToken)
         {
             var authenticationToken = new AuthenticationToken
             {
+                EmailAddress = request.Email,
                 Expiry = DateTime.UtcNow.AddHours(8),
                 Token = Guid.NewGuid().ToString(),
                 ReferenceNumber = Guid.NewGuid().ToString()

@@ -69,6 +69,7 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
             AuthenticationToken authenticationToken = new AuthenticationToken
             {
                 ReferenceNumber = email,
+                EmailAddress = email,
                 Token = token
             };
 
@@ -226,6 +227,20 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
             AuthenticateUserResponse response = await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
             response.Authorised.Should().BeTrue();
+        }
+
+        [TestCase("Rest@test.com")]
+        [TestCase("cat@meoW.com")]
+        public async Task GivenEmailAddress_WhenCreatingAuthenticationToken_ItAddsEmailAddress(string validEmail)
+        {
+            SetEmailWhitelist($"dog@woof.com;{validEmail.ToUpper()};duck@quack.com");
+            AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+            StubTokenCreator(validEmail, "stub");
+
+            AuthenticateUserResponse response = await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
+
+            response.Authorised.Should().BeTrue();
+            
         }
     }
 }

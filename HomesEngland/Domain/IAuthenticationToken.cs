@@ -7,5 +7,6 @@ namespace HomesEngland.Domain
         string ReferenceNumber { get; }
         string Token { get; }
         DateTime Expiry { get; set; }
+        string EmailAddress { get; set; }
     }
 }
