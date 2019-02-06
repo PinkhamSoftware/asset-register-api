@@ -86,6 +86,7 @@ namespace Main
             RegisterExportedDependency<IOneTimeAuthenticationTokenDeleter>(() =>
                 new EFAuthenticationTokenGateway(databaseUrl));
             RegisterExportedDependency<IOneTimeLinkNotifier, GovNotifyNotificationsGateway>();
+            RegisterExportedDependency<IAssetRegisterUploadProcessedNotifier, GovNotifyNotificationsGateway>();
             RegisterExportedDependency<IAccessTokenCreator, JwtAccessTokenGateway>();
             RegisterExportedDependency<IGetAccessToken, GetAccessTokenUseCase>();
 
@@ -109,10 +110,12 @@ namespace Main
             RegisterExportedDependency<ICalculateAssetAggregatesUseCase, CalculateAssetAggregatesUseCase>();
             RegisterExportedDependency<IAssetAggregator>(() => new EFAssetGateway(databaseUrl));
 
-            RegisterExportedDependency<ICreateAssetRegisterVersionUseCase,CreateAssetRegisterVersionUseCase>();
-            RegisterExportedDependency<IAssetRegisterVersionCreator>(()=> new EFAssetRegisterVersionGateway(databaseUrl));
+            RegisterExportedDependency<ICreateAssetRegisterVersionUseCase, CreateAssetRegisterVersionUseCase>();
+            RegisterExportedDependency<IAssetRegisterVersionCreator>(() =>
+                new EFAssetRegisterVersionGateway(databaseUrl));
             RegisterExportedDependency<IGetAssetRegisterVersionsUseCase, GetAssetRegisterVersionsUseCase>();
-            RegisterExportedDependency<IAssetRegisterVersionSearcher>(() => new EFAssetRegisterVersionGateway(databaseUrl));
+            RegisterExportedDependency<IAssetRegisterVersionSearcher>(() =>
+                new EFAssetRegisterVersionGateway(databaseUrl));
         }
 
         public override T Get<T>()

@@ -69,6 +69,7 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
             AuthenticationToken authenticationToken = new AuthenticationToken
             {
                 ReferenceNumber = email,
+                EmailAddress = email,
                 Token = token
             };
 
@@ -76,10 +77,11 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
                 .ReturnsAsync(authenticationToken);
         }
 
-        private void ExpectTokenCreatorToHaveBeenCalled()
+        private void ExpectTokenCreatorToHaveBeenCalledWithEmail(string email)
         {
             _tokenCreatorSpy.Verify(s =>
-                s.CreateAsync(It.IsAny<IAuthenticationToken>(),It.IsAny<CancellationToken>()));
+                s.CreateAsync(It.Is<IAuthenticationToken>(token => token.EmailAddress.Equals(email)),
+                    It.IsAny<CancellationToken>()));
         }
 
 
@@ -122,7 +124,7 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
 
             await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
-            ExpectTokenCreatorToHaveBeenCalled();
+            ExpectTokenCreatorToHaveBeenCalledWithEmail(validEmail);
         }
 
         [TestCase("test@test.com")]
@@ -136,7 +138,7 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
 
             await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
-            ExpectTokenCreatorToHaveBeenCalled();
+            ExpectTokenCreatorToHaveBeenCalledWithEmail(validEmail);
         }
 
 
@@ -217,7 +219,21 @@ namespace HomesEnglandTest.UseCase.AuthenticateUser
 
         [TestCase("Rest@test.com")]
         [TestCase("cat@meoW.com")]
-        public async Task GivenEmailAddressWithDifferentCase_WithMultipleEmailsInTheWhitelist_ItReturnsAuthorised(string validEmail)
+        public async Task GivenEmailAddressWithDifferentCase_WithMultipleEmailsInTheWhitelist_ItReturnsAuthorised(
+            string validEmail)
+        {
+            SetEmailWhitelist($"dog@woof.com;{validEmail.ToUpper()};duck@quack.com");
+            AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);
+            StubTokenCreator(validEmail, "stub");
+
+            AuthenticateUserResponse response = await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
+
+            response.Authorised.Should().BeTrue();
+        }
+
+        [TestCase("Rest@test.com")]
+        [TestCase("cat@meoW.com")]
+        public async Task GivenEmailAddress_WhenCreatingAuthenticationToken_ItAddsEmailAddress(string validEmail)
         {
             SetEmailWhitelist($"dog@woof.com;{validEmail.ToUpper()};duck@quack.com");
             AuthenticateUserRequest request = CreateUseCaseRequestForEmail(validEmail);

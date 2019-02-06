@@ -83,7 +83,7 @@ namespace HomesEnglandTest.UseCase.GetAccessToken
         [TestCase("Woof woof")]
         public async Task GivenRequestMatchingToken_WhenTokenHasNotExpired_ReturnAuthorised(string token)
         {
-            StubTokenReaderWithValidToken(token);
+            StubTokenReaderWithValidToken(token, "stub@email.com");
             StubAccessTokenCreator("token");
 
             GetAccessTokenRequest request = new GetAccessTokenRequest
@@ -96,11 +96,12 @@ namespace HomesEnglandTest.UseCase.GetAccessToken
             response.Authorised.Should().BeTrue();
         }
 
-        [TestCase("Meow meow")]
-        [TestCase("Woof woof")]
-        public async Task GivenRequestMatchingToken_WhenTokenIsValid_CreateAccessToken(string token)
+        [TestCase("Meow meow", "meow@cat.com")]
+        [TestCase("Woof woof", "woof@dog.com")]
+        public async Task GivenRequestMatchingToken_WhenTokenIsValid_CreateAccessTokenForEmail(string token,
+            string email)
         {
-            StubTokenReaderWithValidToken(token);
+            StubTokenReaderWithValidToken(token, email);
             StubAccessTokenCreator("token");
 
             GetAccessTokenRequest request = new GetAccessTokenRequest
@@ -110,14 +111,15 @@ namespace HomesEnglandTest.UseCase.GetAccessToken
 
             await _classUnderTest.ExecuteAsync(request, CancellationToken.None);
 
-            _accessTokenCreatorSpy.Verify(e => e.CreateAsync(It.IsAny<CancellationToken>()));
+            _accessTokenCreatorSpy.Verify(e =>
+                e.CreateAsync(It.Is<string>(s => s.Equals(email)), It.IsAny<CancellationToken>()));
         }
 
         [TestCase("Meow meow")]
         [TestCase("Woof woof")]
         public async Task GivenRequestMatchingToken_WhenTokenIsValid_ReturnCreatedAccessToken(string createdToken)
         {
-            StubTokenReaderWithValidToken("token");
+            StubTokenReaderWithValidToken("token", "stub@stub.com");
             StubAccessTokenCreator(createdToken);
 
             GetAccessTokenRequest request = new GetAccessTokenRequest
@@ -134,7 +136,7 @@ namespace HomesEnglandTest.UseCase.GetAccessToken
         [TestCase("woof")]
         public async Task GivenRequestMatchingToken_WhenTokenIsValid_DeleteToken(string token)
         {
-            StubTokenReaderWithValidToken(token);
+            StubTokenReaderWithValidToken(token, "stub@stub.com");
             StubAccessTokenCreator("fake token");
 
             GetAccessTokenRequest request = new GetAccessTokenRequest
@@ -150,14 +152,15 @@ namespace HomesEnglandTest.UseCase.GetAccessToken
 
         private void StubAccessTokenCreator(string createdToken)
         {
-            _accessTokenCreatorSpy.Setup(s => s.CreateAsync(It.IsAny<CancellationToken>()))
+            _accessTokenCreatorSpy.Setup(s => s.CreateAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new AccessToken {Token = createdToken});
         }
 
-        private void StubTokenReaderWithValidToken(string token)
+        private void StubTokenReaderWithValidToken(string token, string email)
         {
             _tokenReaderSpy.Setup(e => e.ReadAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new AuthenticationToken {Token = token, Expiry = DateTime.Now.AddDays(1)});
+                .ReturnsAsync(new AuthenticationToken
+                    {EmailAddress = email, Token = token, Expiry = DateTime.Now.AddDays(1)});
         }
 
         private void StubTokenReaderWithExpiredToken(string token)

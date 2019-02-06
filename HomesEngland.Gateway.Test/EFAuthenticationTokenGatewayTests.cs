@@ -28,32 +28,35 @@ namespace HomesEngland.Gateway.Test
             assetRegisterContext.Database.Migrate();
         }
 
-        [TestCase("secure", 5)]
-        [TestCase("token", 6)]
-        [TestCase("test", 7)]
-        public async Task GivenAnAssetHasBeenCreated_WhenTheAssetIsReadFromTheGateway_ThenItIsTheSame(string token,
+        [TestCase("test@test.com", "secure", 5)]
+        [TestCase("meow@cat.com", "token", 6)]
+        [TestCase("woof@dog.com", "test", 7)]
+        public async Task GivenAnAssetHasBeenCreated_WhenTheAssetIsReadFromTheGateway_ThenItIsTheSame(string email,
+            string token,
             int seconds)
         {
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var faker = new Faker();
+                Faker faker = new Faker();
                 IAuthenticationToken authenticationToken = new AuthenticationToken
                 {
                     Expiry = DateTime.UtcNow.AddSeconds(seconds),
                     ReferenceNumber = faker.UniqueIndex.ToString(),
                     Token = token,
+                    EmailAddress = email
                 };
+
                 //act
-                var createdAuthenticationToken = await _classUnderTest
+                IAuthenticationToken createdAuthenticationToken = await _classUnderTest
                     .CreateAsync(authenticationToken, CancellationToken.None).ConfigureAwait(false);
-                var readAuthenticationToken = await _classUnderTest
+                IAuthenticationToken readAuthenticationToken = await _classUnderTest
                     .ReadAsync(createdAuthenticationToken.Token, CancellationToken.None).ConfigureAwait(false);
                 //assert
+                readAuthenticationToken.EmailAddress.Should().BeEquivalentTo(email);
                 readAuthenticationToken.Token.Should().BeEquivalentTo(authenticationToken.Token);
                 readAuthenticationToken.Expiry.Should().BeCloseTo(authenticationToken.Expiry);
                 readAuthenticationToken.ReferenceNumber.Should().Be(authenticationToken.ReferenceNumber);
-                trans.Dispose();
             }
         }
 

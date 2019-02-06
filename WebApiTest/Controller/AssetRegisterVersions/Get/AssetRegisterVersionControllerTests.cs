@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bogus;
 using FluentAssertions;
+using HomesEngland.Gateway.Notifications;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
 using HomesEngland.UseCase.ImportAssets;
@@ -28,15 +29,20 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Get
         {
             _mockUseCase = new Mock<IGetAssetRegisterVersionsUseCase>();
             _mockImportAssetsUseCase = new Mock<IImportAssetsUseCase>();
+            Mock<IAssetRegisterUploadProcessedNotifier> mockNotifier =
+                new Mock<IAssetRegisterUploadProcessedNotifier>();
             _textSplitter = new TextSplitter();
-            _classUnderTest = new AssetRegisterVersionController(_mockUseCase.Object,_mockImportAssetsUseCase.Object,_textSplitter);
+            _classUnderTest =
+                new AssetRegisterVersionController(_mockUseCase.Object, _mockImportAssetsUseCase.Object, _textSplitter,
+                    mockNotifier.Object);
         }
 
         [Test]
         public async Task GivenValidRequest_ThenReturnsGetAssetResponse()
         {
             //arrange
-            _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<GetAssetRegisterVersionsRequest>(), It.IsAny<CancellationToken>()))
+            _mockUseCase.Setup(s =>
+                    s.ExecuteAsync(It.IsAny<GetAssetRegisterVersionsRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetAssetRegisterVersionsResponse());
             var request = new GetAssetRegisterVersionsRequest();
             //act
@@ -53,10 +59,11 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Get
             {
                 Id = Faker.GlobalUniqueIndex
             };
-            _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<GetAssetRegisterVersionsRequest>(), It.IsAny<CancellationToken>()))
+            _mockUseCase.Setup(s =>
+                    s.ExecuteAsync(It.IsAny<GetAssetRegisterVersionsRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetAssetRegisterVersionsResponse
                 {
-                    AssetRegisterVersions = new List<AssetRegisterVersionOutputModel> { assetOutputModel }
+                    AssetRegisterVersions = new List<AssetRegisterVersionOutputModel> {assetOutputModel}
                 });
             _classUnderTest.ControllerContext = new ControllerContext
             {
@@ -88,10 +95,11 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Get
             {
                 Id = Faker.GlobalUniqueIndex
             };
-            _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<GetAssetRegisterVersionsRequest>(), It.IsAny<CancellationToken>()))
+            _mockUseCase.Setup(s =>
+                    s.ExecuteAsync(It.IsAny<GetAssetRegisterVersionsRequest>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetAssetRegisterVersionsResponse
                 {
-                    AssetRegisterVersions = new List<AssetRegisterVersionOutputModel> { assetOutputModel }
+                    AssetRegisterVersions = new List<AssetRegisterVersionOutputModel> {assetOutputModel}
                 });
             _classUnderTest.ControllerContext = new ControllerContext
             {
@@ -119,7 +127,7 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Get
         [TestCase(null, null)]
         [TestCase(-1, 1)]
         [TestCase(1, -1)]
-        public void GivenInvalidRequest_ThenIsInvalid(int? page,int? pageSize)
+        public void GivenInvalidRequest_ThenIsInvalid(int? page, int? pageSize)
         {
             var apiRequest = new GetAssetRegisterVersionsRequest
             {
@@ -143,6 +151,5 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Get
 
             apiRequest.IsValid().Should().BeTrue();
         }
-
     }
 }

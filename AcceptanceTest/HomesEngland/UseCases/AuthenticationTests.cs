@@ -1,15 +1,20 @@
 ﻿using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using System.Web;
 using FluentAssertions;
 using FluentSim;
+using HomesEngland.Domain;
 using HomesEngland.UseCase.AuthenticateUser;
 using HomesEngland.UseCase.AuthenticateUser.Models;
 using HomesEngland.UseCase.GetAccessToken;
 using HomesEngland.UseCase.GetAccessToken.Models;
 using Main;
+using Microsoft.IdentityModel.Tokens;
 using NUnit.Framework;
 
 namespace AssetRegisterTests.HomesEngland.UseCases
@@ -19,6 +24,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases
     {
         private readonly IAuthenticateUser _authenticateUser;
         private readonly IGetAccessToken _getAccessToken;
+        private const string HmacSecret = "super duper mega secret key";
 
         public AuthenticationTests()
         {
@@ -56,7 +62,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases
             Environment.SetEnvironmentVariable("GOV_NOTIFY_URL", "http://localhost:7654/");
             Environment.SetEnvironmentVariable("GOV_NOTIFY_API_KEY", BuildValidGovNotifyApiKeyFromHexFragment("1111"));
             Environment.SetEnvironmentVariable("EMAIL_WHITELIST", "test@example.com");
-            Environment.SetEnvironmentVariable("HmacSecret", "super duper mega secret key");
+            Environment.SetEnvironmentVariable("HmacSecret", HmacSecret);
         }
 
         [Test]
@@ -87,9 +93,11 @@ namespace AssetRegisterTests.HomesEngland.UseCases
 
                 GetAccessTokenResponse response =
                     await _getAccessToken.ExecuteAsync(tokenRequest, CancellationToken.None);
+                string tokenEmail = GetEmailFromAccessToken(response.AccessToken);
 
                 response.Should().NotBeNull();
                 response.AccessToken.Should().NotBeNull();
+                tokenEmail.Should().BeEquivalentTo("test@example.com");
             }
         }
 
@@ -107,7 +115,8 @@ namespace AssetRegisterTests.HomesEngland.UseCases
                 };
 
                 await _getAccessToken.ExecuteAsync(tokenRequest, CancellationToken.None);
-                var response = await _getAccessToken.ExecuteAsync(tokenRequest, CancellationToken.None);
+                GetAccessTokenResponse response =
+                    await _getAccessToken.ExecuteAsync(tokenRequest, CancellationToken.None);
 
                 response.Should().NotBeNull();
                 response.Authorised.Should().BeFalse();
@@ -139,6 +148,12 @@ namespace AssetRegisterTests.HomesEngland.UseCases
             Uri accessUri = new Uri(notifyRequest.personalisation.access_url);
 
             return HttpUtility.ParseQueryString(accessUri.Query).Get("token");
+        }
+
+        private static string GetEmailFromAccessToken(string token)
+        {
+            JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+            return handler.ReadJwtToken(token).Claims.First(claim => claim.Type == "email").Value;
         }
     }
 }
