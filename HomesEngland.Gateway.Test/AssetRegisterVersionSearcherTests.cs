@@ -143,9 +143,9 @@ namespace HomesEngland.Gateway.Test
 
                 var response = await _classUnderTest.Search(assetQuery, CancellationToken.None);
 
-                response.NumberOfPages.Should().Be(expectedNumberOfPages);
-
                 trans.Dispose();
+
+                response.NumberOfPages.Should().Be(expectedNumberOfPages);
             }
         }
     }
