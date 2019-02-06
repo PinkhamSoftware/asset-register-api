@@ -97,7 +97,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases
 
                 response.Should().NotBeNull();
                 response.AccessToken.Should().NotBeNull();
-                tokenEmail.Should().BeEquivalentTo("test@test.com");
+                tokenEmail.Should().BeEquivalentTo("test@example.com");
             }
         }
 

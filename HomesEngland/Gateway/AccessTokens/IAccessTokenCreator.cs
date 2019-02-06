@@ -6,6 +6,6 @@ namespace HomesEngland.Gateway.AccessTokens
 {
     public interface IAccessTokenCreator
     {
-        Task<IAccessToken> CreateAsync(CancellationToken cancellationToken);
+        Task<IAccessToken> CreateAsync(string email, CancellationToken cancellationToken);
     }
 }
