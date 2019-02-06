@@ -3,6 +3,7 @@ using DependencyInjection;
 using HomesEngland.BackgroundProcessing;
 using HomesEngland.Domain;
 using HomesEngland.Domain.Factory;
+using HomesEngland.Domain.Impl;
 using HomesEngland.Gateway;
 using HomesEngland.Gateway.AccessTokens;
 using HomesEngland.Gateway.AssetRegisterVersions;
@@ -94,6 +95,7 @@ namespace Main
             RegisterExportedDependency<IOneTimeAuthenticationTokenDeleter>(() =>
                 new EFAuthenticationTokenGateway(databaseUrl));
             RegisterExportedDependency<IOneTimeLinkNotifier, GovNotifyNotificationsGateway>();
+            RegisterExportedDependency<IAssetRegisterUploadProcessedNotifier, GovNotifyNotificationsGateway>();
             RegisterExportedDependency<IAccessTokenCreator, JwtAccessTokenGateway>();
             RegisterExportedDependency<IGetAccessToken, GetAccessTokenUseCase>();
 
@@ -117,8 +119,9 @@ namespace Main
             RegisterExportedDependency<ICalculateAssetAggregatesUseCase, CalculateAssetAggregatesUseCase>();
             RegisterExportedDependency<IAssetAggregator>(() => new EFAssetGateway(databaseUrl));
 
-            RegisterExportedDependency<ICreateAssetRegisterVersionUseCase,CreateAssetRegisterVersionUseCase>();
-            RegisterExportedDependency<IAssetRegisterVersionCreator>(()=> new EFAssetRegisterVersionGateway(databaseUrl));
+            RegisterExportedDependency<ICreateAssetRegisterVersionUseCase, CreateAssetRegisterVersionUseCase>();
+            RegisterExportedDependency<IAssetRegisterVersionCreator>(() =>
+                new EFAssetRegisterVersionGateway(databaseUrl));
             RegisterExportedDependency<IGetAssetRegisterVersionsUseCase, GetAssetRegisterVersionsUseCase>();
             RegisterExportedDependency<IAssetRegisterVersionSearcher>(() => new EFAssetRegisterVersionGateway(databaseUrl));
 

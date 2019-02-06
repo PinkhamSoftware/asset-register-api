@@ -32,7 +32,7 @@ namespace HomesEngland.UseCase.GetAccessToken.Impl
                 return UnauthorisedResponse();
             }
 
-            IAccessToken accessToken = await _accessTokenCreator.CreateAsync(cancellationToken);
+            IAccessToken accessToken = await _accessTokenCreator.CreateAsync(token.EmailAddress, cancellationToken);
 
             await _tokenDeleter.DeleteAsync(tokenRequest.Token, cancellationToken);
 

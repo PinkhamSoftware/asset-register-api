@@ -13,17 +13,20 @@ namespace HomesEngland.Gateway
         [Column("id")]
         public int Id { get; set; }
 
-        [Column("referencenumber")]
+        [Column("referencenumber")] 
         public string ReferenceNumber { get; set; }
-        [Column("token")]
+        [Column("token")] 
         public string Token { get; set; }
-        [Column("expiry")]
+        [Column("expiry")] 
         public DateTime Expiry { get; set; }
-
-        [Column("modifieddatetime")]
+        [Column("emailaddress")] 
+        public string EmailAddress { get; set; }
+        [Column("modifieddatetime")] 
         public DateTime ModifiedDateTime { get; set; }
 
-        public AuthenticationTokenEntity() { }
+        public AuthenticationTokenEntity()
+        {
+        }
 
         public AuthenticationTokenEntity(IAuthenticationToken authenticationToken)
         {
@@ -34,6 +37,7 @@ namespace HomesEngland.Gateway
             Expiry = authenticationToken.Expiry;
             Token = authenticationToken.Token;
             ModifiedDateTime = authenticationToken.Expiry;
+            EmailAddress = authenticationToken.EmailAddress;
         }
     }
 }

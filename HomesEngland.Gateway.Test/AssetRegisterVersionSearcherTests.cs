@@ -93,9 +93,10 @@ namespace HomesEngland.Gateway.Test
 
                 var response = await _classUnderTest.Search(assetQuery, CancellationToken.None);
 
+                trans.Dispose();
+
                 response.Results.Count.Should().Be(expectedNumberOfAssets);
 
-                trans.Dispose();
             }
         }
 

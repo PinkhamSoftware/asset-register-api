@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,8 +30,9 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
                 return UnauthorisedResponse();
             }
 
-            var createdToken = await CreateAuthenticationTokenForEmail(cancellationToken).ConfigureAwait(false);
-            
+            IAuthenticationToken createdToken =
+                await CreateAuthenticationTokenForEmail(requests, cancellationToken).ConfigureAwait(false);
+
             await SendOneTimeLink(requests.Email, createdToken, requests.Url, cancellationToken).ConfigureAwait(false);
 
             return AuthorisedResponse();
@@ -44,7 +46,8 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
             };
         }
 
-        private async Task SendOneTimeLink(string email, IAuthenticationToken createdToken, string originUrl, CancellationToken cancellationToken)
+        private async Task SendOneTimeLink(string email, IAuthenticationToken createdToken, string originUrl,
+            CancellationToken cancellationToken)
         {
             await _oneTimeLinkNotifier.SendOneTimeLinkAsync(new OneTimeLinkNotification
             {
@@ -54,15 +57,18 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
             }, cancellationToken).ConfigureAwait(false);
         }
 
-        private async Task<IAuthenticationToken> CreateAuthenticationTokenForEmail(CancellationToken cancellationToken)
+        private async Task<IAuthenticationToken> CreateAuthenticationTokenForEmail(AuthenticateUserRequest request,
+            CancellationToken cancellationToken)
         {
-            var authenticationToken = new AuthenticationToken
+            AuthenticationToken authenticationToken = new AuthenticationToken
             {
+                EmailAddress = request.Email,
                 Expiry = DateTime.UtcNow.AddHours(8),
                 Token = Guid.NewGuid().ToString(),
                 ReferenceNumber = Guid.NewGuid().ToString()
             };
-            IAuthenticationToken createdToken = await _authenticationTokenCreator.CreateAsync(authenticationToken, cancellationToken).ConfigureAwait(false);
+            IAuthenticationToken createdToken = await _authenticationTokenCreator
+                .CreateAsync(authenticationToken, cancellationToken).ConfigureAwait(false);
             return createdToken;
         }
 
@@ -76,7 +82,8 @@ namespace HomesEngland.UseCase.AuthenticateUser.Impl
 
         private bool UserIsAuthorised(string email)
         {
-            var whitelist = System.Environment.GetEnvironmentVariable("EMAIL_WHITELIST").Split(";").Select(s=> s.ToLower()).ToList();
+            List<string> whitelist = Environment.GetEnvironmentVariable("EMAIL_WHITELIST").Split(";")
+                .Select(s => s.ToLower()).ToList();
             return whitelist.Contains(email.ToLower());
         }
     }
