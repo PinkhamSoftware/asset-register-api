@@ -41,7 +41,8 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
             _textSplitter = new TextSplitter();
             _assetRegisterUploadProcessedNotifier = new Mock<IAssetRegisterUploadProcessedNotifier>();
             _backgroundProcessor = new BackgroundProcessor();
-            _classUnderTest = new AssetRegisterVersionController(_mockGetUseCase.Object, _mockUseCase.Object, _textSplitter, _assetRegisterUploadProcessedNotifier.Object,_backgroundProcessor);
+            _classUnderTest = new AssetRegisterVersionController(_mockGetUseCase.Object, _mockUseCase.Object,
+                _textSplitter, _assetRegisterUploadProcessedNotifier.Object, _backgroundProcessor);
         }
 
         [TestCase(1, "asset-register-1-rows.csv")]
@@ -79,6 +80,7 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
             var formFiles = await GetFormFiles(fileValue);
             //act
             await _classUnderTest.Post(formFiles);
+            await Task.Delay(100);
             //asset
             _assetRegisterUploadProcessedNotifier.Verify(o =>
                 o.SendUploadProcessedNotification(It.Is<IUploadProcessedNotification>(n => n.Email.Equals(email)),
@@ -88,7 +90,7 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
         [TestCase(1, "asset-register-1-rows.csv")]
         [TestCase(5, "asset-register-5-rows.csv")]
         [TestCase(10, "asset-register-10-rows.csv")]
-        public async Task GivenValidFile_WhenUploading_ThenOutputCSV(int expectedCount, string fileValue)
+        public async Task GivenValidFile_WhenUploading_ThenReturn200(int expectedCount, string fileValue)
         {
             //arrange
             _mockUseCase.Setup(s => s.ExecuteAsync(It.IsAny<ImportAssetsRequest>(), It.IsAny<CancellationToken>()))
@@ -102,15 +104,8 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Post
                         }
                     }
                 });
-            _classUnderTest.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            };
-            _classUnderTest.ControllerContext.HttpContext.Request.Headers.Add(
-                new KeyValuePair<string, StringValues>("accept", "text/csv"));
-            _classUnderTest.ControllerContext.HttpContext.Request.Headers.Add(
-                new KeyValuePair<string, StringValues>("Authorization",
-                    $"Bearer {CreateAuthTokenForEmail("stub@stub.com")}"));
+
+            AddTokenToHeaderForEmail("stub@stub.com");
 
 
             var formFiles = await GetFormFiles(fileValue);
