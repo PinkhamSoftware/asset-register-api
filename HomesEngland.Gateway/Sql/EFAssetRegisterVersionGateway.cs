@@ -42,7 +42,7 @@ namespace HomesEngland.Gateway.Sql
                 context.SaveChanges();
                 Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Finish Save Changes async");
                 Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Start Marshall Data");
-                var result = new AssetRegisterVersion
+                IAssetRegisterVersion result = new AssetRegisterVersion
                 {
                     Id = assetRegisterVersionEntity.Id,
                     ModifiedDateTime = assetRegisterVersionEntity.ModifiedDateTime,
