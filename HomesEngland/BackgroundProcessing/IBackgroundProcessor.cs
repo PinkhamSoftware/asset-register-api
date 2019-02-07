@@ -7,6 +7,5 @@ namespace HomesEngland.BackgroundProcessing
     public interface IBackgroundProcessor:IHostedService
     {
         Task QueueBackgroundTask(Action workItem);
-        int GetQueuedBackgroundTaskCount();
     }
 }
