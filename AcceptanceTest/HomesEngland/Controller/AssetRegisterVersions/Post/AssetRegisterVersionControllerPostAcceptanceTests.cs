@@ -86,7 +86,7 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
                 var result = response as StatusCodeResult;
                 result.Should().NotBeNull();
                 result.StatusCode.Should().Be(200);
-                await Task.Delay(2550+ (expectedCount * 150));
+                await Task.Delay(2550+ expectedCount * 150);
                 _assetRegisterContext.Assets.Select(s => s.Id).Count().Should().Be(expectedCount);
             }
         }
@@ -105,6 +105,7 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
                 AddTokenToHeaderForEmail(email);
 
                 await _classUnderTest.Post(formFiles);
+                await Task.Delay(2550+ expectedCount * 150);
 
                 _govNotifySimulator.ReceivedRequests.Count.Should().Be(1);
 

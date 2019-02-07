@@ -37,7 +37,8 @@ namespace WebApi.Controllers
 
         public AssetRegisterVersionController(IGetAssetRegisterVersionsUseCase registerVersionsUseCase,
             IImportAssetsUseCase importAssetsUseCase, ITextSplitter textSplitter,
-            IAssetRegisterUploadProcessedNotifier assetRegisterUploadProcessedNotifier, IBackgroundProcessor backgroundProcessor)
+            IAssetRegisterUploadProcessedNotifier assetRegisterUploadProcessedNotifier,
+            IBackgroundProcessor backgroundProcessor)
         {
             _getAssetRegisterVersionsUseCase = registerVersionsUseCase;
             _importAssetsUseCase = importAssetsUseCase;
@@ -71,17 +72,19 @@ namespace WebApi.Controllers
 
             var request = await CreateSaveAssetRegisterFileRequest(files);
 
-            var response = await _importAssetsUseCase.ExecuteAsync(request, this.GetCancellationToken())
-                .ConfigureAwait(false);
-
-            await _assetRegisterUploadProcessedNotifier.SendUploadProcessedNotification(new UploadProcessedNotification
-                {
-                    Email = email,
-                    UploadSuccessfullyProcessed = true
-                },
-                this.GetCancellationToken());
             await _backgroundProcessor.QueueBackgroundTask(
-                async ()=> await _importAssetsUseCase.ExecuteAsync(request, this.GetCancellationToken()).ConfigureAwait(false));
+                async () =>
+                {
+                    await _importAssetsUseCase.ExecuteAsync(request, this.GetCancellationToken()).ConfigureAwait(false);
+                    await _assetRegisterUploadProcessedNotifier.SendUploadProcessedNotification(
+                        new UploadProcessedNotification
+                        {
+                            Email = email,
+                            UploadSuccessfullyProcessed = true
+                        },
+                        this.GetCancellationToken());
+                }
+            );
 
             return Ok();
         }
