@@ -73,16 +73,16 @@ namespace WebApi.Controllers
             var request = await CreateSaveAssetRegisterFileRequest(files);
 
             await _backgroundProcessor.QueueBackgroundTask(
-                async () =>
+                async ()=>
                 {
-                    await _importAssetsUseCase.ExecuteAsync(request, this.GetCancellationToken()).ConfigureAwait(false);
+                    await _importAssetsUseCase.ExecuteAsync(request, _backgroundProcessor.GetCancellationToken()).ConfigureAwait(false);
                     await _assetRegisterUploadProcessedNotifier.SendUploadProcessedNotification(
                         new UploadProcessedNotification
                         {
                             Email = email,
                             UploadSuccessfullyProcessed = true
                         },
-                        this.GetCancellationToken());
+                        _backgroundProcessor.GetCancellationToken());
                 }
             );
 
@@ -101,7 +101,7 @@ namespace WebApi.Controllers
         private async Task<ImportAssetsRequest> CreateSaveAssetRegisterFileRequest(IList<IFormFile> files)
         {
             var memoryStream = new MemoryStream();
-            await files[0].CopyToAsync(memoryStream, this.GetCancellationToken()).ConfigureAwait(false);
+            await files[0].CopyToAsync(memoryStream, _backgroundProcessor.GetCancellationToken()).ConfigureAwait(false);
             var text = Encoding.UTF8.GetString(memoryStream.GetBuffer());
 
             var assetLines = _textSplitter.SplitIntoLines(text);

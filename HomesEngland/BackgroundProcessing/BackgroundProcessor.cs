@@ -49,17 +49,16 @@ namespace HomesEngland.BackgroundProcessing
 
         public Task QueueBackgroundTask(Action workItem)
         {
-            Task task = new Task(workItem, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning)
-                ;
+            Task task = new Task(workItem, _cancellationTokenSource.Token, TaskCreationOptions.LongRunning);
             Tasks.Add(task);
             task.ContinueWith(task1 => Tasks.Remove(task1));
             task.Start();
             return Task.CompletedTask;
         }
 
-        public int GetQueuedBackgroundTaskCount()
+        public CancellationToken GetCancellationToken()
         {
-            return Tasks.Count;
+            return _cancellationTokenSource.Token;
         }
     }
 }

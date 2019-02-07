@@ -19,7 +19,7 @@ namespace HomesEngland.Gateway.Sql
             _databaseUrl = databaseUrl;
         }
 
-        public Task<IAssetRegisterVersion> CreateAsync(IAssetRegisterVersion assetRegisterVersion, CancellationToken cancellationToken)
+        public async Task<IAssetRegisterVersion> CreateAsync(IAssetRegisterVersion assetRegisterVersion, CancellationToken cancellationToken)
         {
             AssetRegisterVersionEntity assetRegisterVersionEntity = new AssetRegisterVersionEntity(assetRegisterVersion);
 
@@ -36,10 +36,10 @@ namespace HomesEngland.Gateway.Sql
             using (var context = new AssetRegisterContext(_databaseUrl))
             {
                 Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Start Add async");
-                context.AssetRegisterVersions.Add(assetRegisterVersionEntity);
+                await context.AssetRegisterVersions.AddAsync(assetRegisterVersionEntity).ConfigureAwait(false);
                 Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Finish Add async");
                 Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Start Save Changes async");
-                context.SaveChanges();
+                await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
                 Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Finish Save Changes async");
                 Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Start Marshall Data");
                 IAssetRegisterVersion result = new AssetRegisterVersion
@@ -49,7 +49,7 @@ namespace HomesEngland.Gateway.Sql
                     Assets = assetRegisterVersionEntity.Assets?.Select(s=> new Asset(s) as IAsset).ToList()
                 };
                 Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Finish Marshall Data");
-                return Task.FromResult(result);
+                return result;
             }
         }
 
