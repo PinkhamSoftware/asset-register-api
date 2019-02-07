@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Bogus;
 using FluentAssertions;
 using HomesEngland.Gateway.Notifications;
+using HomesEngland.BackgroundProcessing;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
 using HomesEngland.UseCase.ImportAssets;
@@ -24,17 +25,16 @@ namespace WebApiTest.Controller.AssetRegisterVersions.Get
         private readonly Mock<IGetAssetRegisterVersionsUseCase> _mockUseCase;
         private readonly Mock<IImportAssetsUseCase> _mockImportAssetsUseCase;
         private readonly ITextSplitter _textSplitter;
+        private readonly Mock<BackgroundProcessor> _mockBackgroundProcessor;
 
         public AssetRegisterVersionControllerTests()
         {
             _mockUseCase = new Mock<IGetAssetRegisterVersionsUseCase>();
             _mockImportAssetsUseCase = new Mock<IImportAssetsUseCase>();
-            Mock<IAssetRegisterUploadProcessedNotifier> mockNotifier =
-                new Mock<IAssetRegisterUploadProcessedNotifier>();
+            Mock<IAssetRegisterUploadProcessedNotifier> mockNotifier = new Mock<IAssetRegisterUploadProcessedNotifier>();
+            _mockBackgroundProcessor = new Mock<BackgroundProcessor>();
             _textSplitter = new TextSplitter();
-            _classUnderTest =
-                new AssetRegisterVersionController(_mockUseCase.Object, _mockImportAssetsUseCase.Object, _textSplitter,
-                    mockNotifier.Object);
+            _classUnderTest = new AssetRegisterVersionController(_mockUseCase.Object, _mockImportAssetsUseCase.Object, _textSplitter,mockNotifier.Object, _mockBackgroundProcessor.Object);
         }
 
         [Test]

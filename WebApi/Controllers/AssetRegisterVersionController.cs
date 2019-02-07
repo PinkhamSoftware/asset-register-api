@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain.Impl;
 using HomesEngland.Gateway.Notifications;
+using HomesEngland.BackgroundProcessing;
 using HomesEngland.UseCase.GetAsset.Models;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
 using HomesEngland.UseCase.GetAssetRegisterVersions.Models;
@@ -32,15 +33,18 @@ namespace WebApi.Controllers
         private readonly IImportAssetsUseCase _importAssetsUseCase;
         private readonly ITextSplitter _textSplitter;
         private readonly IAssetRegisterUploadProcessedNotifier _assetRegisterUploadProcessedNotifier;
+        private readonly IBackgroundProcessor _backgroundProcessor;
 
         public AssetRegisterVersionController(IGetAssetRegisterVersionsUseCase registerVersionsUseCase,
             IImportAssetsUseCase importAssetsUseCase, ITextSplitter textSplitter,
-            IAssetRegisterUploadProcessedNotifier assetRegisterUploadProcessedNotifier)
+            IAssetRegisterUploadProcessedNotifier assetRegisterUploadProcessedNotifier,
+            IBackgroundProcessor backgroundProcessor)
         {
             _getAssetRegisterVersionsUseCase = registerVersionsUseCase;
             _importAssetsUseCase = importAssetsUseCase;
             _textSplitter = textSplitter;
             _assetRegisterUploadProcessedNotifier = assetRegisterUploadProcessedNotifier;
+            _backgroundProcessor = backgroundProcessor;
         }
 
         [HttpGet]
@@ -68,17 +72,21 @@ namespace WebApi.Controllers
 
             var request = await CreateSaveAssetRegisterFileRequest(files);
 
-            var response = await _importAssetsUseCase.ExecuteAsync(request, this.GetCancellationToken())
-                .ConfigureAwait(false);
-
-            await _assetRegisterUploadProcessedNotifier.SendUploadProcessedNotification(new UploadProcessedNotification
+            await _backgroundProcessor.QueueBackgroundTask(
+                async () =>
                 {
-                    Email = email,
-                    UploadSuccessfullyProcessed = true
-                },
-                this.GetCancellationToken());
+                    await _importAssetsUseCase.ExecuteAsync(request, this.GetCancellationToken()).ConfigureAwait(false);
+                    await _assetRegisterUploadProcessedNotifier.SendUploadProcessedNotification(
+                        new UploadProcessedNotification
+                        {
+                            Email = email,
+                            UploadSuccessfullyProcessed = true
+                        },
+                        this.GetCancellationToken());
+                }
+            );
 
-            return this.StandardiseResponse<ImportAssetsResponse, AssetOutputModel>(response);
+            return Ok();
         }
 
         private static string GetEmailFromAuthorizationHeader(StringValues authorisationHeader)
@@ -95,6 +103,7 @@ namespace WebApi.Controllers
             var memoryStream = new MemoryStream();
             await files[0].CopyToAsync(memoryStream, this.GetCancellationToken()).ConfigureAwait(false);
             var text = Encoding.UTF8.GetString(memoryStream.GetBuffer());
+
             var assetLines = _textSplitter.SplitIntoLines(text);
             var importAssetsRequest = new ImportAssetsRequest
             {

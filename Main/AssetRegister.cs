@@ -1,7 +1,9 @@
 ﻿using System.Data;
 using DependencyInjection;
+using HomesEngland.BackgroundProcessing;
 using HomesEngland.Domain;
 using HomesEngland.Domain.Factory;
+using HomesEngland.Domain.Impl;
 using HomesEngland.Gateway;
 using HomesEngland.Gateway.AccessTokens;
 using HomesEngland.Gateway.AssetRegisterVersions;
@@ -54,7 +56,14 @@ namespace Main
 
             ExportTypeDependencies((type, provider) => serviceCollection.AddTransient(type, provider));
 
+            ExportSingletonDependencies((type, provider) => serviceCollection.AddTransient(type, _ => provider()));
+
+            ExportSingletonTypeDependencies((type, provider) => serviceCollection.AddTransient(type, provider));
+
             serviceCollection.AddEntityFrameworkNpgsql().AddDbContext<AssetRegisterContext>();
+
+            
+            serviceCollection.AddHostedService<BackgroundProcessor>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
         }
@@ -114,8 +123,9 @@ namespace Main
             RegisterExportedDependency<IAssetRegisterVersionCreator>(() =>
                 new EFAssetRegisterVersionGateway(databaseUrl));
             RegisterExportedDependency<IGetAssetRegisterVersionsUseCase, GetAssetRegisterVersionsUseCase>();
-            RegisterExportedDependency<IAssetRegisterVersionSearcher>(() =>
-                new EFAssetRegisterVersionGateway(databaseUrl));
+            RegisterExportedDependency<IAssetRegisterVersionSearcher>(() => new EFAssetRegisterVersionGateway(databaseUrl));
+
+            RegisterExportedSingletonDependency<IBackgroundProcessor, BackgroundProcessor>();
         }
 
         public override T Get<T>()

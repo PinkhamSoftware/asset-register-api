@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using HomesEngland.BackgroundProcessing;
 using Infrastructure.Documentation;
 using Main;
 using Microsoft.AspNetCore.Builder;
@@ -65,6 +66,10 @@ namespace WebApi
 
             assetRegister.ExportTypeDependencies((type, provider) => services.AddTransient(type, provider));
 
+            assetRegister.ExportSingletonDependencies((type, provider) => services.AddSingleton(type, _ => provider()));
+
+            assetRegister.ExportSingletonTypeDependencies((type, provider) => services.AddSingleton(type, provider));
+
             services.ConfigureDocumentation(_apiName);
 
 
@@ -75,6 +80,8 @@ namespace WebApi
             AssetRegisterContext assetRegisterContext =
                 services.BuildServiceProvider().GetService<AssetRegisterContext>();
             assetRegisterContext.Database.Migrate();
+
+            services.AddHostedService<BackgroundProcessor>();
         }
 
         private static CsvFormatterOptions GetCsvOptions()
