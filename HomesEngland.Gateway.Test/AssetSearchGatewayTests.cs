@@ -509,5 +509,41 @@ namespace HomesEngland.Gateway.Test
                 trans.Dispose();
             }
         }
+
+        [TestCase("Meow", 1, 3, 3)]
+        [TestCase("Woof", 2, 3, 2)]
+        [TestCase("Moo", 3, 3, 1)]
+        [TestCase("Cluck", 4, 3, 1)]
+        public async Task GivenMultipleAssetsHaveBeenCreated_WhenWeSearchRegionWithPageSize_ReturnCorrectNumberOfPages(string region, int pageSize, int numberOfAssets, int expectedNumberOfPages)
+        {
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var assets = new List<IAsset>();
+                for (var i = 0; i < numberOfAssets; i++)
+                {
+
+                    var entity = TestData.Domain.GenerateAsset();
+                    entity.ImsOldRegion = region;
+                    entity.LocationLaRegionName = region;
+                    assets.Add(entity);
+                }
+
+                var assetRegisterVersion = await CreateAggregatedAssets(assets)
+                    .ConfigureAwait(false);
+
+                var assetQuery = new AssetPagedSearchQuery
+                {
+                    Region = region,
+                    PageSize = pageSize,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
+                };
+
+                var response = await _classUnderTest.Search(assetQuery, CancellationToken.None);
+
+                response.NumberOfPages.Should().Be(expectedNumberOfPages);
+
+                trans.Dispose();
+            }
+        }
     }
 }

@@ -85,6 +85,13 @@ namespace HomesEngland.Gateway.Sql
                     EF.Functions.Like(w.Address.ToLower(), $"%{searchRequest.Address}%".ToLower()));
             }
 
+            if(!string.IsNullOrEmpty(searchRequest.Region) && !string.IsNullOrWhiteSpace(searchRequest.Region))
+            {
+                queryable = queryable.Where(w =>
+                    EF.Functions.Like(w.LocationLaRegionName.ToLower(), $"%{searchRequest.Region}%".ToLower()) || 
+                    EF.Functions.Like(w.ImsOldRegion.ToLower(), $"%{searchRequest.Region}%".ToLower()));
+            }
+
             if (searchRequest.SchemeId.HasValue && searchRequest?.SchemeId.Value > 0)
             {
                 queryable = queryable.Where(w => w.SchemeId.HasValue && w.SchemeId == searchRequest.SchemeId.Value);

@@ -7,5 +7,6 @@ namespace HomesEngland.UseCase.CalculateAssetAggregates.Models
         public int? SchemeId { get; set; }
         public string Address { get; set; }
         public int? AssetRegisterVersionId { get; set; }
+        public string Region { get; set; }
     }
 }

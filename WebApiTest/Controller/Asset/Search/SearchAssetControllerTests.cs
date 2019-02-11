@@ -79,18 +79,19 @@ namespace WebApiTest.Controller.Asset.Search
             result.Value.Should().BeOfType<List<AssetOutputModel>>();
         }
 
-        [TestCase(null, null     , 1, 1)]
-        [TestCase(0   , null     , 1, 1)]
-        [TestCase(-1  , null     , 1, 1)]
-        [TestCase(null, ""       , 1, 1)]
-        [TestCase(null, " "      , 1, 1)]
-        [TestCase(1   , "address",-1, 1)]
-        [TestCase(1   , "address", 0, 1)]
-        [TestCase(1   , "address", 1,-1)]
-        [TestCase(1   , "address", 1, 0)]
-        
+        [TestCase(null, null     , 1, 1,"Region")]
+        [TestCase(0   , null     , 1, 1,"Region")]
+        [TestCase(-1  , null     , 1, 1,"Region")]
+        [TestCase(null, ""       , 1, 1,"Region")]
+        [TestCase(null, " "      , 1, 1,"Region")]
+        [TestCase(1   , "address",-1, 1,"Region")]
+        [TestCase(1   , "address", 0, 1,"Region")]
+        [TestCase(1   , "address", 1,-1,"Region")]
+        [TestCase(1   , "address", 1, 0,"Region")]
+        [TestCase(null, null, 1, 1, "Region")]
+
         public void GivenInvalidRequest_ThenIsInvalid(int? schemeId, string address, int? page,
-            int? pageSize)
+            int? pageSize, string region)
         {
             SearchAssetApiRequest apiRequest = new SearchAssetApiRequest
             {
@@ -98,32 +99,35 @@ namespace WebApiTest.Controller.Asset.Search
                 Address = address,
                 Page = page,
                 PageSize = pageSize,
+                Region = region
             };
             
             apiRequest.IsValid().Should().BeFalse();
         }
         
-        [TestCase(1   , null     ,    1, 1   )]
-        [TestCase(2   , null     ,    1, 1   )]
-        [TestCase(3   , null     ,    1, 1   )]
-        [TestCase(null, "d"      ,    1, 1   )]
-        [TestCase(null, "e"      ,    1, 1   )]
-        [TestCase(null, "t"      ,    1, 1   )]
-        [TestCase(1   , "a"      ,    1, 1   )]
-        [TestCase(2   , "b"      ,    2, 3   )]
-        [TestCase(3   , "c"      ,    3, 5   )]
-        [TestCase(1   , "address", null, 1   )]
-        [TestCase(1   , "address",    1, null)]
-        [TestCase(1   , "address", null, null)]
+        [TestCase(1   , null     ,    1, 1   ,"Region")]
+        [TestCase(2   , null     ,    1, 1   ,"Region")]
+        [TestCase(3   , null     ,    1, 1   ,"Region")]
+        [TestCase(null, "d"      ,    1, 1   ,"Region")]
+        [TestCase(null, "e"      ,    1, 1   ,"Region")]
+        [TestCase(null, "t"      ,    1, 1   ,"Region")]
+        [TestCase(1   , "a"      ,    1, 1   ,"Region")]
+        [TestCase(2   , "b"      ,    2, 3   ,"Region")]
+        [TestCase(3   , "c"      ,    3, 5   ,"Region")]
+        [TestCase(1   , "address", null, 1   ,"Region")]
+        [TestCase(1   , "address",    1, null,"Region")]
+        [TestCase(1   , "address", null, null,"Region")]
+        [TestCase(null, null, 1, 1, null)]
         public void GivenValidRequest_ThenIsValid(int? schemeId, string address, int? page,
-            int? pageSize)
+            int? pageSize, string region)
         {
             SearchAssetApiRequest apiRequest = new SearchAssetApiRequest
             {
                 SchemeId = schemeId,
                 Address = address,
                 Page = page,
-                PageSize = pageSize
+                PageSize = pageSize,
+                Region = region
             };
 
             apiRequest.IsValid().Should().BeTrue();
