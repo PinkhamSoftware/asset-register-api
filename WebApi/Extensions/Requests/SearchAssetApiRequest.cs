@@ -13,17 +13,12 @@ namespace WebApi.Extensions.Requests
 
         public bool IsValid()
         {
-            if (InvalidSchemeID())
+            if (AreAllFiltersNullEmptyOrWhiteSpace())
             {
                 return false;
             }
 
-            if (SchemeIsNullAndAddressIsEmpty() && IsRegionEmpty())
-            {
-                return false;
-            }
-
-                if (!ValidPage())
+            if (!ValidPage())
             {
                 return false;
             }
@@ -32,8 +27,6 @@ namespace WebApi.Extensions.Requests
             {
                 return false;
             }
-
-            
 
             return true;
         }
@@ -48,14 +41,9 @@ namespace WebApi.Extensions.Requests
             return Page == null || Page > 0;
         }
 
-        private bool InvalidSchemeID()
-        {
-            return SchemeIsNullAndAddressIsEmpty() || SchemeIdInvalidIndex();
-        }
-
         private bool SchemeIdInvalidIndex()
         {
-            return SchemeId != null && SchemeId <= 0;
+            return SchemeId == null || SchemeId <= 0;
         }
 
         private bool AssetRegisterVersionIdIsNull()
@@ -63,25 +51,29 @@ namespace WebApi.Extensions.Requests
             return AssetRegisterVersionId == null;
         }
 
-
         private bool AssetRegisterVersionIdInvalidIndex()
         {
             return AssetRegisterVersionId != null && AssetRegisterVersionId <= 0;
         }
 
-        private bool SchemeIsNullAndAddressIsEmpty()
+        private bool AreAllFiltersNullEmptyOrWhiteSpace()
         {
-            return SchemeId == null && IsEmptyAddress() ;
+            var isInvalidSchemeId =  SchemeIdInvalidIndex();
+            var isInvalidAddress = IsEmptyAddress();
+            var isInvalidRegion = IsRegionEmpty();
+            return isInvalidSchemeId && isInvalidAddress && isInvalidRegion;
         }
 
         private bool IsEmptyAddress()
         {
-            return (string.IsNullOrEmpty(Address) || string.IsNullOrWhiteSpace(Address));
+            var isAddressNullEmptyOrWhiteSpace = string.IsNullOrEmpty(Address) || string.IsNullOrWhiteSpace(Address);
+            return isAddressNullEmptyOrWhiteSpace;
         }
 
         private bool IsRegionEmpty()
         {
-            return (string.IsNullOrEmpty(Region) || string.IsNullOrWhiteSpace(Region));
+            var isNullOrEmptyOrWhiteSpace = string.IsNullOrEmpty(Region) || string.IsNullOrWhiteSpace(Region);
+            return isNullOrEmptyOrWhiteSpace;
         }
     }
 }
