@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomesEngland.Gateway.Sql
 {
-    public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator
+    public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator, IAssetRegionLister
     {
         private readonly string _databaseUrl; 
 
@@ -127,6 +127,19 @@ namespace HomesEngland.Gateway.Sql
                     MovementInAssetValue = assetValue - moneyPaidOut
                 };
                 return Task.FromResult(assetAggregates);
+            }
+        }
+
+        public Task<IList<AssetRegion>> ListRegionsAsync(CancellationToken cancellationToken)
+        {
+            using (var context = new AssetRegisterContext(_databaseUrl))
+            {
+                IList<AssetRegion> results = context.Assets.Select(s => new AssetRegion
+                {
+                    Name = s.LocationLaRegionName
+                }).Distinct().ToList();
+
+                return Task.FromResult(results);
             }
         }
     }
