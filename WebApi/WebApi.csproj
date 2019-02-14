@@ -30,8 +30,4 @@
     <ProjectReference Include="..\Main\Main.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\Search\Filters\" />
-  </ItemGroup>
-
 </Project>

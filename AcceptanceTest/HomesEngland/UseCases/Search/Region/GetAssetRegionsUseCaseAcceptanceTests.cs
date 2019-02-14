@@ -8,7 +8,6 @@ using HomesEngland.Gateway.Migrations;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.CreateAssetRegisterVersion;
 using HomesEngland.UseCase.GetAssetRegions;
-using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
 using Main;
 using Microsoft.EntityFrameworkCore;
