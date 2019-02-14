@@ -551,10 +551,11 @@ namespace HomesEngland.Gateway.Test
             }
         }
 
-        [TestCase("Region 123", "re ")]
+        [TestCase("Region 123", "re")]
         [TestCase("Region 123", "Reg")]
         [TestCase("Region 123", "Region 1")]
         [TestCase("Region 123", "egion 12")]
+        [TestCase("Region 123", "egion")]
         public async Task GivenMultiplesAssetsHaveBeenCreatedWithTheSameRegion_WhenWeSearch_ThenTheAssetsAreOrderedBySchemeIdDesc(string region, string searchRegion)
         {
             //arrange 
@@ -581,7 +582,7 @@ namespace HomesEngland.Gateway.Test
             }
         }
 
-        [TestCase("Region 123", "re ")]
+        [TestCase("Region 123", "re")]
         [TestCase("Region 123", "Reg")]
         [TestCase("Region 123", "Region 1")]
         [TestCase("Region 123", "egion 12")]
