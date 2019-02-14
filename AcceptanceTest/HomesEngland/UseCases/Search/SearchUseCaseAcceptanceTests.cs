@@ -4,17 +4,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using FluentAssertions;
-using HomesEngland.Domain;
-using HomesEngland.Gateway;
 using HomesEngland.Gateway.Migrations;
-using HomesEngland.UseCase.CreateAsset;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.CreateAssetRegisterVersion;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
 using Main;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using TestHelper;
 
@@ -161,7 +157,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
                 var list = new List<CreateAssetRequest>();
                 for (var i = 0; i < 15; i++)
                 {
-                    var createAssetRequest = CreateAsset(schemeId + i, address);
+                    var createAssetRequest = CreateAsset(schemeId + i, address, null);
                     list.Add(createAssetRequest);
                 }
 
@@ -186,13 +182,78 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             }
         }
 
-        private CreateAssetRequest CreateAsset(int? schemeId, string address)
+        [TestCase(1114, "Region 1")]
+        [TestCase(2224, "Region 2")]
+        [TestCase(3334, "Region 3")]
+        public async Task GivenMultiplePages_WhenWeSearchByRegionThatMatches_ThenWeReturnOnlyTheSelectedPage(int schemeId, string region)
+        {
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var list = new List<CreateAssetRequest>();
+                for (var i = 0; i < 15; i++)
+                {
+                    var createAssetRequest = CreateAsset(schemeId + i, null, region);
+                    list.Add(createAssetRequest);
+                }
+
+                var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
+
+                var assetSearch = new SearchAssetRequest
+                {
+                    Region = region,
+                    Page = 2,
+                    PageSize = 10,
+                    AssetRegisterVersionId = responses.GetAssetRegisterVersionId()
+                };
+
+                var response = await _classUnderTest.ExecuteAsync(assetSearch, CancellationToken.None)
+                    .ConfigureAwait(false);
+
+                response.Should().NotBeNull();
+                response.Assets.Count.Should().Be(5);
+                response.Pages.Should().Be(2);
+                response.TotalCount.Should().Be(15);
+                trans.Dispose();
+            }
+        }
+
+        [TestCase( "Region 1", "Regi")]
+        [TestCase( "Region 2", "Regio")]
+        [TestCase( "Region 3", "Region 3")]
+        public async Task GivenAnAssetHasBeenCreated_WhenWeSearchViaRegion_ThenWeCanFindTheSameAsset(string region, string searchRegion)
+        {
+            //arrange 
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var list = new List<CreateAssetRequest>
+                {
+                    CreateAsset(null, region),
+                };
+
+                var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
+
+                //act
+                var foundAsset = await SearchForAssetAsync(null, searchRegion, responses.GetAssetRegisterVersionId());
+                //assert
+                ExpectFoundAssetIsEqual(foundAsset, responses[0]);
+
+                trans.Dispose();
+            }
+        }
+
+        private CreateAssetRequest CreateAsset(int? schemeId, string address, string region = null)
         {
             CreateAssetRequest createAssetRequest = TestData.UseCase.GenerateCreateAssetRequest();
             if (schemeId.HasValue)
                 createAssetRequest.SchemeId = schemeId;
             if (!string.IsNullOrEmpty(address))
                 createAssetRequest.Address = address;
+            if (!string.IsNullOrEmpty(region))
+            {
+                createAssetRequest.LocationLaRegionName = region;
+                createAssetRequest.ImsOldRegion = region;
+            }
+
             return createAssetRequest;
         }
     }
