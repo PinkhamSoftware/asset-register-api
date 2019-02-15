@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.AssetRegisterVersions;
+using HomesEngland.Gateway.Assets.Region;
 using HomesEngland.UseCase.GetAssetRegions;
 using HomesEngland.UseCase.GetAssetRegions.Impl;
 using Moq;

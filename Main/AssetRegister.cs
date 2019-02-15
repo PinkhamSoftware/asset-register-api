@@ -8,6 +8,7 @@ using HomesEngland.Gateway;
 using HomesEngland.Gateway.AccessTokens;
 using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.Gateway.Assets;
+using HomesEngland.Gateway.Assets.Region;
 using HomesEngland.Gateway.AuthenticationTokens;
 using HomesEngland.Gateway.JWT;
 using HomesEngland.Gateway.Migrations;

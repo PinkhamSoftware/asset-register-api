@@ -7,6 +7,6 @@ namespace HomesEngland.Gateway.Assets.Region
 {
     public interface IAssetRegionLister
     {
-        Task<IList<IAssetRegion>> ListRegionsAsync(CancellationToken cancellationToken);
+        Task<IList<AssetRegion>> ListRegionsAsync(CancellationToken cancellationToken);
     }
 }
