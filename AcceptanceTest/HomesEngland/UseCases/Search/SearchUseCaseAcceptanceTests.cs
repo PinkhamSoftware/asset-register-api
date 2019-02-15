@@ -7,6 +7,7 @@ using FluentAssertions;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.CreateAssetRegisterVersion;
+using HomesEngland.UseCase.GetAssetRegions;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
 using Main;
@@ -21,6 +22,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
     {
         private readonly ICreateAssetRegisterVersionUseCase _createAssetRegisterVersionUseCase;
         private readonly ISearchAssetUseCase _classUnderTest;
+        private readonly IGetAssetRegionsUseCase _getAssetRegionsUseCase;
 
         public SearchUseCaseAcceptanceTests()
         {
@@ -28,6 +30,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
 
             _createAssetRegisterVersionUseCase = assetRegister.Get<ICreateAssetRegisterVersionUseCase>();
             _classUnderTest = assetRegister.Get<ISearchAssetUseCase>();
+            _getAssetRegionsUseCase = assetRegister.Get<IGetAssetRegionsUseCase>();
 
             var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
             assetRegisterContext.Database.Migrate();
@@ -64,13 +67,14 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             }
         }
 
-        private async Task<SearchAssetResponse> SearchForAssetAsync(int? schemeId, string address, int assetRegisterVersionId)
+        private async Task<SearchAssetResponse> SearchForAssetAsync(int? schemeId, string address, int assetRegisterVersionId, string region = null)
         {
             var searchForAsset = new SearchAssetRequest
             {
                 SchemeId = schemeId,
                 Address = address,
-                AssetRegisterVersionId = assetRegisterVersionId
+                AssetRegisterVersionId = assetRegisterVersionId,
+                Region = region
             };
 
             var useCaseResponse = await _classUnderTest.ExecuteAsync(searchForAsset, CancellationToken.None)
@@ -234,6 +238,32 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
 
                 //act
                 var foundAsset = await SearchForAssetAsync(null, searchRegion, responses.GetAssetRegisterVersionId());
+                //assert
+                ExpectFoundAssetIsEqual(foundAsset, responses[0]);
+
+                trans.Dispose();
+            }
+        }
+
+        [TestCase("Region 4")]
+        [TestCase("Region 5")]
+        [TestCase("Region 6")]
+        public async Task GivenAnAssetHasBeenCreated_WhenGetGetRegionFilters_AndWeSearchViaRegion_ThenWeCanFindTheSameAsset(string region)
+        {
+            //arrange 
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var list = new List<CreateAssetRequest>
+                {
+                    CreateAsset(null, region),
+                };
+
+                var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
+
+                var regions = await _getAssetRegionsUseCase.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+
+                //act
+                var foundAsset = await SearchForAssetAsync(null, null, responses.GetAssetRegisterVersionId(), regions.Regions[0].Name);
                 //assert
                 ExpectFoundAssetIsEqual(foundAsset, responses[0]);
 
