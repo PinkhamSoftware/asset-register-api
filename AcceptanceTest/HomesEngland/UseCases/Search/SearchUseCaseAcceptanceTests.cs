@@ -53,11 +53,11 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             {
                 var list = new List<CreateAssetRequest>
                 {
-                    CreateAsset(schemeId, address),                    
+                    CreateAsset(schemeId, address),
                 };
 
                 var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
-                
+
                 //act
                 var foundAsset = await SearchForAssetAsync(schemeId, searchAddress, responses.GetAssetRegisterVersionId());
                 //assert
@@ -221,9 +221,9 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             }
         }
 
-        [TestCase( "Region 1", "Regi")]
-        [TestCase( "Region 2", "Regio")]
-        [TestCase( "Region 3", "Region 3")]
+        [TestCase("Region 1", "Regi")]
+        [TestCase("Region 2", "Regio")]
+        [TestCase("Region 3", "Region 3")]
         public async Task GivenAnAssetHasBeenCreated_WhenWeSearchViaRegion_ThenWeCanFindTheSameAsset(string region, string searchRegion)
         {
             //arrange 
@@ -255,7 +255,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             {
                 var list = new List<CreateAssetRequest>
                 {
-                    CreateAsset(null, region),
+                    CreateAsset(null, null,region),
                 };
 
                 var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
@@ -267,9 +267,9 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
                 //assert
                 ExpectFoundAssetIsEqual(foundAsset, responses[0]);
 
-                trans.Dispose();
-            }
+            trans.Dispose();
         }
+    }
 
         private CreateAssetRequest CreateAsset(int? schemeId, string address, string region = null)
         {
