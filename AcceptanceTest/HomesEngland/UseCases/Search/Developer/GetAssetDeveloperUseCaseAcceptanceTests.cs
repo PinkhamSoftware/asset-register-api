@@ -34,7 +34,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search.Developer
         [TestCase("Develop ", 3)]
         [TestCase("Dev ", 3)]
         [TestCase("Dever ", 2)]
-        public async Task GivenWeHaveXUniqueRegions_WhenWeGetAllRegions_ThenReturnsXUniqueRegions(string developer, int count)
+        public async Task GivenWeHaveXUniqueDevelopers_WhenWeGetAllDevelopers_ThenReturnsXUniqueDevelopers(string developer, int count)
         {
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {

@@ -149,8 +149,7 @@ namespace HomesEngland.Gateway.Sql
         {
             using (var context = new AssetRegisterContext(_databaseUrl))
             {
-                IList<AssetDeveloper> results = null;
-                context.Assets.Select(s => new AssetDeveloper
+                IList<AssetDeveloper> results = context.Assets.Select(s => new AssetDeveloper
                 {
                     Name = s.DevelopingRslName
                 }).Distinct().ToList();

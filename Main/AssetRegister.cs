@@ -8,6 +8,7 @@ using HomesEngland.Gateway;
 using HomesEngland.Gateway.AccessTokens;
 using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.Gateway.Assets;
+using HomesEngland.Gateway.Assets.Developer;
 using HomesEngland.Gateway.Assets.Region;
 using HomesEngland.Gateway.AuthenticationTokens;
 using HomesEngland.Gateway.JWT;
@@ -32,6 +33,8 @@ using HomesEngland.UseCase.GetAccessToken;
 using HomesEngland.UseCase.GetAccessToken.Impl;
 using HomesEngland.UseCase.GetAsset;
 using HomesEngland.UseCase.GetAsset.Impl;
+using HomesEngland.UseCase.GetAssetDevelopers;
+using HomesEngland.UseCase.GetAssetDevelopers.Impl;
 using HomesEngland.UseCase.GetAssetRegions;
 using HomesEngland.UseCase.GetAssetRegions.Impl;
 using HomesEngland.UseCase.GetAssetRegisterVersions;
@@ -133,6 +136,9 @@ namespace Main
             RegisterExportedDependency<IAssetRegionLister>(() => new EFAssetGateway(databaseUrl));
 
             RegisterExportedDependency<IGetAssetRegionsUseCase, GetAssetRegionsUseCase>();
+
+            RegisterExportedDependency<IAssetDeveloperLister>(() => new EFAssetGateway(databaseUrl));
+            RegisterExportedDependency<IGetAssetDevelopersUseCase, GetAssetDevelopersUseCase>();
         }
 
         public override T Get<T>()
