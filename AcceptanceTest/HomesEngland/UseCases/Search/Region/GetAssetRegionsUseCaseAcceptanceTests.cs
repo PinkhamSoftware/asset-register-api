@@ -93,7 +93,6 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search.Region
             CreateAssetRequest createAssetRequest = TestData.UseCase.GenerateCreateAssetRequest();
             if (!string.IsNullOrEmpty(region))
             {
-                createAssetRequest.LocationLaRegionName = region;
                 createAssetRequest.ImsOldRegion = region;
             }
                 

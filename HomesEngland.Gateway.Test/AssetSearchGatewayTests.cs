@@ -138,7 +138,6 @@ namespace HomesEngland.Gateway.Test
                 entity.Address = address;
             if (!string.IsNullOrEmpty(region))
             {
-                entity.LocationLaRegionName = region;
                 entity.ImsOldRegion = region;
             }
             return entity;
@@ -529,7 +528,6 @@ namespace HomesEngland.Gateway.Test
 
                     var entity = TestData.Domain.GenerateAsset();
                     entity.ImsOldRegion = region;
-                    entity.LocationLaRegionName = region;
                     assets.Add(entity);
                 }
 
