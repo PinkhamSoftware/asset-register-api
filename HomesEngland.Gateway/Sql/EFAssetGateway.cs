@@ -13,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HomesEngland.Gateway.Sql
 {
-    public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator
+    public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator, IAssetRegionLister
     {
         private readonly string _databaseUrl; 
 
@@ -85,6 +85,11 @@ namespace HomesEngland.Gateway.Sql
                     EF.Functions.Like(w.Address.ToLower(), $"%{searchRequest.Address}%".ToLower()));
             }
 
+            if(!string.IsNullOrEmpty(searchRequest.Region) && !string.IsNullOrWhiteSpace(searchRequest.Region))
+            {
+                queryable = queryable.Where(w => EF.Functions.Like(w.ImsOldRegion.ToLower(), $"%{searchRequest.Region}%".ToLower()));
+            }
+
             if (searchRequest.SchemeId.HasValue && searchRequest?.SchemeId.Value > 0)
             {
                 queryable = queryable.Where(w => w.SchemeId.HasValue && w.SchemeId == searchRequest.SchemeId.Value);
@@ -120,6 +125,19 @@ namespace HomesEngland.Gateway.Sql
                     MovementInAssetValue = assetValue - moneyPaidOut
                 };
                 return Task.FromResult(assetAggregates);
+            }
+        }
+
+        public Task<IList<AssetRegion>> ListRegionsAsync(CancellationToken cancellationToken)
+        {
+            using (var context = new AssetRegisterContext(_databaseUrl))
+            {
+                IList<AssetRegion> results = context.Assets.Select(s => new AssetRegion
+                {
+                    Name = s.ImsOldRegion
+                }).Distinct().ToList();
+
+                return Task.FromResult(results);
             }
         }
     }

@@ -9,15 +9,11 @@ namespace WebApi.Extensions.Requests
         public string Address { get; set; }
         public int? Page { get; set; }
         public int? PageSize { get; set; }
+        public string Region { get; set; }
 
         public bool IsValid()
         {
-            if (InvalidSchemeID())
-            {
-                return false;
-            }
-
-            if (SchemeIsNullAndAddressIsEmpty())
+            if (AreAllFiltersNullEmptyOrWhiteSpace())
             {
                 return false;
             }
@@ -45,14 +41,9 @@ namespace WebApi.Extensions.Requests
             return Page == null || Page > 0;
         }
 
-        private bool InvalidSchemeID()
-        {
-            return SchemeIsNullAndAddressIsEmpty() || SchemeIdInvalidIndex();
-        }
-
         private bool SchemeIdInvalidIndex()
         {
-            return SchemeId != null && SchemeId <= 0;
+            return SchemeId == null || SchemeId <= 0;
         }
 
         private bool AssetRegisterVersionIdIsNull()
@@ -60,20 +51,29 @@ namespace WebApi.Extensions.Requests
             return AssetRegisterVersionId == null;
         }
 
-
         private bool AssetRegisterVersionIdInvalidIndex()
         {
             return AssetRegisterVersionId != null && AssetRegisterVersionId <= 0;
         }
 
-        private bool SchemeIsNullAndAddressIsEmpty()
+        private bool AreAllFiltersNullEmptyOrWhiteSpace()
         {
-            return SchemeId == null && IsEmptyAddress();
+            var isInvalidSchemeId =  SchemeIdInvalidIndex();
+            var isInvalidAddress = IsEmptyAddress();
+            var isInvalidRegion = IsRegionEmpty();
+            return isInvalidSchemeId && isInvalidAddress && isInvalidRegion;
         }
 
         private bool IsEmptyAddress()
         {
-            return (string.IsNullOrEmpty(Address) || string.IsNullOrWhiteSpace(Address));
+            var isAddressNullEmptyOrWhiteSpace = string.IsNullOrEmpty(Address) || string.IsNullOrWhiteSpace(Address);
+            return isAddressNullEmptyOrWhiteSpace;
+        }
+
+        private bool IsRegionEmpty()
+        {
+            var isNullOrEmptyOrWhiteSpace = string.IsNullOrEmpty(Region) || string.IsNullOrWhiteSpace(Region);
+            return isNullOrEmptyOrWhiteSpace;
         }
     }
 }

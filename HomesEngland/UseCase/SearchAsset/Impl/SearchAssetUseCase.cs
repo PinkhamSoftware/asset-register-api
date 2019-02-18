@@ -40,6 +40,7 @@ namespace HomesEngland.UseCase.SearchAsset.Impl
                           {
                               SchemeId = request.SchemeId,
                               Address = request.Address,
+                              Region = request.Region,
                               AssetRegisterVersionId = request.AssetRegisterVersionId
                           };
 

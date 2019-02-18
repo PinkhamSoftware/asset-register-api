@@ -297,5 +297,25 @@ namespace HomesEnglandTest.UseCase.SearchAsset
             response.Should().NotBeNull();
             response.Assets.Should().BeNullOrEmpty();
         }
+
+        [TestCase("Region1")]
+        [TestCase("Region2")]
+        [TestCase("Region3")]
+        public async Task GivenValidAddressAndPageSize_UseCaseCallsGatewayWithPageSize(string region)
+        {
+            var asset = TestData.Domain.GenerateAsset();
+            asset.LocationLaRegionName = region;
+            asset.ImsOldRegion = region;
+            _mockGateway.Search(Arg.Any<IAssetPagedSearchQuery>(), CancellationToken.None).Returns(new PagedResults<IAsset>
+                { Results = new List<IAsset> { asset } });
+
+            await _classUnderTest.ExecuteAsync(new SearchAssetRequest
+            {
+                Region = region
+            }, CancellationToken.None);
+
+            await _mockGateway.Received()
+                .Search(Arg.Is<AssetPagedSearchQuery>(req => req.Region == region), Arg.Any<CancellationToken>());
+        }
     }
 }

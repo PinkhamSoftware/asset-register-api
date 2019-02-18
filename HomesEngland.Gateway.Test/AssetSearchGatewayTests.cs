@@ -129,13 +129,17 @@ namespace HomesEngland.Gateway.Test
             return assetRegisterVersion;
         }
 
-        private IAsset CreateAsset(int? schemeId, string address)
+        private IAsset CreateAsset(int? schemeId, string address, string region = null)
         {
             IAsset entity = TestData.Domain.GenerateAsset();
             if (schemeId.HasValue)
                 entity.SchemeId = schemeId;
             if (!string.IsNullOrEmpty(address))
                 entity.Address = address;
+            if (!string.IsNullOrEmpty(region))
+            {
+                entity.ImsOldRegion = region;
+            }
             return entity;
         }
 
@@ -506,6 +510,101 @@ namespace HomesEngland.Gateway.Test
 
                 response.NumberOfPages.Should().Be(expectedNumberOfPages);
                 
+                trans.Dispose();
+            }
+        }
+
+        [TestCase("Meow", 1, 3, 3)]
+        [TestCase("Woof", 2, 3, 2)]
+        [TestCase("Moo", 3, 3, 1)]
+        [TestCase("Cluck", 4, 3, 1)]
+        public async Task GivenMultipleAssetsHaveBeenCreated_WhenWeSearchRegionWithPageSize_ReturnCorrectNumberOfPages(string region, int pageSize, int numberOfAssets, int expectedNumberOfPages)
+        {
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var assets = new List<IAsset>();
+                for (var i = 0; i < numberOfAssets; i++)
+                {
+
+                    var entity = TestData.Domain.GenerateAsset();
+                    entity.ImsOldRegion = region;
+                    assets.Add(entity);
+                }
+
+                var assetRegisterVersion = await CreateAggregatedAssets(assets)
+                    .ConfigureAwait(false);
+
+                var assetQuery = new AssetPagedSearchQuery
+                {
+                    Region = region,
+                    PageSize = pageSize,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
+                };
+
+                var response = await _classUnderTest.Search(assetQuery, CancellationToken.None);
+
+                response.NumberOfPages.Should().Be(expectedNumberOfPages);
+
+                trans.Dispose();
+            }
+        }
+
+        [TestCase("Region 123", "re")]
+        [TestCase("Region 123", "Reg")]
+        [TestCase("Region 123", "Region 1")]
+        [TestCase("Region 123", "egion 12")]
+        [TestCase("Region 123", "egion")]
+        public async Task GivenMultiplesAssetsHaveBeenCreatedWithTheSameRegion_WhenWeSearch_ThenTheAssetsAreOrderedBySchemeIdDesc(string region, string searchRegion)
+        {
+            //arrange 
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var random = new Random();
+                var randomInt = random.Next();
+                var createdAsset = CreateAsset(randomInt, null, region);
+                var createdAsset2 = CreateAsset(randomInt + 1, null, region);
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset, createdAsset2 })
+                    .ConfigureAwait(false);
+                //act
+                var assetSearch = new AssetPagedSearchQuery
+                {
+                    Region = searchRegion,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
+                };
+                //act
+                var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
+                //assert
+                Assert.Greater(assets.Results.ElementAt(0).SchemeId, assets.Results.ElementAt(1).SchemeId);
+
+                trans.Dispose();
+            }
+        }
+
+        [TestCase("Region 123", "re")]
+        [TestCase("Region 123", "Reg")]
+        [TestCase("Region 123", "Region 1")]
+        [TestCase("Region 123", "egion 12")]
+        public async Task GivenAnAssetHasBeenCreatedWithTheSameRegion_WhenWeSearch_ThenWeCanFindIt(string region, string searchRegion)
+        {
+            //arrange 
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var random = new Random();
+                var randomInt = random.Next();
+                var createdAsset = CreateAsset(randomInt, null, region);
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset })
+                    .ConfigureAwait(false);
+                //act
+                var assetSearch = new AssetPagedSearchQuery
+                {
+                    Region = searchRegion,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
+                };
+                //act
+                var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
+                //assert
+                assets.Results.Count.Should().Be(1);
+
                 trans.Dispose();
             }
         }
