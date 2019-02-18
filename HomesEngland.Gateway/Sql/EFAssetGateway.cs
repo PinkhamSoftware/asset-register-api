@@ -89,9 +89,7 @@ namespace HomesEngland.Gateway.Sql
 
             if(!string.IsNullOrEmpty(searchRequest.Region) && !string.IsNullOrWhiteSpace(searchRequest.Region))
             {
-                queryable = queryable.Where(w =>
-                    EF.Functions.Like(w.LocationLaRegionName.ToLower(), $"%{searchRequest.Region}%".ToLower()) || 
-                    EF.Functions.Like(w.ImsOldRegion.ToLower(), $"%{searchRequest.Region}%".ToLower()));
+                queryable = queryable.Where(w => EF.Functions.Like(w.ImsOldRegion.ToLower(), $"%{searchRequest.Region}%".ToLower()));
             }
 
             if (searchRequest.SchemeId.HasValue && searchRequest?.SchemeId.Value > 0)
@@ -138,7 +136,7 @@ namespace HomesEngland.Gateway.Sql
             {
                 IList<AssetRegion> results = context.Assets.Select(s => new AssetRegion
                 {
-                    Name = s.LocationLaRegionName
+                    Name = s.ImsOldRegion
                 }).Distinct().ToList();
 
                 return Task.FromResult(results);
