@@ -107,20 +107,21 @@ namespace WebApiTest.Controller.Asset.Search
             apiRequest.IsValid().Should().BeFalse();
         }
         
-        [TestCase(1   , null     ,    1, 1   , null)]
-        [TestCase(2   , null     ,    1, 1   , null)]
-        [TestCase(3   , null     ,    1, 1   , null)]
-        [TestCase(null, "d"      ,    1, 1   , null)]
-        [TestCase(null, "e"      ,    1, 1   , null)]
-        [TestCase(null, "t"      ,    1, 1   , null)]
-        [TestCase(1   , "a"      ,    1, 1   , null)]
-        [TestCase(2   , "b"      ,    2, 3   , null)]
-        [TestCase(3   , "c"      ,    3, 5   , null)]
-        [TestCase(1   , "address", null, 1   , null)]
-        [TestCase(1   , "address",    1, null, null)]
-        [TestCase(1   , "address", null, null, null)]
-        [TestCase(null, null     ,    1,    1, "Region")]
-        public void GivenValidRequest_ThenIsValid(int? schemeId, string address, int? page, int? pageSize, string region)
+        [TestCase(1   , null     ,    1, 1   , null, null)]
+        [TestCase(2   , null     ,    1, 1   , null, null)]
+        [TestCase(3   , null     ,    1, 1   , null, null)]
+        [TestCase(null, "d"      ,    1, 1   , null, null)]
+        [TestCase(null, "e"      ,    1, 1   , null, null)]
+        [TestCase(null, "t"      ,    1, 1   , null, null)]
+        [TestCase(1   , "a"      ,    1, 1   , null, null)]
+        [TestCase(2   , "b"      ,    2, 3   , null, null)]
+        [TestCase(3   , "c"      ,    3, 5   , null, null)]
+        [TestCase(1   , "address", null, 1   , null, null)]
+        [TestCase(1   , "address",    1, null, null, null)]
+        [TestCase(1   , "address", null, null, null, null)]
+        [TestCase(null, null     ,    1,    1, "Region", null)]
+        [TestCase(null, null     ,    1,    1, null, "Developer")]
+        public void GivenValidRequest_ThenIsValid(int? schemeId, string address, int? page, int? pageSize, string region, string developer)
         {
             SearchAssetApiRequest apiRequest = new SearchAssetApiRequest
             {
@@ -129,7 +130,7 @@ namespace WebApiTest.Controller.Asset.Search
                 Page = page,
                 PageSize = pageSize,
                 Region = region,
-                
+                Developer = developer
             };
 
             apiRequest.IsValid().Should().BeTrue();

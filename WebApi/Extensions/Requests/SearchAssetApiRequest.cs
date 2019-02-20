@@ -10,6 +10,7 @@ namespace WebApi.Extensions.Requests
         public int? Page { get; set; }
         public int? PageSize { get; set; }
         public string Region { get; set; }
+        public string Developer { get; set; }
 
         public bool IsValid()
         {
@@ -61,7 +62,8 @@ namespace WebApi.Extensions.Requests
             var isInvalidSchemeId =  SchemeIdInvalidIndex();
             var isInvalidAddress = IsEmptyAddress();
             var isInvalidRegion = IsRegionEmpty();
-            return isInvalidSchemeId && isInvalidAddress && isInvalidRegion;
+            var isInvalidDeveloper = IsDeveloperEmpty();
+            return isInvalidSchemeId && isInvalidAddress && isInvalidRegion && isInvalidDeveloper;
         }
 
         private bool IsEmptyAddress()
@@ -73,6 +75,12 @@ namespace WebApi.Extensions.Requests
         private bool IsRegionEmpty()
         {
             var isNullOrEmptyOrWhiteSpace = string.IsNullOrEmpty(Region) || string.IsNullOrWhiteSpace(Region);
+            return isNullOrEmptyOrWhiteSpace;
+        }
+
+        private bool IsDeveloperEmpty()
+        {
+            var isNullOrEmptyOrWhiteSpace = string.IsNullOrEmpty(Developer) || string.IsNullOrWhiteSpace(Developer);
             return isNullOrEmptyOrWhiteSpace;
         }
     }
