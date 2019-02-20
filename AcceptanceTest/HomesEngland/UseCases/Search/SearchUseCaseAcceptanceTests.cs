@@ -273,17 +273,18 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
         }
     }
 
-        [TestCase(1114, "Region 1")]
-        [TestCase(2224, "Region 2")]
-        [TestCase(3334, "Region 3")]
-        public async Task GivenMultiplePages_WhenWeSearchByDeveloperThatMatches_ThenWeReturnOnlyTheSelectedPage(int schemeId, string developer)
+        [TestCase(1114, "Developer 1", "Random 1", 5, 1, 2, 2, 2, 3)]
+        [TestCase(2224, "Developer 2", "Random 2", 5, 1, 2, 2, 2, 3)]
+        [TestCase(3334, "Developer 3", "Random 3", 5, 1, 2, 2, 2, 3)]
+        public async Task GivenMultiplePages_WhenWeSearchByDeveloperThatMatches_ThenWeReturnOnlyTheSelectedPage(int schemeId, string developer, string randomString, int createdCount, int expectedCount, int page, int pageSize, int expectedPageCount, int expectedTotalCount)
         {
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 var list = new List<CreateAssetRequest>();
-                for (var i = 0; i < 15; i++)
+                for (var i = 0; i < createdCount; i++)
                 {
-                    var createAssetRequest = CreateAsset(schemeId + i, null, null, developer);
+                    var dev = i % 2 == 0 ? developer : randomString;
+                    var createAssetRequest = CreateAsset(schemeId + i, null, null, dev);
                     list.Add(createAssetRequest);
                 }
 
@@ -291,8 +292,8 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
 
                 var assetSearch = new SearchAssetRequest
                 {
-                    Page = 2,
-                    PageSize = 10,
+                    Page = page,
+                    PageSize = pageSize,
                     AssetRegisterVersionId = responses.GetAssetRegisterVersionId(),
                     Developer = developer
                     
@@ -302,9 +303,9 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
                     .ConfigureAwait(false);
 
                 response.Should().NotBeNull();
-                response.Assets.Count.Should().Be(5);
-                response.Pages.Should().Be(2);
-                response.TotalCount.Should().Be(15);
+                response.Assets.Count.Should().Be(expectedCount);
+                response.Pages.Should().Be(expectedPageCount);
+                response.TotalCount.Should().Be(expectedTotalCount);
                 trans.Dispose();
             }
         }
@@ -368,7 +369,6 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
                 createAssetRequest.Address = address;
             if (!string.IsNullOrEmpty(region))
             {
-                createAssetRequest.LocationLaRegionName = region;
                 createAssetRequest.ImsOldRegion = region;
             }
 

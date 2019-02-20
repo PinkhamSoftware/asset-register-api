@@ -92,6 +92,11 @@ namespace HomesEngland.Gateway.Sql
                 queryable = queryable.Where(w => EF.Functions.Like(w.ImsOldRegion.ToLower(), $"%{searchRequest.Region}%".ToLower()));
             }
 
+            if (!string.IsNullOrEmpty(searchRequest.Developer) && !string.IsNullOrWhiteSpace(searchRequest.Developer))
+            {
+                queryable = queryable.Where(w => EF.Functions.Like(w.DevelopingRslName.ToLower(), $"%{searchRequest.Developer}%".ToLower()));
+            }
+
             if (searchRequest.SchemeId.HasValue && searchRequest?.SchemeId.Value > 0)
             {
                 queryable = queryable.Where(w => w.SchemeId.HasValue && w.SchemeId == searchRequest.SchemeId.Value);
