@@ -37,12 +37,13 @@ namespace HomesEngland.UseCase.SearchAsset.Impl
         private async Task<IPagedResults<IAsset>> SearchAssets(SearchAssetRequest request, CancellationToken cancellationToken)
         {
             var assetSearch = new AssetPagedSearchQuery
-                          {
-                              SchemeId = request.SchemeId,
-                              Address = request.Address,
-                              Region = request.Region,
-                              AssetRegisterVersionId = request.AssetRegisterVersionId
-                          };
+            {
+                SchemeId = request.SchemeId,
+                Address = request.Address,
+                Region = request.Region,
+                AssetRegisterVersionId = request.AssetRegisterVersionId,
+                Developer = request.Developer,
+            };
 
             if (request.Page != null) assetSearch.Page = request.Page;
             if (request.PageSize != null) assetSearch.PageSize = request.PageSize;

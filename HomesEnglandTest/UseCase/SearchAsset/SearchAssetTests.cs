@@ -301,7 +301,7 @@ namespace HomesEnglandTest.UseCase.SearchAsset
         [TestCase("Region1")]
         [TestCase("Region2")]
         [TestCase("Region3")]
-        public async Task GivenValidAddressAndPageSize_UseCaseCallsGatewayWithPageSize(string region)
+        public async Task GivenValidRegion_UseCaseCallsGatewayWithRegion(string region)
         {
             var asset = TestData.Domain.GenerateAsset();
             asset.LocationLaRegionName = region;
@@ -316,6 +316,25 @@ namespace HomesEnglandTest.UseCase.SearchAsset
 
             await _mockGateway.Received()
                 .Search(Arg.Is<AssetPagedSearchQuery>(req => req.Region == region), Arg.Any<CancellationToken>());
+        }
+
+        [TestCase("Developer1")]
+        [TestCase("Developer2")]
+        [TestCase("Developer3")]
+        public async Task GivenValidDeveloper_UseCaseCallsGatewayWithDeveloper(string developer)
+        {
+            var asset = TestData.Domain.GenerateAsset();
+            asset.DevelopingRslName = developer;
+            _mockGateway.Search(Arg.Any<IAssetPagedSearchQuery>(), CancellationToken.None).Returns(new PagedResults<IAsset>
+                { Results = new List<IAsset> { asset } });
+
+            await _classUnderTest.ExecuteAsync(new SearchAssetRequest
+            {
+                Developer = developer
+            }, CancellationToken.None);
+
+            await _mockGateway.Received()
+                .Search(Arg.Is<AssetPagedSearchQuery>(req => req.Developer == developer), Arg.Any<CancellationToken>());
         }
     }
 }
