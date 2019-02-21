@@ -8,6 +8,7 @@ using FluentAssertions;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.UseCase.CreateAsset.Models;
 using HomesEngland.UseCase.CreateAssetRegisterVersion;
+using HomesEngland.UseCase.GetAssetDevelopers;
 using HomesEngland.UseCase.GetAssetRegions;
 using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
@@ -24,6 +25,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
         private readonly ICreateAssetRegisterVersionUseCase _createAssetRegisterVersionUseCase;
         private readonly ISearchAssetUseCase _classUnderTest;
         private readonly IGetAssetRegionsUseCase _getAssetRegionsUseCase;
+        private readonly IGetAssetDevelopersUseCase _getAssetDevelopersUseCase;
 
         public SearchUseCaseAcceptanceTests()
         {
@@ -32,6 +34,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             _createAssetRegisterVersionUseCase = assetRegister.Get<ICreateAssetRegisterVersionUseCase>();
             _classUnderTest = assetRegister.Get<ISearchAssetUseCase>();
             _getAssetRegionsUseCase = assetRegister.Get<IGetAssetRegionsUseCase>();
+            _getAssetDevelopersUseCase = assetRegister.Get<IGetAssetDevelopersUseCase>();
 
             var assetRegisterContext = assetRegister.Get<AssetRegisterContext>();
             assetRegisterContext.Database.Migrate();
@@ -349,10 +352,10 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
 
                 var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
 
-                var developers = await _getAssetRegionsUseCase.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
+                var developers = await _getAssetDevelopersUseCase.ExecuteAsync(CancellationToken.None).ConfigureAwait(false);
 
                 //act
-                var foundAsset = await SearchForAssetAsync(null, null, responses.GetAssetRegisterVersionId(), null, null);
+                var foundAsset = await SearchForAssetAsync(null, null, responses.GetAssetRegisterVersionId(), null, developers.Developers[0].Name);
                 //assert
                 ExpectFoundAssetIsEqual(foundAsset, responses[0]);
 

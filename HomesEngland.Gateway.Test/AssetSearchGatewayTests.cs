@@ -526,7 +526,7 @@ namespace HomesEngland.Gateway.Test
         [TestCase("Woof", 2, 3, 2)]
         [TestCase("Moo", 3, 3, 1)]
         [TestCase("Cluck", 4, 3, 1)]
-        public async Task GivenMultipleAssetsHaveBeenCreated_WhenWeSearchRegionWithPageSize_ReturnCorrectNumberOfPages(string developer, int pageSize, int numberOfAssets, int expectedNumberOfPages)
+        public async Task GivenMultipleAssetsHaveBeenCreated_WhenWeSearchRegionWithPageSize_ReturnCorrectNumberOfPages(string region, int pageSize, int numberOfAssets, int expectedNumberOfPages)
         {
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
@@ -535,7 +535,7 @@ namespace HomesEngland.Gateway.Test
                 {
 
                     var entity = TestData.Domain.GenerateAsset();
-                    entity.ImsOldRegion = developer;
+                    entity.ImsOldRegion = region;
                     assets.Add(entity);
                 }
 
@@ -544,7 +544,7 @@ namespace HomesEngland.Gateway.Test
 
                 var assetQuery = new AssetPagedSearchQuery
                 {
-                    Region = developer,
+                    Region = region,
                     PageSize = pageSize,
                     AssetRegisterVersionId = assetRegisterVersion.Id
                 };
