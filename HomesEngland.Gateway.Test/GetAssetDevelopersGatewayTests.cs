@@ -39,15 +39,77 @@ namespace HomesEngland.Gateway.Test
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var entity = TestData.Domain.GenerateAsset();
-                entity.DevelopingRslName = developer;
-                await _gateway.CreateAsync(entity).ConfigureAwait(false);
+                await CreateAsset(developer);
                 //act
                 var developers = await _classUnderTest.ListDevelopersAsync(CancellationToken.None).ConfigureAwait(false);
                 //assert
                 developers.Count.Should().Be(1);
                 trans.Dispose();
             }
+        }
+
+        [TestCase("Developer 1", 2)]
+        [TestCase("Developer 2", 3)]
+        [TestCase("Developer 3", 4)]
+        public async Task GivenThatMultipleAssetsHaveBeenCreated_WhenTheAssetIsReadFromTheGateway_ThenItIsTheSame(string developer, int count)
+        {
+            //arrange 
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    await CreateAsset(developer);    
+                }
+                //act
+                var developers = await _classUnderTest.ListDevelopersAsync(CancellationToken.None).ConfigureAwait(false);
+                //assert
+                developers.Count.Should().Be(1);
+                trans.Dispose();
+            }
+        }
+
+        [TestCase("Developer 1", 2)]
+        [TestCase("Developer 2", 3)]
+        [TestCase("Developer 3", 4)]
+        public async Task GivenThatMultipleAssetsHaveBeenCreated_WhenWeListDevelopers_ThenItIsTheSame(string developer, int count)
+        {
+            //arrange 
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    await CreateAsset(developer + i);
+                }
+                
+                //act
+                var developers = await _classUnderTest.ListDevelopersAsync(CancellationToken.None).ConfigureAwait(false);
+                //assert
+                developers.Count.Should().Be(count);
+                trans.Dispose();
+            }
+        }
+
+        [TestCase("Developer 1")]
+        [TestCase("Developer 2")]
+        [TestCase("Developer 3")]
+        public async Task GivenThatNoAssetsHaveBeenCreated_WhenWeListDevelopers_ThenWeGetNoResults(string developer)
+        {
+            //arrange 
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                //act
+                var developers = await _classUnderTest.ListDevelopersAsync(CancellationToken.None).ConfigureAwait(false);
+                //assert
+                developers.Count.Should().Be(0);
+                trans.Dispose();
+            }
+        }
+
+        private async Task CreateAsset(string developer)
+        {
+            var entity = TestData.Domain.GenerateAsset();
+            entity.DevelopingRslName = developer;
+            await _gateway.CreateAsync(entity).ConfigureAwait(false);
         }
     }
 }
