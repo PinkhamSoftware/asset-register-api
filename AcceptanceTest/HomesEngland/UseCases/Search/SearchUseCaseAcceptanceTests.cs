@@ -54,7 +54,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             {
                 var list = new List<CreateAssetRequest>
                 {
-                    CreateAsset(schemeId, address, null, null),
+                    CreateAsset(schemeId, address),
                 };
 
                 var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
@@ -101,9 +101,9 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             {
                 List<CreateAssetRequest> list = new List<CreateAssetRequest>
                 {
-                    CreateAsset(schemeId, address,null, null),
-                    CreateAsset(schemeId2, address,null,null),
-                    CreateAsset(schemeId3, address,null,null),
+                    CreateAsset(schemeId, address),
+                    CreateAsset(schemeId2, address),
+                    CreateAsset(schemeId3, address),
                 };
 
                 IList<CreateAssetResponse> responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
@@ -133,7 +133,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             {
                 var list = new List<CreateAssetRequest>
                 {
-                    CreateAsset(null, null,null,null)
+                    CreateAsset()
                 };
 
                 var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
@@ -163,7 +163,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
                 var list = new List<CreateAssetRequest>();
                 for (var i = 0; i < 15; i++)
                 {
-                    var createAssetRequest = CreateAsset(schemeId + i, address, null,null);
+                    var createAssetRequest = CreateAsset(schemeId + i, address);
                     list.Add(createAssetRequest);
                 }
 
@@ -233,7 +233,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             {
                 var list = new List<CreateAssetRequest>
                 {
-                    CreateAsset(null, null,region , null),
+                    CreateAsset(null, null,region),
                 };
 
                 var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
@@ -257,7 +257,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             {
                 var list = new List<CreateAssetRequest>
                 {
-                    CreateAsset(null, null,region, null),
+                    CreateAsset(null, null,region),
                 };
 
                 var responses = await _createAssetRegisterVersionUseCase.ExecuteAsync(list, CancellationToken.None).ConfigureAwait(false);
@@ -334,9 +334,9 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             }
         }
 
-        [TestCase("Region 4")]
-        [TestCase("Region 5")]
-        [TestCase("Region 6")]
+        [TestCase("Developer 4")]
+        [TestCase("Developer 5")]
+        [TestCase("Developer 6")]
         public async Task GivenAnAssetHasBeenCreated_WhenGetGetDeveloperFilters_AndWeSearchViaDeveloper_ThenWeCanFindTheSameAsset(string developer)
         {
             //arrange 
@@ -360,7 +360,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search
             }
         }
 
-        private CreateAssetRequest CreateAsset(int? schemeId, string address, string region, string developer = null)
+        private CreateAssetRequest CreateAsset(int? schemeId = null, string address = null, string region = null, string developer = null)
         {
             CreateAssetRequest createAssetRequest = TestData.UseCase.GenerateCreateAssetRequest();
             if (schemeId.HasValue)
