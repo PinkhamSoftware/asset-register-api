@@ -58,7 +58,7 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search.Developer
         [TestCase("Develop ", 3)]
         [TestCase("Dev ", 3)]
         [TestCase("Dever ", 2)]
-        public async Task GivenWeHaveXDevelopers_WhenWeGetAllDevelopers_ThenReturnsUniqueDevelopers(string developer, int count)
+        public async Task GivenWeHaveOneDeveloper_WhenWeGetAllDevelopers_ThenOnlyReturnOneDeveloper(string developer, int count)
         {
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
