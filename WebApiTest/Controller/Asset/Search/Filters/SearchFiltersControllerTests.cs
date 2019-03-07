@@ -78,11 +78,7 @@ namespace WebApiTest.Controller.Asset.Search.Filters
                     }
                 });
 
-            _classUnderTest.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            };
-            _classUnderTest.ControllerContext.HttpContext.Request.Headers.Add(new KeyValuePair<string, StringValues>("accept", "text/csv"));
+            SetCSVContentType();
             //act
             var response = await _classUnderTest.GetRegions().ConfigureAwait(false);
             //assert
@@ -91,7 +87,6 @@ namespace WebApiTest.Controller.Asset.Search.Filters
             result.Should().NotBeNull();
             result.Value.Should().BeOfType<List<AssetRegion>>();
         }
-
 
         [Test]
         public async Task GivenValidRequest_ThenReturnsGetDevelopersResponse()
@@ -142,11 +137,7 @@ namespace WebApiTest.Controller.Asset.Search.Filters
                     }
                 });
 
-            _classUnderTest.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext()
-            };
-            _classUnderTest.ControllerContext.HttpContext.Request.Headers.Add(new KeyValuePair<string, StringValues>("accept", "text/csv"));
+            SetCSVContentType();
             //act
             var response = await _classUnderTest.GetDevelopers().ConfigureAwait(false);
             //assert
@@ -154,6 +145,16 @@ namespace WebApiTest.Controller.Asset.Search.Filters
             var result = response as ObjectResult;
             result.Should().NotBeNull();
             result.Value.Should().BeOfType<List<AssetDeveloper>>();
+        }
+
+        private void SetCSVContentType()
+        {
+            _classUnderTest.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext()
+            };
+            _classUnderTest.ControllerContext.HttpContext.Request.Headers.Add(
+                new KeyValuePair<string, StringValues>("accept", "text/csv"));
         }
     }
 }

@@ -34,7 +34,7 @@ namespace HomesEngland.Gateway.Test
         [TestCase("Developer 1", 2)]
         [TestCase("Developer 2", 3)]
         [TestCase("Developer 3", 4)]
-        public async Task GivenThatMultipleAssetsHaveBeenCreatedWithIdenticalDevelopers_WhenWeListDevelopers_ThenWeGetTheUniqueDevelopers(string developer, int count)
+        public async Task GivenThatMultipleAssetsHaveBeenCreatedWithIdenticalDevelopers_WhenWeListDevelopers_ThenWeReturn1Developer(string developer, int count)
         {
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
