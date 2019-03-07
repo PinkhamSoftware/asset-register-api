@@ -7,16 +7,16 @@ namespace HomesEngland.UseCase.GetAssetDevelopers.Impl
 {
     public class GetAssetDevelopersUseCase : IGetAssetDevelopersUseCase
     {
-        private readonly IAssetDeveloperLister _assetRegionLister;
+        private readonly IAssetDeveloperLister _assetDeveloperLister;
 
-        public GetAssetDevelopersUseCase(IAssetDeveloperLister assetRegionLister)
+        public GetAssetDevelopersUseCase(IAssetDeveloperLister assetDeveloperLister)
         {
-            _assetRegionLister = assetRegionLister;
+            _assetDeveloperLister = assetDeveloperLister;
         }
 
         public async Task<GetAssetDevelopersResponse> ExecuteAsync(CancellationToken cancellationToken)
         {
-            var developers = await _assetRegionLister.ListDevelopersAsync(cancellationToken).ConfigureAwait(false);
+            var developers = await _assetDeveloperLister.ListDevelopersAsync(cancellationToken).ConfigureAwait(false);
             var response = new GetAssetDevelopersResponse
             {
                 Developers = developers

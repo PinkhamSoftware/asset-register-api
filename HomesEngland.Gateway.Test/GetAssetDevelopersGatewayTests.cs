@@ -31,27 +31,10 @@ namespace HomesEngland.Gateway.Test
             assetRegisterContext.Database.Migrate();
         }
 
-        [TestCase("Developer 1")]
-        [TestCase("Developer 2")]
-        [TestCase("Developer 3")]
-        public async Task GivenAnAssetHasBeenCreated_WhenTheAssetIsReadFromTheGateway_ThenItIsTheSame(string developer)
-        {
-            //arrange 
-            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                await CreateAsset(developer);
-                //act
-                var developers = await _classUnderTest.ListDevelopersAsync(CancellationToken.None).ConfigureAwait(false);
-                //assert
-                developers.Count.Should().Be(1);
-                trans.Dispose();
-            }
-        }
-
         [TestCase("Developer 1", 2)]
         [TestCase("Developer 2", 3)]
         [TestCase("Developer 3", 4)]
-        public async Task GivenThatMultipleAssetsHaveBeenCreated_WhenTheAssetIsReadFromTheGateway_ThenItIsTheSame(string developer, int count)
+        public async Task GivenThatMultipleAssetsHaveBeenCreatedWithIdenticalDevelopers_WhenWeListAssets_ThenWeGetTheDistinctCount(string developer, int count)
         {
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -71,7 +54,7 @@ namespace HomesEngland.Gateway.Test
         [TestCase("Developer 1", 2)]
         [TestCase("Developer 2", 3)]
         [TestCase("Developer 3", 4)]
-        public async Task GivenThatMultipleAssetsHaveBeenCreated_WhenWeListDevelopers_ThenItIsTheSame(string developer, int count)
+        public async Task GivenThatMultipleAssetsHaveBeenCreatedWithDifferentDevelopers_WhenWeListDevelopers_ThenWeGetTheCorrectCount(string developer, int count)
         {
             //arrange 
             using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
