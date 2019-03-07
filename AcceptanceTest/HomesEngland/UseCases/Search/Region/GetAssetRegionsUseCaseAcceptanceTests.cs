@@ -81,13 +81,6 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search.Region
             }
         }
 
-        private void ExpectFoundAssetIsEqual(SearchAssetResponse foundAsset, CreateAssetResponse createdAsset)
-        {
-            foundAsset.Should().NotBeNull();
-            foundAsset.Assets.Should().NotBeNullOrEmpty();
-            foundAsset.Assets.ElementAt(0).AssetOutputModelIsEqual(createdAsset.Asset);
-        }
-
         private CreateAssetRequest CreateAsset( string region)
         {
             CreateAssetRequest createAssetRequest = TestData.UseCase.GenerateCreateAssetRequest();

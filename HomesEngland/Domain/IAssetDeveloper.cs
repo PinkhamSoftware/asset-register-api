@@ -1,6 +1,6 @@
 ﻿namespace HomesEngland.Domain
 {
-    public interface IAssetRegion
+    public interface IAssetDeveloper
     {
         string Name { get; set; }
     }

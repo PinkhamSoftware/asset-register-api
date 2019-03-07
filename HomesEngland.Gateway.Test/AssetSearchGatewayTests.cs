@@ -136,10 +136,18 @@ namespace HomesEngland.Gateway.Test
                 entity.SchemeId = schemeId;
             if (!string.IsNullOrEmpty(address))
                 entity.Address = address;
-            if (!string.IsNullOrEmpty(region))
-            {
+            if (!string.IsNullOrEmpty(region)) 
                 entity.ImsOldRegion = region;
-            }
+            return entity;
+        }
+
+        private IAsset CreateAssetWithDeveloper(int? schemeId, string developer = null)
+        {
+            IAsset entity = TestData.Domain.GenerateAsset();
+            if (schemeId.HasValue)
+                entity.SchemeId = schemeId;
+            if (!string.IsNullOrEmpty(developer) && !string.IsNullOrWhiteSpace(developer))
+                entity.DevelopingRslName = developer;
             return entity;
         }
 
@@ -598,6 +606,100 @@ namespace HomesEngland.Gateway.Test
                 var assetSearch = new AssetPagedSearchQuery
                 {
                     Region = searchRegion,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
+                };
+                //act
+                var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
+                //assert
+                assets.Results.Count.Should().Be(1);
+
+                trans.Dispose();
+            }
+        }
+
+        [TestCase("Developer Meow", 1, 3, 3)]
+        [TestCase("Developer Woof", 2, 3, 2)]
+        [TestCase("Developer Moo", 3, 3, 1)]
+        [TestCase("Developer Cluck", 4, 3, 1)]
+        public async Task GivenMultipleAssetsHaveBeenCreated_WhenWeSearchDeveloperWithPageSize_ReturnCorrectNumberOfPages(string developer, int pageSize, int numberOfAssets, int expectedNumberOfPages)
+        {
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var assets = new List<IAsset>();
+                for (var i = 0; i < numberOfAssets; i++)
+                {
+                    var entity = CreateAssetWithDeveloper(null, developer);
+                    assets.Add(entity);
+                }
+
+                var assetRegisterVersion = await CreateAggregatedAssets(assets)
+                    .ConfigureAwait(false);
+
+                var assetQuery = new AssetPagedSearchQuery
+                {
+                    Developer = developer,
+                    PageSize = pageSize,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
+                };
+
+                var response = await _classUnderTest.Search(assetQuery, CancellationToken.None);
+
+                response.NumberOfPages.Should().Be(expectedNumberOfPages);
+
+                trans.Dispose();
+            }
+        }
+
+        [TestCase("Developer 123", "de")]
+        [TestCase("Developer 123", "Dev")]
+        [TestCase("Developer 123", "Develope")]
+        [TestCase("Developer 123", "loper 12")]
+        public async Task GivenMultiplesAssetsHaveBeenCreatedWithTheSameDeveloper_WhenWeSearch_ThenTheAssetsAreOrderedBySchemeIdDesc(string developer, string searchDeveloper)
+        {
+            //arrange 
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var random = new Random();
+                var randomInt = random.Next();
+                var createdAsset = CreateAssetWithDeveloper(randomInt, developer);
+                var createdAsset2 = CreateAssetWithDeveloper(randomInt + 1, developer);
+                var createdAsset3 = CreateAssetWithDeveloper(randomInt + 2, $"Random {randomInt + 2}");
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset, createdAsset2, createdAsset3 })
+                    .ConfigureAwait(false);
+                //act
+                var assetSearch = new AssetPagedSearchQuery
+                {
+                    Developer = searchDeveloper,
+                    AssetRegisterVersionId = assetRegisterVersion.Id
+                };
+                //act
+                var assets = await _classUnderTest.Search(assetSearch, CancellationToken.None).ConfigureAwait(false);
+                //assert
+                Assert.Greater(assets.Results.ElementAt(0).SchemeId, assets.Results.ElementAt(1).SchemeId);
+
+                trans.Dispose();
+            }
+        }
+
+        [TestCase("Developer 123", "de")]
+        [TestCase("Developer 123", "Dev")]
+        [TestCase("Developer 123", "Develope")]
+        [TestCase("Developer 123", "loper 12")]
+        public async Task GivenAnAssetHasBeenCreatedWithTheSameDeveloper_WhenWeSearch_ThenWeCanFindIt(string developer, string searchDeveloper)
+        {
+            //arrange 
+            using (var trans = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var random = new Random();
+                var randomInt = random.Next();
+                var createdAsset = CreateAssetWithDeveloper(randomInt, developer);
+                var createdAsset2 = CreateAssetWithDeveloper(randomInt, $"Random : {randomInt}");
+                var assetRegisterVersion = await CreateAggregatedAssets(new List<IAsset> { createdAsset, createdAsset2 })
+                    .ConfigureAwait(false);
+                //act
+                var assetSearch = new AssetPagedSearchQuery
+                {
+                    Developer = searchDeveloper,
                     AssetRegisterVersionId = assetRegisterVersion.Id
                 };
                 //act

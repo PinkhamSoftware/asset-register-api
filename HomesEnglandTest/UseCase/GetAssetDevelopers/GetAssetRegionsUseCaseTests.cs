@@ -3,57 +3,55 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using HomesEngland.Domain;
-using HomesEngland.Gateway.AssetRegisterVersions;
-using HomesEngland.Gateway.Assets.Region;
-using HomesEngland.UseCase.GetAssetRegions;
-using HomesEngland.UseCase.GetAssetRegions.Impl;
+using HomesEngland.Gateway.Assets.Developer;
+using HomesEngland.UseCase.GetAssetDevelopers;
+using HomesEngland.UseCase.GetAssetDevelopers.Impl;
 using Moq;
 using NUnit.Framework;
 
-namespace HomesEnglandTest.UseCase.GetAssetRegions
-{
-
+namespace HomesEnglandTest.UseCase.GetAssetDevelopers
+{ 
     [TestFixture]
-    public class GetAssetRegionsUseCaseTests
+    public class GetAssetDevelopersUseCaseTests
     {
-        private IGetAssetRegionsUseCase _classUnderTest;
-        private Mock<IAssetRegionLister> _mockGateway;
+        private IGetAssetDevelopersUseCase _classUnderTest;
+        private Mock<IAssetDeveloperLister> _mockGateway;
 
         [SetUp]
         public void Setup()
         {
-            _mockGateway = new Mock<IAssetRegionLister>();
-            _classUnderTest = new GetAssetRegionsUseCase(_mockGateway.Object);
+            _mockGateway = new Mock<IAssetDeveloperLister>();
+            _classUnderTest = new GetAssetDevelopersUseCase(_mockGateway.Object);
         }
 
         [Test]
         public async Task WhenWeExecute_ThenWeCallGateways()
         {
             //arrange
-            _mockGateway.Setup(s => s.ListRegionsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<AssetRegion>());
+            _mockGateway.Setup(s => s.ListDevelopersAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<AssetDeveloper>());
             //act
             var response = await _classUnderTest.ExecuteAsync(CancellationToken.None)
                 .ConfigureAwait(false);
             //assert
             response.Should().NotBeNull();
-            _mockGateway.Verify(v => v.ListRegionsAsync(It.IsAny<CancellationToken>()));
+            _mockGateway.Verify(v => v.ListDevelopersAsync(It.IsAny<CancellationToken>()));
         }
 
         [Test]
         public async Task GivenTheGatewayReturnsResults_WhenWeExecute_ThenTheResultsAreReturned()
         {
             //arrange
-            _mockGateway.Setup(s => s.ListRegionsAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<AssetRegion>
+            _mockGateway.Setup(s => s.ListDevelopersAsync(It.IsAny<CancellationToken>())).ReturnsAsync(new List<AssetDeveloper>
             {
-                new AssetRegion(),
-                new AssetRegion()
+                new AssetDeveloper(),
+                new AssetDeveloper()
             });
             //act
             var response = await _classUnderTest.ExecuteAsync(CancellationToken.None)
                 .ConfigureAwait(false);
             //assert
             response.Should().NotBeNull();
-            response.Regions.Count.Should().Be(2);
+            response.Developers.Count.Should().Be(2);
         }
     }
 }

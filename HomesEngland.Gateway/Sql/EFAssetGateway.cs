@@ -8,12 +8,14 @@ using HomesEngland.Domain;
 using HomesEngland.Domain.Impl;
 using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.Gateway.Assets;
+using HomesEngland.Gateway.Assets.Developer;
+using HomesEngland.Gateway.Assets.Region;
 using HomesEngland.Gateway.Migrations;
 using Microsoft.EntityFrameworkCore;
 
 namespace HomesEngland.Gateway.Sql
 {
-    public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator, IAssetRegionLister
+    public class EFAssetGateway : IGateway<IAsset, int>, IAssetReader, IAssetCreator, IAssetSearcher, IAssetAggregator, IAssetRegionLister, IAssetDeveloperLister
     {
         private readonly string _databaseUrl; 
 
@@ -90,6 +92,11 @@ namespace HomesEngland.Gateway.Sql
                 queryable = queryable.Where(w => EF.Functions.Like(w.ImsOldRegion.ToLower(), $"%{searchRequest.Region}%".ToLower()));
             }
 
+            if (!string.IsNullOrEmpty(searchRequest.Developer) && !string.IsNullOrWhiteSpace(searchRequest.Developer))
+            {
+                queryable = queryable.Where(w => EF.Functions.Like(w.DevelopingRslName.ToLower(), $"%{searchRequest.Developer}%".ToLower()));
+            }
+
             if (searchRequest.SchemeId.HasValue && searchRequest?.SchemeId.Value > 0)
             {
                 queryable = queryable.Where(w => w.SchemeId.HasValue && w.SchemeId == searchRequest.SchemeId.Value);
@@ -135,6 +142,19 @@ namespace HomesEngland.Gateway.Sql
                 IList<AssetRegion> results = context.Assets.Select(s => new AssetRegion
                 {
                     Name = s.ImsOldRegion
+                }).Distinct().ToList();
+
+                return Task.FromResult(results);
+            }
+        }
+
+        public Task<IList<AssetDeveloper>> ListDevelopersAsync(CancellationToken cancellationToken)
+        {
+            using (var context = new AssetRegisterContext(_databaseUrl))
+            {
+                IList<AssetDeveloper> results = context.Assets.Select(s => new AssetDeveloper
+                {
+                    Name = s.DevelopingRslName
                 }).Distinct().ToList();
 
                 return Task.FromResult(results);

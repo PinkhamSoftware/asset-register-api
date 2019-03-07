@@ -1,7 +1,6 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using HomesEngland.Gateway.AssetRegisterVersions;
+using HomesEngland.Gateway.Assets.Region;
 using HomesEngland.UseCase.GetAssetRegions.Models;
 
 namespace HomesEngland.UseCase.GetAssetRegions.Impl

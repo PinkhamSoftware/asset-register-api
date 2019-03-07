@@ -8,6 +8,7 @@
         public string Address { get; set; }
         public int? AssetRegisterVersionId { get; set; }
         public string Region { get; set; }
+        public string Developer { get; set; }
 
         public SearchAssetRequest()
         {
