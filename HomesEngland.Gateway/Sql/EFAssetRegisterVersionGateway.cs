@@ -7,6 +7,7 @@ using HomesEngland.Domain;
 using HomesEngland.Gateway.AssetRegisterVersions;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.UseCase.CreateAssetRegisterVersion.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace HomesEngland.Gateway.Sql
 {
@@ -33,7 +34,7 @@ namespace HomesEngland.Gateway.Sql
 
             Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Finish Associate Entities with Asset Register Version");
 
-            using (var context = new AssetRegisterContext(_databaseUrl))
+            using (var context = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(_databaseUrl).Options))
             {
                 Console.WriteLine($"{DateTime.UtcNow.TimeOfDay.ToString("g")}: Start Add async");
                 await context.AssetRegisterVersions.AddAsync(assetRegisterVersionEntity).ConfigureAwait(false);
@@ -55,7 +56,7 @@ namespace HomesEngland.Gateway.Sql
 
         public Task<IPagedResults<IAssetRegisterVersion>> Search(IPagedQuery searchRequest, CancellationToken cancellationToken)
         {
-            using (var context = new AssetRegisterContext(_databaseUrl))
+            using (var context = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(_databaseUrl).Options))
             {
                 IQueryable<AssetRegisterVersionEntity> queryable = context.AssetRegisterVersions;
 

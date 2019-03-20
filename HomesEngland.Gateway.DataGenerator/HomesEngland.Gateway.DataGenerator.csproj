@@ -4,7 +4,23 @@
     <OutputType>Exe</OutputType>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <UserSecretsId>9dcc88f8-22e2-47e1-80a0-852e01bcc389</UserSecretsId>    
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="appsettings.Development.json" />
+    <None Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.Development.json">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="appsettings.json">
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentValidation" Version="8.0.101" />

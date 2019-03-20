@@ -3,8 +3,8 @@ using System;
 using HomesEngland.Gateway.Migrations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HomesEngland.Gateway.Migrations
 {
@@ -15,33 +15,39 @@ namespace HomesEngland.Gateway.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
-                .HasAnnotation("ProductVersion", "2.1.4-rtm-31024")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .HasAnnotation("ProductVersion", "2.1.8-servicing-32085")
+                .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
             modelBuilder.Entity("HomesEngland.Gateway.AssetEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
+                        .HasColumnName("id")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<decimal?>("ActualAgencyEquityCostIncludingHomeBuyAgentFee")
-                        .HasColumnName("actualagencyequitycostincludinghomebuyagentfee");
+                        .HasColumnName("actualagencyequitycostincludinghomebuyagentfee")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<string>("Address")
                         .HasColumnName("address");
 
                     b.Property<decimal?>("AgencyEquityLoan")
-                        .HasColumnName("agencyequityloan");
+                        .HasColumnName("agencyequityloan")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("AgencyFairValue")
-                        .HasColumnName("agencyfairvalue");
+                        .HasColumnName("agencyfairvalue")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("AgencyFairValueDifference")
-                        .HasColumnName("agencyfairvaluedifference");
+                        .HasColumnName("agencyfairvaluedifference")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("AgencyPercentage")
-                        .HasColumnName("agencypercentage");
+                        .HasColumnName("agencypercentage")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<string>("ArrearsEffectAppliedOrLimited")
                         .HasColumnName("arrearseffectappliedorlimited");
@@ -61,46 +67,58 @@ namespace HomesEngland.Gateway.Migrations
                         .HasColumnName("completiondateforhpistart");
 
                     b.Property<decimal?>("Deposit")
-                        .HasColumnName("deposit");
+                        .HasColumnName("deposit")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("DeveloperDiscount")
-                        .HasColumnName("developerdiscount");
+                        .HasColumnName("developerdiscount")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("DeveloperEquityLoan")
-                        .HasColumnName("developerequityloan");
+                        .HasColumnName("developerequityloan")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<string>("DevelopingRslName")
                         .HasColumnName("developingrslname");
 
                     b.Property<decimal?>("DisposalMonthSinceCompletion")
-                        .HasColumnName("disposalmonthsincecompletion");
+                        .HasColumnName("disposalmonthsincecompletion")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("DisposalsCost")
-                        .HasColumnName("disposalscost");
+                        .HasColumnName("disposalscost")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("DurationInMonths")
-                        .HasColumnName("durationinmonths");
+                        .HasColumnName("durationinmonths")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("EarlyMortgageIfNeverRepay")
-                        .HasColumnName("earlymortgageifneverrepay");
+                        .HasColumnName("earlymortgageifneverrepay")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<string>("EquityOwner")
                         .HasColumnName("equityowner");
 
                     b.Property<decimal?>("EstimatedSalePrice")
-                        .HasColumnName("estimatedsaleprice");
+                        .HasColumnName("estimatedsaleprice")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("EstimatedValuation")
-                        .HasColumnName("estimatedvaluation");
+                        .HasColumnName("estimatedvaluation")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("ExpectedStaircasingRate")
-                        .HasColumnName("expectedstaircasingrate");
+                        .HasColumnName("expectedstaircasingrate")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("FairValueReserve")
-                        .HasColumnName("fairvaluereserve");
+                        .HasColumnName("fairvaluereserve")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("Fees")
-                        .HasColumnName("fees");
+                        .HasColumnName("fees")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<bool?>("FirstTimeBuyer")
                         .HasColumnName("firsttimebuyer");
@@ -109,16 +127,20 @@ namespace HomesEngland.Gateway.Migrations
                         .HasColumnName("fulldisposaldate");
 
                     b.Property<decimal?>("HPIEnd")
-                        .HasColumnName("hpiend");
+                        .HasColumnName("hpiend")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("HPIPlusMinus")
-                        .HasColumnName("hpiplusminus");
+                        .HasColumnName("hpiplusminus")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("HPIStart")
-                        .HasColumnName("hpistart");
+                        .HasColumnName("hpistart")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("HistoricUnallocatedFees")
-                        .HasColumnName("historicunallocatedfees");
+                        .HasColumnName("historicunallocatedfees")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<DateTime?>("HopCompletionDate")
                         .HasColumnName("hopcompletiondate");
@@ -127,19 +149,23 @@ namespace HomesEngland.Gateway.Migrations
                         .HasColumnName("housetype");
 
                     b.Property<decimal?>("HouseholdFiftyKIncomeBand")
-                        .HasColumnName("householdfiftykincomeband");
+                        .HasColumnName("householdfiftykincomeband")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("HouseholdFiveKIncomeBand")
-                        .HasColumnName("householdfivekincomeband");
+                        .HasColumnName("householdfivekincomeband")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("HouseholdIncome")
-                        .HasColumnName("householdincome");
+                        .HasColumnName("householdincome")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<DateTime?>("IMSPaymentDate")
                         .HasColumnName("imspaymentdate");
 
                     b.Property<decimal?>("ImpairmentProvision")
-                        .HasColumnName("impairmentprovision");
+                        .HasColumnName("impairmentprovision")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<DateTime?>("ImsActualCompletionDate")
                         .HasColumnName("imsactualcompletiondate");
@@ -181,19 +207,23 @@ namespace HomesEngland.Gateway.Migrations
                         .HasColumnName("month");
 
                     b.Property<decimal?>("MonthOfCompletionSinceSchemeStart")
-                        .HasColumnName("monthofcompletionsinceschemestart");
+                        .HasColumnName("monthofcompletionsinceschemestart")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("Mortgage")
-                        .HasColumnName("mortgage");
+                        .HasColumnName("mortgage")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("MortgageEffect")
-                        .HasColumnName("mortgageeffect");
+                        .HasColumnName("mortgageeffect")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<string>("MortgageProvider")
                         .HasColumnName("mortgageprovider");
 
                     b.Property<decimal?>("NewAgencyPercentage")
-                        .HasColumnName("newagencypercentage");
+                        .HasColumnName("newagencypercentage")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<int?>("NoOfBeds")
                         .HasColumnName("noofbeds");
@@ -202,7 +232,8 @@ namespace HomesEngland.Gateway.Migrations
                         .HasColumnName("notlimitedbyfirstcharge");
 
                     b.Property<decimal?>("OriginalAgencyPercentage")
-                        .HasColumnName("originalagencypercentage");
+                        .HasColumnName("originalagencypercentage")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<string>("Programme")
                         .HasColumnName("programme");
@@ -226,28 +257,36 @@ namespace HomesEngland.Gateway.Migrations
                         .HasColumnName("propertytype");
 
                     b.Property<decimal?>("PurchasePrice")
-                        .HasColumnName("purchaseprice");
+                        .HasColumnName("purchaseprice")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("PurchasePriceBand")
-                        .HasColumnName("purchasepriceband");
+                        .HasColumnName("purchasepriceband")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("QuarterSpend")
-                        .HasColumnName("quarterspend");
+                        .HasColumnName("quarterspend")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("RegionalSaleAdjust")
-                        .HasColumnName("regionalsaleadjust");
+                        .HasColumnName("regionalsaleadjust")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("RegionalStairAdjust")
-                        .HasColumnName("regionalstairadjust");
+                        .HasColumnName("regionalstairadjust")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("RelativeSalePropertyTypeAndTenureAdjustment")
-                        .HasColumnName("relativesalepropertytypeandtenureadjustment");
+                        .HasColumnName("relativesalepropertytypeandtenureadjustment")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("RelativeStairPropertyTypeAndTenureAdjustment")
-                        .HasColumnName("relativestairpropertytypeandtenureadjustment");
+                        .HasColumnName("relativestairpropertytypeandtenureadjustment")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("RemainingAgencyCost")
-                        .HasColumnName("remainingagencycost");
+                        .HasColumnName("remainingagencycost")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<int?>("Row")
                         .HasColumnName("row");
@@ -256,16 +295,19 @@ namespace HomesEngland.Gateway.Migrations
                         .HasColumnName("schemeid");
 
                     b.Property<decimal?>("ShareOfRestrictedEquity")
-                        .HasColumnName("shareofrestrictedequity");
+                        .HasColumnName("shareofrestrictedequity")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<decimal?>("StaircasingPercentage")
-                        .HasColumnName("staircasingpercentage");
+                        .HasColumnName("staircasingpercentage")
+                        .HasColumnType("decimal(13,4)");
 
                     b.Property<string>("Tenure")
                         .HasColumnName("tenure");
 
                     b.Property<decimal?>("WAEstimatedPropertyValue")
-                        .HasColumnName("waestimatedpropertyvalue");
+                        .HasColumnName("waestimatedpropertyvalue")
+                        .HasColumnType("decimal(13,4)");
 
                     b.HasKey("Id");
 
@@ -280,7 +322,8 @@ namespace HomesEngland.Gateway.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
+                        .HasColumnName("id")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<DateTime>("ModifiedDateTime")
                         .HasColumnName("modifieddatetime");
@@ -294,7 +337,8 @@ namespace HomesEngland.Gateway.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnName("id");
+                        .HasColumnName("id")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("EmailAddress")
                         .HasColumnName("emailaddress");

@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomesEngland.Gateway.DataGe
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Console Apps", "Console Apps", "{B8854EC7-6476-42D1-B202-D6898E3EB792}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomesEngland.AssetImporter", "HomesEngland.AssetImporter\HomesEngland.AssetImporter.csproj", "{2E40DB0C-7B2C-4A27-940A-7437F549B9BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomesEngland.AssetImporter", "HomesEngland.AssetImporter\HomesEngland.AssetImporter.csproj", "{2E40DB0C-7B2C-4A27-940A-7437F549B9BB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

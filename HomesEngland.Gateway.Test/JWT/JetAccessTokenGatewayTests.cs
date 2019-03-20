@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
@@ -90,8 +90,8 @@ namespace HomesEngland.Gateway.Test.JWT
 
             var validatedToken = ValidateTokenWithSecret(token, secret);
 
-            validatedToken.ValidTo.Should().BeAfter(DateTime.Now.AddHours(7.9));
-            validatedToken.ValidTo.Should().BeBefore(DateTime.Now.AddHours(8.1));
+            validatedToken.ValidTo.Should().BeAfter(DateTime.UtcNow.AddHours(7.9));
+            validatedToken.ValidTo.Should().BeBefore(DateTime.UtcNow.AddHours(8.1));
         }
 
         private static SecurityToken ValidateTokenWithSecret(IAccessToken token, string hmacSecret)

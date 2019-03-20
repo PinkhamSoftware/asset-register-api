@@ -16,7 +16,6 @@ using HomesEngland.Gateway.Migrations;
 using HomesEngland.Gateway.Notifications;
 using HomesEngland.Gateway.Notify;
 using HomesEngland.Gateway.Sql;
-using HomesEngland.Gateway.Sql.Postgres;
 using HomesEngland.UseCase.AuthenticateUser;
 using HomesEngland.UseCase.AuthenticateUser.Impl;
 using HomesEngland.UseCase.CalculateAssetAggregates;
@@ -47,13 +46,28 @@ using HomesEngland.UseCase.SearchAsset.Impl;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using HomesEngland.UseCase.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 
 namespace Main
 {
     public class AssetRegister : DependencyExporter
     {
+        public const string ASSET_REGISTER_DB_CONNECTION_STRING_KEY = "ConnectionStrings:AssetRegisterApiDb";
+
+        public AssetRegister(IConfiguration configuration)
+            : base (configuration)
+        {
+        }
+
         private ServiceProvider _serviceProvider;
 
+        /// <summary>
+        /// These dependencies are local to the asset register service provider.
+        /// They are exported to the WebAPI service provider via Startup.cs.
+        /// Asset Register contains its own service provider for the purpose of integration testing.
+        /// </summary>
         protected override void ConstructHiddenDependencies()
         {
             var serviceCollection = new ServiceCollection();
@@ -66,9 +80,8 @@ namespace Main
 
             ExportSingletonTypeDependencies((type, provider) => serviceCollection.AddTransient(type, provider));
 
-            serviceCollection.AddEntityFrameworkNpgsql().AddDbContext<AssetRegisterContext>();
-
-            
+            serviceCollection.AddEntityFrameworkSqlServer().AddDbContext<AssetRegisterContext>(opts => opts.UseSqlServer(Configuration[ASSET_REGISTER_DB_CONNECTION_STRING_KEY]));
+                        
             serviceCollection.AddHostedService<BackgroundProcessor>();
 
             _serviceProvider = serviceCollection.BuildServiceProvider();
@@ -76,35 +89,34 @@ namespace Main
 
         protected override void RegisterAllExportedDependencies()
         {
-            var databaseUrl = System.Environment.GetEnvironmentVariable("DATABASE_URL");
-            RegisterExportedDependency<IDatabaseConnectionStringFormatter, PostgresDatabaseConnectionStringFormatter>();
-            RegisterExportedDependency<IDatabaseConnectionFactory, PostgresDatabaseConnectionFactory>();
-            RegisterExportedDependency<IDbConnection>(() =>
-                new PostgresDatabaseConnectionFactory(new PostgresDatabaseConnectionStringFormatter()).Create(
-                    databaseUrl));
+            var connectionString = Configuration[ASSET_REGISTER_DB_CONNECTION_STRING_KEY];
             RegisterExportedDependency<IGetAssetUseCase, GetAssetUseCase>();
-            RegisterExportedDependency<IAssetReader>(() => new EFAssetGateway(databaseUrl));
-            RegisterExportedDependency<AssetRegisterContext>(() => new AssetRegisterContext(databaseUrl));
+            RegisterExportedDependency<IAssetReader>(() => new EFAssetGateway(connectionString));
+            RegisterExportedDependency<AssetRegisterContext>(() =>
+            {
+                var options = new DbContextOptionsBuilder<AssetRegisterContext>();
+                options.UseSqlServer(connectionString);
+                return new AssetRegisterContext(options.Options);
+            });
             RegisterExportedDependency<ISearchAssetUseCase, SearchAssetUseCase>();
-            RegisterExportedDependency<IAssetSearcher>(() => new EFAssetGateway(databaseUrl));
-            RegisterExportedDependency<IAssetCreator>(() => new EFAssetGateway(databaseUrl));
-            RegisterExportedDependency<IGateway<IAsset, int>>(() => new EFAssetGateway(databaseUrl));
+            RegisterExportedDependency<IAssetSearcher>(() => new EFAssetGateway(connectionString));
+            RegisterExportedDependency<IAssetCreator>(() => new EFAssetGateway(connectionString));
+            RegisterExportedDependency<IGateway<IAsset, int>>(() => new EFAssetGateway(connectionString));
             RegisterExportedDependency<ICreateAssetUseCase, CreateAssetUseCase>();
             RegisterExportedDependency<IGenerateAssetsUseCase, GenerateAssetsUseCase>();
             RegisterExportedDependency<IConsoleGenerator, ConsoleAssetGenerator>();
             RegisterExportedDependency<IInputParser<GenerateAssetsRequest>, InputParser>();
             RegisterExportedDependency<IAuthenticateUser, AuthenticateUserUseCase>();
             RegisterExportedDependency<IOneTimeAuthenticationTokenCreator>(() =>
-                new EFAuthenticationTokenGateway(databaseUrl));
+                new EFAuthenticationTokenGateway(connectionString));
             RegisterExportedDependency<IOneTimeAuthenticationTokenReader>(() =>
-                new EFAuthenticationTokenGateway(databaseUrl));
+                new EFAuthenticationTokenGateway(connectionString));
             RegisterExportedDependency<IOneTimeAuthenticationTokenDeleter>(() =>
-                new EFAuthenticationTokenGateway(databaseUrl));
+                new EFAuthenticationTokenGateway(connectionString));
             RegisterExportedDependency<IOneTimeLinkNotifier, GovNotifyNotificationsGateway>();
             RegisterExportedDependency<IAssetRegisterUploadProcessedNotifier, GovNotifyNotificationsGateway>();
             RegisterExportedDependency<IAccessTokenCreator, JwtAccessTokenGateway>();
             RegisterExportedDependency<IGetAccessToken, GetAccessTokenUseCase>();
-
 
             ILoggerFactory loggerFactory = new LoggerFactory()
                 .AddConsole()
@@ -123,21 +135,21 @@ namespace Main
             RegisterExportedDependency<IInputParser<ImportAssetConsoleInput>, ImportAssetInputParser>();
             RegisterExportedDependency<IFactory<CreateAssetRequest, CsvAsset>, CreateAssetRequestFactory>();
             RegisterExportedDependency<ICalculateAssetAggregatesUseCase, CalculateAssetAggregatesUseCase>();
-            RegisterExportedDependency<IAssetAggregator>(() => new EFAssetGateway(databaseUrl));
+            RegisterExportedDependency<IAssetAggregator>(() => new EFAssetGateway(connectionString));
 
             RegisterExportedDependency<ICreateAssetRegisterVersionUseCase, CreateAssetRegisterVersionUseCase>();
             RegisterExportedDependency<IAssetRegisterVersionCreator>(() =>
-                new EFAssetRegisterVersionGateway(databaseUrl));
+                new EFAssetRegisterVersionGateway(connectionString));
             RegisterExportedDependency<IGetAssetRegisterVersionsUseCase, GetAssetRegisterVersionsUseCase>();
-            RegisterExportedDependency<IAssetRegisterVersionSearcher>(() => new EFAssetRegisterVersionGateway(databaseUrl));
+            RegisterExportedDependency<IAssetRegisterVersionSearcher>(() => new EFAssetRegisterVersionGateway(connectionString));
 
             RegisterExportedSingletonDependency<IBackgroundProcessor, BackgroundProcessor>();
 
-            RegisterExportedDependency<IAssetRegionLister>(() => new EFAssetGateway(databaseUrl));
+            RegisterExportedDependency<IAssetRegionLister>(() => new EFAssetGateway(connectionString));
 
             RegisterExportedDependency<IGetAssetRegionsUseCase, GetAssetRegionsUseCase>();
 
-            RegisterExportedDependency<IAssetDeveloperLister>(() => new EFAssetGateway(databaseUrl));
+            RegisterExportedDependency<IAssetDeveloperLister>(() => new EFAssetGateway(connectionString));
             RegisterExportedDependency<IGetAssetDevelopersUseCase, GetAssetDevelopersUseCase>();
         }
 

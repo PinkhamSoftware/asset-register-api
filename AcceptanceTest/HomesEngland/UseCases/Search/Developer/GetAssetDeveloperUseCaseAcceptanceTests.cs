@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -9,6 +10,7 @@ using HomesEngland.UseCase.CreateAssetRegisterVersion;
 using HomesEngland.UseCase.GetAssetDevelopers;
 using Main;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using TestHelper;
 
@@ -22,7 +24,9 @@ namespace AssetRegisterTests.HomesEngland.UseCases.Search.Developer
 
         public GetAssetDeveloperUseCaseAcceptanceTests()
         {
-            var assetRegister = new AssetRegister();
+            IConfigurationRoot configuration = ConfigurationHelper.GetIConfigurationRoot(Directory.GetCurrentDirectory());
+
+            var assetRegister = new AssetRegister(configuration);
 
             _createAssetRegisterVersionUseCase = assetRegister.Get<ICreateAssetRegisterVersionUseCase>();
             _classUnderTest = assetRegister.Get<IGetAssetDevelopersUseCase>();

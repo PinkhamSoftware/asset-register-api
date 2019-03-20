@@ -21,6 +21,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using NUnit.Framework;
 using WebApi.Controllers;
+using Microsoft.Extensions.Configuration;
+using TestHelper;
 
 namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
 {
@@ -52,7 +54,9 @@ namespace AssetRegisterTests.HomesEngland.Controller.AssetRegisterVersions.Post
             _govNotifySimulator.Start();
             _govNotifySimulator.Post("/v2/notifications/email").Responds("{}");
 
-            var assetRegister = new AssetRegister();
+            IConfigurationRoot configuration = ConfigurationHelper.GetIConfigurationRoot(Directory.GetCurrentDirectory());
+
+            var assetRegister = new AssetRegister(configuration);
             var importUseCase = assetRegister.Get<IImportAssetsUseCase>();
             var textSplitter = assetRegister.Get<ITextSplitter>();
             var getAssetRegisterVersionUseCase = assetRegister.Get<IGetAssetRegisterVersionsUseCase>();

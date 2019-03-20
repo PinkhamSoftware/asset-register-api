@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using HomesEngland.Gateway.Migrations;
 using HomesEngland.Gateway.Sql;
 using HomesEngland.UseCase.CreateAssetRegisterVersion.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using TestHelper;
 
@@ -24,12 +26,14 @@ namespace HomesEngland.Gateway.Test
 
         public BulkAssetCreatorTests()
         {
-            var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-            var assetGateway = new EFAssetGateway(databaseUrl);
-            _classUnderTest = new EFAssetRegisterVersionGateway(databaseUrl);
+            var assetRegisterConfiguration = ConfigurationHelper.GetAssetRegisterApiConfiguration(Directory.GetCurrentDirectory());
+            var connectionString = assetRegisterConfiguration.ConnectionStrings.AssetRegisterApiDb;
+
+            var assetGateway = new EFAssetGateway(connectionString);
+            _classUnderTest = new EFAssetRegisterVersionGateway(connectionString);
             _gateway = assetGateway;
 
-            var assetRegisterContext = new AssetRegisterContext(databaseUrl);
+            var assetRegisterContext = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(connectionString).Options);
             assetRegisterContext.Database.Migrate();
         }
 

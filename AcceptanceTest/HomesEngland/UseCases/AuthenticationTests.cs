@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -14,8 +15,10 @@ using HomesEngland.UseCase.AuthenticateUser.Models;
 using HomesEngland.UseCase.GetAccessToken;
 using HomesEngland.UseCase.GetAccessToken.Models;
 using Main;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using NUnit.Framework;
+using TestHelper;
 
 namespace AssetRegisterTests.HomesEngland.UseCases
 {
@@ -28,7 +31,9 @@ namespace AssetRegisterTests.HomesEngland.UseCases
 
         public AuthenticationTests()
         {
-            var assetRegister = new AssetRegister();
+            IConfigurationRoot configuration = ConfigurationHelper.GetIConfigurationRoot(Directory.GetCurrentDirectory());
+
+            var assetRegister = new AssetRegister(configuration);
             _authenticateUser = assetRegister.Get<IAuthenticateUser>();
             _getAccessToken = assetRegister.Get<IGetAccessToken>();
         }

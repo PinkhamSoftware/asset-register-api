@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
@@ -15,13 +16,17 @@ namespace DependencyInjection
 
         private readonly Dictionary<Type, Func<object>> _singletonDependencies;
         private readonly Dictionary<Type, Type> _singletonTypeDependencies;
+
+        protected IConfiguration Configuration { get; private set; }
+
         [SuppressMessage("ReSharper", "VirtualMemberCallInConstructor")]
-        protected DependencyExporter()
+        protected DependencyExporter(IConfiguration configuration)
         {
+            Configuration = configuration;
             _dependencies = new Dictionary<Type,Func<object>>();
             _typeDependencies = new Dictionary<Type, Type>();
             _singletonTypeDependencies = new Dictionary<Type, Type>();
-            _singletonDependencies = new Dictionary<Type, Func<object>>(); 
+            _singletonDependencies = new Dictionary<Type, Func<object>>();
 
             RegisterAllExportedDependencies();
             ConstructHiddenDependencies();

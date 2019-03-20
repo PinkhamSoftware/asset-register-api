@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using HomesEngland.Domain;
 using HomesEngland.Gateway.Migrations;
+using Microsoft.EntityFrameworkCore;
 
 namespace HomesEngland.Gateway.Sql
 {
@@ -19,7 +20,7 @@ namespace HomesEngland.Gateway.Sql
         {
             var tokenEntity = new AuthenticationTokenEntity(token);
 
-            using (var context = new AssetRegisterContext(_databaseUrl))
+            using (var context = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(_databaseUrl).Options))
             {
                 context.Add(tokenEntity);
                 context.SaveChanges();
@@ -31,7 +32,7 @@ namespace HomesEngland.Gateway.Sql
 
         public Task<IAuthenticationToken> ReadAsync(string token, CancellationToken cancellationToken)
         {
-            using (var context = new AssetRegisterContext(_databaseUrl))
+            using (var context = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(_databaseUrl).Options))
             {
                 IAuthenticationToken foundToken = context.AuthenticationTokens.FirstOrDefault(t => t.Token == token);
                 return Task.FromResult(foundToken);
@@ -40,7 +41,7 @@ namespace HomesEngland.Gateway.Sql
 
         public Task DeleteAsync(string token, CancellationToken cancellationToken)
         {
-            using (var context = new AssetRegisterContext(_databaseUrl))
+            using (var context = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(_databaseUrl).Options))
             {
                 AuthenticationTokenEntity foundToken = context.AuthenticationTokens.First(t => t.Token == token);
                 context.AuthenticationTokens.Remove(foundToken);

@@ -28,7 +28,7 @@ namespace HomesEngland.Gateway.Sql
         {
             var assetEntity = new AssetEntity(entity);
 
-            using (var context = new AssetRegisterContext(_databaseUrl))
+            using (var context = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(_databaseUrl).Options))
             {
                 context.Add(assetEntity);
                 context.SaveChanges();
@@ -40,7 +40,7 @@ namespace HomesEngland.Gateway.Sql
 
         public Task<IAsset> ReadAsync(int index)
         {
-            using (var context = new AssetRegisterContext(_databaseUrl))
+            using (var context = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(_databaseUrl).Options))
             {
                 context.ChangeTracker.AutoDetectChangesEnabled = false;
                 IAsset entity = context.Assets.Find(index);
@@ -51,7 +51,7 @@ namespace HomesEngland.Gateway.Sql
 
         public Task<IPagedResults<IAsset>> Search(IAssetPagedSearchQuery searchRequest, CancellationToken cancellationToken)
         {
-            using (var context = new AssetRegisterContext(_databaseUrl))
+            using (var context = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(_databaseUrl).Options))
             {
                 var queryable = GenerateFilteringCriteria(context, searchRequest);
 
@@ -109,7 +109,7 @@ namespace HomesEngland.Gateway.Sql
 
         public Task<IAssetAggregation> Aggregate(IAssetSearchQuery searchRequest, CancellationToken cancellationToken)
         {
-            using (var context = new AssetRegisterContext(_databaseUrl))
+            using (var context = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(_databaseUrl).Options))
             {
                 var filteringCriteria = GenerateFilteringCriteria(context, searchRequest);
 
@@ -137,7 +137,7 @@ namespace HomesEngland.Gateway.Sql
 
         public Task<IList<AssetRegion>> ListRegionsAsync(CancellationToken cancellationToken)
         {
-            using (var context = new AssetRegisterContext(_databaseUrl))
+            using (var context = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(_databaseUrl).Options))
             {
                 IList<AssetRegion> results = context.Assets.Select(s => new AssetRegion
                 {
@@ -150,7 +150,7 @@ namespace HomesEngland.Gateway.Sql
 
         public Task<IList<AssetDeveloper>> ListDevelopersAsync(CancellationToken cancellationToken)
         {
-            using (var context = new AssetRegisterContext(_databaseUrl))
+            using (var context = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(_databaseUrl).Options))
             {
                 IList<AssetDeveloper> results = context.Assets.Select(s => new AssetDeveloper
                 {

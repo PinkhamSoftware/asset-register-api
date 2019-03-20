@@ -61,7 +61,8 @@ namespace WebApi
                 options.Filters.Add(new AuthorizeFilter(policy));
             }).AddCsvSerializerFormatters(GetCsvOptions());
 
-            var assetRegister = new AssetRegister();
+            var assetRegister = new AssetRegister(Configuration);
+
             assetRegister.ExportDependencies((type, provider) => services.AddTransient(type, _ => provider()));
 
             assetRegister.ExportTypeDependencies((type, provider) => services.AddTransient(type, provider));
@@ -72,11 +73,10 @@ namespace WebApi
 
             services.ConfigureDocumentation(_apiName);
 
-
             services
-                .AddEntityFrameworkNpgsql()
-                .AddDbContext<AssetRegisterContext>();
-
+                .AddEntityFrameworkSqlServer()
+                .AddDbContext<AssetRegisterContext>(opts => opts.UseSqlServer(Configuration["ConnectionStrings:AssetRegisterApiDb"]));
+            
             AssetRegisterContext assetRegisterContext =
                 services.BuildServiceProvider().GetService<AssetRegisterContext>();
             assetRegisterContext.Database.Migrate();

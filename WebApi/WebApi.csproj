@@ -5,6 +5,7 @@
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <AssemblyName>web-api</AssemblyName>
     <RootNamespace>WebApi</RootNamespace>
+    <UserSecretsId>9dcc88f8-22e2-47e1-80a0-852e01bcc389</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

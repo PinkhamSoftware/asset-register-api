@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -10,6 +11,7 @@ using HomesEngland.UseCase.SearchAsset;
 using HomesEngland.UseCase.SearchAsset.Models;
 using Main;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 using TestHelper;
 
@@ -23,8 +25,10 @@ namespace AssetRegisterTests.HomesEngland.DataGenerator
 
         public ConsoleGeneratorAcceptanceTests()
         {
-            var assetRegister = new AssetRegister();
-            
+            IConfigurationRoot configuration = ConfigurationHelper.GetIConfigurationRoot(Directory.GetCurrentDirectory());
+
+            var assetRegister = new AssetRegister(configuration);
+
             _classUnderTest = assetRegister.Get<IConsoleGenerator>();
             _searchAssetUseCase = assetRegister.Get<ISearchAssetUseCase>();
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
@@ -8,7 +9,9 @@ using HomesEngland.Domain;
 using HomesEngland.Gateway.Migrations;
 using HomesEngland.Gateway.Sql;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
+using TestHelper;
 
 namespace HomesEngland.Gateway.Test
 {
@@ -19,12 +22,14 @@ namespace HomesEngland.Gateway.Test
 
         public EFAuthenticationTokenGatewayTests()
         {
-            var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
-            var gateway = new EFAuthenticationTokenGateway(databaseUrl);
+            var assetRegisterConfiguration = ConfigurationHelper.GetAssetRegisterApiConfiguration(Directory.GetCurrentDirectory());
+            var connectionString = assetRegisterConfiguration.ConnectionStrings.AssetRegisterApiDb;
+
+            var gateway = new EFAuthenticationTokenGateway(connectionString);
 
             _classUnderTest = gateway;
 
-            var assetRegisterContext = new AssetRegisterContext(databaseUrl);
+            var assetRegisterContext = new AssetRegisterContext(new DbContextOptionsBuilder<AssetRegisterContext>().UseSqlServer(connectionString).Options);
             assetRegisterContext.Database.Migrate();
         }
 

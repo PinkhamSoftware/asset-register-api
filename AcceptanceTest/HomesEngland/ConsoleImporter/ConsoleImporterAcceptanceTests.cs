@@ -6,7 +6,9 @@ using HomesEngland.Gateway.Migrations;
 using HomesEngland.UseCase.ImportAssets;
 using Main;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
+using TestHelper;
 
 namespace AssetRegisterTests.HomesEngland.ConsoleImporter
 {
@@ -17,7 +19,9 @@ namespace AssetRegisterTests.HomesEngland.ConsoleImporter
         [SetUp]
         public void Setup()
         {
-            var assetRegister = new AssetRegister();
+            IConfigurationRoot configuration = ConfigurationHelper.GetIConfigurationRoot(Directory.GetCurrentDirectory());
+
+            var assetRegister = new AssetRegister(configuration);
             _classUnderTest = assetRegister.Get<IConsoleImporter>();
 
             var context = assetRegister.Get<AssetRegisterContext>();

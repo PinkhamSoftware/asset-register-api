@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using HomesEngland.Gateway.Sql.Postgres;
+/*using HomesEngland.Gateway.Sql.Postgres;
 using NUnit.Framework;
 
 namespace HomesEngland.Gateway.Test
@@ -25,4 +25,4 @@ namespace HomesEngland.Gateway.Test
             connection.Should().BeEquivalentTo($"Server={server};Port={port};User Id={userId};Password={password};Database={database};SSL Mode=Prefer;");
         }
     }
-}
+}*/
